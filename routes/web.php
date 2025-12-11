@@ -11,6 +11,7 @@ use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\FinanceController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -34,6 +35,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('stock-movements', [StockMovementController::class, 'index'])->name('stock-movements.index');
     Route::post('stock-movements', [StockMovementController::class, 'store'])->name('stock-movements.store');
+
+    Route::get('finances', [FinanceController::class, 'index'])->name('finances.index');
+    Route::post('finances/income', [FinanceController::class, 'storeIncome'])->name('finances.income.store');
+    Route::post('finances/expense', [FinanceController::class, 'storeExpense'])->name('finances.expense.store');
+    Route::post('finances/cash/open', [FinanceController::class, 'openCash'])->name('finances.cash.open');
+    Route::post('finances/cash/close', [FinanceController::class, 'closeCash'])->name('finances.cash.close');
+    Route::get('finances/export', [FinanceController::class, 'export'])->name('finances.export');
 
     Route::get('pos', [PosController::class, 'index'])->name('pos.index');
     Route::post('pos/cart', [PosController::class, 'addToCart'])->name('pos.cart.add');
