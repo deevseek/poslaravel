@@ -1,0 +1,32 @@
+<nav class="bg-white border-b border-gray-200">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 justify-between">
+            <div class="flex items-center gap-3 md:hidden">
+                <x-application-logo class="h-10 w-10" />
+                <div class="leading-tight">
+                    <p class="text-sm text-gray-500">POS Dealer</p>
+                    <p class="text-lg font-semibold text-gray-900">Komputer & Service</p>
+                </div>
+            </div>
+
+            <div class="flex items-center">
+                <div class="hidden space-x-8 md:-my-px md:ml-10 md:flex">
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                        Dashboard
+                    </x-nav-link>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="text-right">
+                    <p class="text-sm font-semibold text-gray-900">{{ auth()->user()->name }}</p>
+                    <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
+                </div>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <x-secondary-button type="submit">Logout</x-secondary-button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
