@@ -7,6 +7,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\ServiceController;
@@ -29,6 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('services', ServiceController::class);
     Route::post('services/{service}/status', [ServiceController::class, 'updateStatus'])->name('services.status');
     Route::post('services/{service}/items', [ServiceController::class, 'addItem'])->name('services.items.store');
+    Route::resource('purchases', PurchaseController::class)->only(['index', 'store']);
 
     Route::get('stock-movements', [StockMovementController::class, 'index'])->name('stock-movements.index');
     Route::post('stock-movements', [StockMovementController::class, 'store'])->name('stock-movements.store');
