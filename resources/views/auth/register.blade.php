@@ -1,4 +1,9 @@
 <x-guest-layout>
+    <div class="space-y-2 text-center">
+        <h2 class="text-xl font-semibold text-gray-900">Buat akun baru</h2>
+        <p class="text-sm text-gray-600">Daftar untuk mulai menggunakan POS dealer komputer & layanan service.</p>
+    </div>
+
     <form method="POST" action="{{ route('register') }}" class="space-y-6">
         @csrf
 

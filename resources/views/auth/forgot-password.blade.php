@@ -1,6 +1,9 @@
 <x-guest-layout>
-    <div class="text-sm text-gray-600">
-        Lupa password? Masukkan email Anda untuk mendapatkan tautan reset password.
+    <div class="space-y-2">
+        <h2 class="text-xl font-semibold text-gray-900">Lupa password?</h2>
+        <p class="text-sm text-gray-600">Masukkan email terdaftar dan kami akan mengirimkan tautan untuk mengatur ulang password Anda.</p>
+
+        <x-auth-session-status class="text-green-700" :status="session('status')" />
     </div>
 
     <form method="POST" action="{{ route('password.email') }}" class="mt-6 space-y-6">
