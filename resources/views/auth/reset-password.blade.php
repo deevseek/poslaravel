@@ -1,4 +1,9 @@
 <x-guest-layout>
+    <div class="space-y-2 text-center">
+        <h2 class="text-xl font-semibold text-gray-900">Atur ulang password</h2>
+        <p class="text-sm text-gray-600">Masukkan email dan password baru untuk mengamankan akun Anda.</p>
+    </div>
+
     <form method="POST" action="{{ route('password.store') }}" class="space-y-6">
         @csrf
         <input type="hidden" name="token" value="{{ $request->route('token') }}">

@@ -1,4 +1,9 @@
 <x-guest-layout>
+    <div class="space-y-2 text-center">
+        <h2 class="text-xl font-semibold text-gray-900">Masuk ke akun Anda</h2>
+        <p class="text-sm text-gray-600">Gunakan email dan password terdaftar untuk mengakses dashboard.</p>
+    </div>
+
     <form method="POST" action="{{ route('login') }}" class="space-y-6">
         @csrf
 
