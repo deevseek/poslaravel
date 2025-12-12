@@ -7,10 +7,13 @@ use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Service;
 use App\Models\ServiceItem;
+use App\Models\Setting;
 use App\Models\StockMovement;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
+use App\Models\WaTemplate;
 use App\Models\Warranty;
+use App\Services\WhatsAppService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +22,10 @@ use Illuminate\View\View;
 
 class ServiceController extends Controller
 {
+    public function __construct(private WhatsAppService $whatsAppService)
+    {
+    }
+
     public function index(): View
     {
         $services = Service::with('customer')->latest()->paginate(10);
@@ -139,14 +146,17 @@ class ServiceController extends Controller
             'status' => ['required', 'in:' . implode(',', Service::STATUSES)],
         ]);
 
+        $statusChanged = false;
+
         try {
-            DB::transaction(function () use ($validated, $service) {
+            DB::transaction(function () use (&$statusChanged, $validated, $service) {
                 if ($service->status === $validated['status']) {
                     return;
                 }
 
                 $service->update(['status' => $validated['status']]);
                 $service->addLog('Status diubah menjadi ' . $validated['status']);
+                $statusChanged = true;
 
                 if ($validated['status'] === Service::STATUS_SELESAI) {
                     $this->createServiceWarranty($service);
@@ -158,6 +168,10 @@ class ServiceController extends Controller
             });
         } catch (ValidationException $exception) {
             return back()->withErrors($exception->errors());
+        }
+
+        if ($statusChanged) {
+            $this->sendServiceStatusNotification($service->fresh(['customer']));
         }
 
         return back()->with('success', 'Status service diperbarui.');
@@ -250,7 +264,36 @@ class ServiceController extends Controller
     {
         $date = now()->format('Ymd');
         $count = Transaction::whereDate('created_at', now()->toDateString())->count() + 1;
+        $prefix = Setting::getValue(Setting::TRANSACTION_PREFIX, 'SRV');
+        $padding = (int) Setting::getValue(Setting::TRANSACTION_PADDING, 4);
 
-        return 'SRV-' . $date . '-' . str_pad((string) $count, 4, '0', STR_PAD_LEFT);
+        return $prefix . '-' . $date . '-' . str_pad((string) $count, $padding, '0', STR_PAD_LEFT);
+    }
+
+    protected function sendServiceStatusNotification(Service $service): void
+    {
+        $customer = $service->customer;
+
+        if (! $customer || ! $customer->phone) {
+            return;
+        }
+
+        $template = WaTemplate::where('code', 'service_' . $service->status)
+            ->where('is_active', true)
+            ->first();
+
+        if (! $template) {
+            return;
+        }
+
+        $storeName = Setting::getValue(Setting::STORE_NAME, config('app.name'));
+
+        $message = str_replace(
+            ['{{nama}}', '{{device}}', '{{status}}', '{{nama_toko}}'],
+            [$customer->name, $service->device, $service->status, $storeName],
+            $template->message
+        );
+
+        $this->whatsAppService->sendMessage($customer->phone, $message, 'service');
     }
 }
