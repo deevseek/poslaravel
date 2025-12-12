@@ -17,11 +17,17 @@ class PurchaseController extends Controller
 {
     public function index(): View
     {
-        $suppliers = Supplier::orderBy('name')->get();
-        $products = Product::orderBy('name')->get();
         $purchases = Purchase::with(['supplier', 'items.product'])->latest()->paginate(10);
 
-        return view('purchases.index', compact('suppliers', 'products', 'purchases'));
+        return view('purchases.index', compact('purchases'));
+    }
+
+    public function create(): View
+    {
+        $suppliers = Supplier::orderBy('name')->get();
+        $products = Product::orderBy('name')->get();
+
+        return view('purchases.create', compact('suppliers', 'products'));
     }
 
     public function store(Request $request): RedirectResponse
