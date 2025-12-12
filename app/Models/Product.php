@@ -14,6 +14,7 @@ class Product extends Model
         'category_id',
         'name',
         'sku',
+        'cost_price',
         'price',
         'stock',
         'warranty_days',
@@ -22,6 +23,7 @@ class Product extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
+        'cost_price' => 'decimal:2',
         'stock' => 'integer',
         'warranty_days' => 'integer',
     ];

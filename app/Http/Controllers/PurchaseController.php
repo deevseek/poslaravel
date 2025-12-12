@@ -17,11 +17,17 @@ class PurchaseController extends Controller
 {
     public function index(): View
     {
-        $suppliers = Supplier::orderBy('name')->get();
-        $products = Product::orderBy('name')->get();
         $purchases = Purchase::with(['supplier', 'items.product'])->latest()->paginate(10);
 
-        return view('purchases.index', compact('suppliers', 'products', 'purchases'));
+        return view('purchases.index', compact('purchases'));
+    }
+
+    public function create(): View
+    {
+        $suppliers = Supplier::orderBy('name')->get();
+        $products = Product::orderBy('name')->get();
+
+        return view('purchases.create', compact('suppliers', 'products'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -59,6 +65,8 @@ class PurchaseController extends Controller
             ]);
 
             $items->each(function ($item) use ($purchase) {
+                $product = Product::lockForUpdate()->findOrFail($item['product_id']);
+
                 $purchaseItem = PurchaseItem::create([
                     'purchase_id' => $purchase->id,
                     'product_id' => $item['product_id'],
@@ -67,12 +75,22 @@ class PurchaseController extends Controller
                     'subtotal' => $item['subtotal'],
                 ]);
 
-                StockMovement::create([
-                    'product_id' => $purchaseItem->product_id,
-                    'type' => StockMovement::TYPE_IN,
-                    'quantity' => $purchaseItem->quantity,
-                    'note' => 'Pembelian ' . $purchase->invoice_number,
-                ]);
+                $product->stock += $purchaseItem->quantity;
+                $product->cost_price = $product->cost_price > 0
+                    ? ($product->cost_price + $purchaseItem->price) / 2
+                    : $purchaseItem->price;
+                $product->save();
+
+                StockMovement::withoutEvents(function () use ($purchase, $purchaseItem) {
+                    StockMovement::create([
+                        'product_id' => $purchaseItem->product_id,
+                        'type' => StockMovement::TYPE_IN,
+                        'source' => 'purchase',
+                        'reference' => $purchase->id,
+                        'quantity' => $purchaseItem->quantity,
+                        'note' => 'Pembelian Supplier - ' . $purchase->invoice_number,
+                    ]);
+                });
             });
         });
 

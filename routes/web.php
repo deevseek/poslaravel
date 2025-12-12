@@ -73,6 +73,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::controller(PurchaseController::class)->group(function () {
         Route::get('purchases', 'index')->name('purchases.index')->middleware('permission:purchase.view');
+        Route::get('purchases/create', 'create')->name('purchases.create')->middleware('permission:purchase.create');
         Route::post('purchases', 'store')->name('purchases.store')->middleware('permission:purchase.create');
     });
 
