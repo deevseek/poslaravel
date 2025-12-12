@@ -17,13 +17,13 @@
                 @include('layouts.navigation')
 
                 <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
-                    @isset($header)
+                    @hasSection('header')
                         <header class="border-b border-gray-200 pb-4">
-                            {{ $header }}
+                            @yield('header')
                         </header>
-                    @endisset
+                    @endhasSection
 
-                    {{ $slot }}
+                    @yield('content')
                 </main>
             </div>
         </div>
