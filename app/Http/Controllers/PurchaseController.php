@@ -75,22 +75,20 @@ class PurchaseController extends Controller
                     'subtotal' => $item['subtotal'],
                 ]);
 
-                $product->stock += $purchaseItem->quantity;
                 $product->cost_price = $product->cost_price > 0
                     ? ($product->cost_price + $purchaseItem->price) / 2
                     : $purchaseItem->price;
+
                 $product->save();
 
-                StockMovement::withoutEvents(function () use ($purchase, $purchaseItem) {
-                    StockMovement::create([
-                        'product_id' => $purchaseItem->product_id,
-                        'type' => StockMovement::TYPE_IN,
-                        'source' => 'purchase',
-                        'reference' => $purchase->id,
-                        'quantity' => $purchaseItem->quantity,
-                        'note' => 'Pembelian Supplier - ' . $purchase->invoice_number,
-                    ]);
-                });
+                StockMovement::create([
+                    'product_id' => $purchaseItem->product_id,
+                    'type' => StockMovement::TYPE_IN,
+                    'source' => 'purchase',
+                    'reference' => $purchase->id,
+                    'quantity' => $purchaseItem->quantity,
+                    'note' => 'Pembelian Supplier - ' . $purchase->invoice_number,
+                ]);
             });
         });
 
