@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
+use App\Models\Setting;
 use App\Models\StockMovement;
 use App\Models\Supplier;
 use Illuminate\Http\RedirectResponse;
@@ -80,9 +81,11 @@ class PurchaseController extends Controller
 
     protected function generateInvoiceNumber(): string
     {
-        $prefix = 'PB-' . now()->format('Ymd');
+        $prefix = Setting::getValue(Setting::TRANSACTION_PREFIX, 'PB');
+        $date = now()->format('Ymd');
         $countToday = Purchase::whereDate('created_at', now()->toDateString())->count() + 1;
+        $padding = (int) Setting::getValue(Setting::TRANSACTION_PADDING, 4);
 
-        return $prefix . '-' . str_pad((string) $countToday, 4, '0', STR_PAD_LEFT);
+        return $prefix . '-' . $date . '-' . str_pad((string) $countToday, $padding, '0', STR_PAD_LEFT);
     }
 }

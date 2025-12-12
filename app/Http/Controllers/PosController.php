@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Product;
+use App\Models\Setting;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
 use App\Models\Warranty;
@@ -229,7 +230,10 @@ class PosController extends Controller
         $date = now()->format('Ymd');
         $count = Transaction::whereDate('created_at', now()->toDateString())->count() + 1;
 
-        return 'INV-'.$date.'-'.str_pad((string) $count, 4, '0', STR_PAD_LEFT);
+        $prefix = Setting::getValue(Setting::TRANSACTION_PREFIX, 'INV');
+        $padding = (int) Setting::getValue(Setting::TRANSACTION_PADDING, 4);
+
+        return $prefix . '-' . $date . '-' . str_pad((string) $count, $padding, '0', STR_PAD_LEFT);
     }
 
     protected function createProductWarranty(Transaction $transaction, Product $product, int $quantity): void

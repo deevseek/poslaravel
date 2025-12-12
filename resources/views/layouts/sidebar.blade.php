@@ -39,6 +39,10 @@
             <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">💰</span>
             <span>Keuangan</span>
         </a>
+        <a href="{{ route('settings.index') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-blue-50 {{ request()->routeIs('settings.*') ? 'bg-blue-50 text-blue-700' : 'text-gray-700' }}">
+            <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">⚙️</span>
+            <span>Pengaturan</span>
+        </a>
 
         <div class="pt-2">
             <p class="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">Garansi</p>
@@ -53,6 +57,22 @@
             <a href="{{ route('warranties.reminder') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-blue-50 {{ request()->routeIs('warranties.reminder') ? 'bg-blue-50 text-blue-700' : 'text-gray-700' }}">
                 <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">⏰</span>
                 <span>Reminder Garansi</span>
+            </a>
+        </div>
+
+        <div class="pt-2">
+            <p class="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">WhatsApp</p>
+            <a href="{{ route('wa.broadcast') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-blue-50 {{ request()->routeIs('wa.broadcast') ? 'bg-blue-50 text-blue-700' : 'text-gray-700' }}">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">📣</span>
+                <span>Broadcast</span>
+            </a>
+            <a href="{{ route('wa-templates.index') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-blue-50 {{ request()->routeIs('wa-templates.*') ? 'bg-blue-50 text-blue-700' : 'text-gray-700' }}">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">🧩</span>
+                <span>Template Pesan</span>
+            </a>
+            <a href="{{ route('wa.logs') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-blue-50 {{ request()->routeIs('wa.logs') ? 'bg-blue-50 text-blue-700' : 'text-gray-700' }}">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">📜</span>
+                <span>Log Pengiriman</span>
             </a>
         </div>
     </nav>

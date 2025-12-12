@@ -14,6 +14,9 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\WarrantyClaimController;
 use App\Http\Controllers\WarrantyController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\WaBroadcastController;
+use App\Http\Controllers\WaTemplateController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -25,6 +28,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::post('settings', [SettingController::class, 'update'])->name('settings.update');
 
     Route::resource('customers', CustomerController::class);
     Route::resource('suppliers', SupplierController::class);
@@ -56,6 +62,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('pos/cart/{product}', [PosController::class, 'removeFromCart'])->name('pos.cart.remove');
     Route::post('pos/checkout', [PosController::class, 'checkout'])->name('pos.checkout');
     Route::get('pos/transactions/{transaction}/receipt', [PosController::class, 'receipt'])->name('pos.receipt');
+
+    Route::resource('wa-templates', WaTemplateController::class);
+    Route::get('wa/broadcast', [WaBroadcastController::class, 'index'])->name('wa.broadcast');
+    Route::post('wa/broadcast', [WaBroadcastController::class, 'send'])->name('wa.broadcast.send');
+    Route::get('wa/logs', [WaBroadcastController::class, 'logs'])->name('wa.logs');
 });
 
 require __DIR__.'/auth.php';
