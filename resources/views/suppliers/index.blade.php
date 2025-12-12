@@ -4,10 +4,12 @@
             <h1 class="text-2xl font-semibold text-gray-900">Suppliers</h1>
             <p class="text-gray-600">Kelola pemasok barang dan layanan.</p>
         </div>
-        <a href="{{ route('suppliers.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">
-            ➕
-            <span>Tambah Supplier</span>
-        </a>
+        @permission('supplier.manage')
+            <a href="{{ route('suppliers.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">
+                ➕
+                <span>Tambah Supplier</span>
+            </a>
+        @endpermission
     </div>
 
     @if (session('success'))
@@ -24,7 +26,9 @@
                     <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Kontak</th>
                     <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Email</th>
                     <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Telepon</th>
-                    <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">Aksi</th>
+                    @permission('supplier.manage')
+                        <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">Aksi</th>
+                    @endpermission
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 bg-white">
@@ -34,17 +38,19 @@
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $supplier->contact_person ?? '-' }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $supplier->email ?? '-' }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $supplier->phone ?? '-' }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">
-                            <div class="flex items-center justify-end gap-2">
-                                <a href="{{ route('suppliers.show', $supplier) }}" class="rounded-lg border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50">Detail</a>
-                                <a href="{{ route('suppliers.edit', $supplier) }}" class="rounded-lg border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50">Edit</a>
-                                <form action="{{ route('suppliers.destroy', $supplier) }}" method="POST" onsubmit="return confirm('Hapus supplier ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="rounded-lg border border-red-200 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-50">Hapus</button>
-                                </form>
-                            </div>
-                        </td>
+                        @permission('supplier.manage')
+                            <td class="px-6 py-4 text-sm text-gray-600">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a href="{{ route('suppliers.show', $supplier) }}" class="rounded-lg border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50">Detail</a>
+                                    <a href="{{ route('suppliers.edit', $supplier) }}" class="rounded-lg border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50">Edit</a>
+                                    <form action="{{ route('suppliers.destroy', $supplier) }}" method="POST" onsubmit="return confirm('Hapus supplier ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="rounded-lg border border-red-200 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-50">Hapus</button>
+                                    </form>
+                                </div>
+                            </td>
+                        @endpermission
                     </tr>
                 @empty
                     <tr>
