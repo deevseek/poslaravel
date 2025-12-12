@@ -141,12 +141,20 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $adminUser = User::firstOrCreate(
             ['email' => 'admin@pos.com'],
-            ['name' => 'Administrator', 'password' => Hash::make('password')]
+            [
+                'name' => 'Administrator',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
         );
 
         $ownerUser = User::firstOrCreate(
             ['email' => 'owner@pos.com'],
-            ['name' => 'Owner', 'password' => Hash::make('password')]
+            [
+                'name' => 'Owner',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
         );
 
         $adminUser->roles()->syncWithoutDetaching([$adminRoleId]);
