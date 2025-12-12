@@ -1,9 +1,18 @@
-<x-app-layout title="Pembelian">
+@extends('layouts.app')
+
+@section('content')
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-2xl font-semibold text-gray-900">Pembelian dari Supplier</h1>
             <p class="text-gray-600">Catat pembelian, tambah stok otomatis, dan pantau status pembayaran.</p>
         </div>
+
+        @can('purchase.create')
+            <a href="#purchase-form"
+                class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">
+                Tambah Pembelian
+            </a>
+        @endcan
     </div>
 
     @if (session('success'))
@@ -18,10 +27,8 @@
         </div>
     @endif
 
-    @php($canCreatePurchase = auth()->user()?->hasAnyPermission('purchase.create'))
-
-    <div class="grid gap-6 lg:grid-cols-{{ $canCreatePurchase ? '3' : '1' }}">
-        @permission('purchase.create')
+    <div class="grid gap-6 @can('purchase.create') lg:grid-cols-3 @else lg:grid-cols-1 @endcan">
+        @can('purchase.create')
             <div class="lg:col-span-1 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 <h2 class="text-lg font-semibold text-gray-900">Form Input Pembelian</h2>
                 <p class="text-sm text-gray-600 mb-4">Masukkan detail pembelian dari supplier.</p>
@@ -134,7 +141,7 @@
                     </div>
                 </form>
             </div>
-        @endpermission
+        @endcan
 
         <div class="lg:col-span-2 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
             <div class="flex items-center justify-between mb-4">
@@ -175,7 +182,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">Belum ada pembelian tercatat.</td>
+                                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">Belum ada data.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -243,4 +250,4 @@
             });
         });
     </script>
-</x-app-layout>
+@endsection
