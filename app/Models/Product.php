@@ -16,6 +16,8 @@ class Product extends Model
         'sku',
         'cost_price',
         'price',
+        'pricing_mode',
+        'margin_percentage',
         'stock',
         'warranty_days',
         'description',
@@ -24,9 +26,13 @@ class Product extends Model
     protected $casts = [
         'price' => 'decimal:2',
         'cost_price' => 'decimal:2',
+        'margin_percentage' => 'decimal:2',
         'stock' => 'integer',
         'warranty_days' => 'integer',
     ];
+
+    public const PRICING_MODE_MANUAL = 'manual';
+    public const PRICING_MODE_PERCENTAGE = 'percentage';
 
     public function category()
     {
@@ -41,6 +47,11 @@ class Product extends Model
     public function transactionItems()
     {
         return $this->hasMany(TransactionItem::class);
+    }
+
+    public static function calculateSellingPrice(float $costPrice, float $marginPercentage): float
+    {
+        return round($costPrice + ($costPrice * $marginPercentage / 100), 2);
     }
 
     public static function generateSku(Category $category): string

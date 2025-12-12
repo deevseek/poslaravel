@@ -7,13 +7,24 @@ use App\Models\Product;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class ProductController extends Controller
 {
     public function index(): View
     {
-        $products = Product::select(['id', 'category_id', 'sku', 'name', 'stock', 'cost_price', 'price'])
+        $products = Product::select([
+            'id',
+            'category_id',
+            'sku',
+            'name',
+            'stock',
+            'cost_price',
+            'price',
+            'pricing_mode',
+            'margin_percentage',
+        ])
             ->with('category')
             ->latest()
             ->paginate(10);
@@ -34,7 +45,16 @@ class ProductController extends Controller
             'category_id' => ['required', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:255'],
             'sku' => ['nullable', 'string', 'max:255', 'unique:products,sku'],
-            'price' => ['required', 'numeric', 'min:0'],
+            'cost_price' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                Rule::requiredIf($request->input('pricing_mode') === Product::PRICING_MODE_PERCENTAGE),
+                Rule::when($request->input('pricing_mode') === Product::PRICING_MODE_PERCENTAGE, ['gt:0']),
+            ],
+            'price' => ['required_if:pricing_mode,' . Product::PRICING_MODE_MANUAL, 'nullable', 'numeric', 'min:0'],
+            'pricing_mode' => ['required', 'in:' . implode(',', [Product::PRICING_MODE_MANUAL, Product::PRICING_MODE_PERCENTAGE])],
+            'margin_percentage' => ['required_if:pricing_mode,' . Product::PRICING_MODE_PERCENTAGE, 'nullable', 'numeric', 'min:0'],
             'stock' => ['required', 'integer', 'min:0'],
             'warranty_days' => ['nullable', 'integer', 'min:0'],
             'description' => ['nullable', 'string'],
@@ -46,6 +66,8 @@ class ProductController extends Controller
         if ($shouldGenerateSku) {
             $validated['sku'] = Product::generateSku($category);
         }
+
+        $validated = $this->applyPricingRules($validated);
 
         $attempts = 0;
 
@@ -88,11 +110,22 @@ class ProductController extends Controller
         $validated = $request->validate([
             'category_id' => ['required', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:255'],
-            'price' => ['required', 'numeric', 'min:0'],
+            'cost_price' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                Rule::requiredIf($request->input('pricing_mode') === Product::PRICING_MODE_PERCENTAGE),
+                Rule::when($request->input('pricing_mode') === Product::PRICING_MODE_PERCENTAGE, ['gt:0']),
+            ],
+            'price' => ['required_if:pricing_mode,' . Product::PRICING_MODE_MANUAL, 'nullable', 'numeric', 'min:0'],
+            'pricing_mode' => ['required', 'in:' . implode(',', [Product::PRICING_MODE_MANUAL, Product::PRICING_MODE_PERCENTAGE])],
+            'margin_percentage' => ['required_if:pricing_mode,' . Product::PRICING_MODE_PERCENTAGE, 'nullable', 'numeric', 'min:0'],
             'stock' => ['required', 'integer', 'min:0'],
             'warranty_days' => ['nullable', 'integer', 'min:0'],
             'description' => ['nullable', 'string'],
         ]);
+
+        $validated = $this->applyPricingRules($validated);
 
         $product->update($validated);
 
@@ -109,5 +142,21 @@ class ProductController extends Controller
     private function isUniqueConstraintViolation(QueryException $exception): bool
     {
         return $exception->getCode() === '23000';
+    }
+
+    private function applyPricingRules(array $validated): array
+    {
+        $validated['cost_price'] = $validated['cost_price'] ?? 0;
+
+        if ($validated['pricing_mode'] === Product::PRICING_MODE_MANUAL) {
+            $validated['margin_percentage'] = null;
+        } else {
+            $validated['price'] = Product::calculateSellingPrice(
+                (float) $validated['cost_price'],
+                (float) $validated['margin_percentage']
+            );
+        }
+
+        return $validated;
     }
 }
