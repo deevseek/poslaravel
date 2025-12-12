@@ -12,7 +12,27 @@ class PermissionMiddleware
     {
         $user = $request->user();
 
-        if (!$user || !$user->hasPermission($permissions)) {
+        $requireAny = false;
+        $permissionList = collect($permissions)
+            ->flatMap(function (string $permission) use (&$requireAny) {
+                if (str_contains($permission, '|')) {
+                    $requireAny = true;
+
+                    return explode('|', $permission);
+                }
+
+                return [$permission];
+            })
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $hasPermission = $requireAny
+            ? $user?->hasAnyPermission($permissionList)
+            : $user?->hasPermission($permissionList);
+
+        if (!$user || !$hasPermission) {
             abort(403, 'Unauthorized');
         }
 

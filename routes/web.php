@@ -23,50 +23,113 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/dashboard', DashboardController::class)
+        ->middleware('permission:dashboard.view')
+        ->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
-    Route::post('settings', [SettingController::class, 'update'])->name('settings.update');
+    Route::get('settings', [SettingController::class, 'index'])
+        ->middleware('permission:settings.view')
+        ->name('settings.index');
+    Route::post('settings', [SettingController::class, 'update'])
+        ->middleware('permission:settings.update')
+        ->name('settings.update');
 
-    Route::resource('customers', CustomerController::class);
-    Route::resource('suppliers', SupplierController::class);
-    Route::resource('categories', CategoryController::class);
-    Route::resource('products', ProductController::class);
-    Route::resource('services', ServiceController::class);
-    Route::post('services/{service}/status', [ServiceController::class, 'updateStatus'])->name('services.status');
-    Route::post('services/{service}/items', [ServiceController::class, 'addItem'])->name('services.items.store');
-    Route::resource('purchases', PurchaseController::class)->only(['index', 'store']);
+    Route::resource('customers', CustomerController::class)->middleware('permission:customer.manage');
+    Route::resource('suppliers', SupplierController::class)->middleware('permission:supplier.manage');
 
-    Route::get('stock-movements', [StockMovementController::class, 'index'])->name('stock-movements.index');
-    Route::post('stock-movements', [StockMovementController::class, 'store'])->name('stock-movements.store');
+    Route::controller(CategoryController::class)->group(function () {
+        Route::get('categories', 'index')->name('categories.index')->middleware('permission:inventory.view');
+        Route::get('categories/create', 'create')->name('categories.create')->middleware('permission:inventory.update');
+        Route::post('categories', 'store')->name('categories.store')->middleware('permission:inventory.update');
+        Route::get('categories/{category}', 'show')->name('categories.show')->middleware('permission:inventory.view');
+        Route::get('categories/{category}/edit', 'edit')->name('categories.edit')->middleware('permission:inventory.update');
+        Route::put('categories/{category}', 'update')->name('categories.update')->middleware('permission:inventory.update');
+        Route::delete('categories/{category}', 'destroy')->name('categories.destroy')->middleware('permission:inventory.update');
+    });
 
-    Route::get('finances', [FinanceController::class, 'index'])->name('finances.index');
-    Route::post('finances/income', [FinanceController::class, 'storeIncome'])->name('finances.income.store');
-    Route::post('finances/expense', [FinanceController::class, 'storeExpense'])->name('finances.expense.store');
-    Route::post('finances/cash/open', [FinanceController::class, 'openCash'])->name('finances.cash.open');
-    Route::post('finances/cash/close', [FinanceController::class, 'closeCash'])->name('finances.cash.close');
-    Route::get('finances/export', [FinanceController::class, 'export'])->name('finances.export');
+    Route::controller(ProductController::class)->group(function () {
+        Route::get('products', 'index')->name('products.index')->middleware('permission:inventory.view');
+        Route::get('products/create', 'create')->name('products.create')->middleware('permission:inventory.create');
+        Route::post('products', 'store')->name('products.store')->middleware('permission:inventory.create');
+        Route::get('products/{product}', 'show')->name('products.show')->middleware('permission:inventory.view');
+        Route::get('products/{product}/edit', 'edit')->name('products.edit')->middleware('permission:inventory.update');
+        Route::put('products/{product}', 'update')->name('products.update')->middleware('permission:inventory.update');
+        Route::delete('products/{product}', 'destroy')->name('products.destroy')->middleware('permission:inventory.update');
+    });
 
-    Route::get('warranties/reminders', [WarrantyController::class, 'reminder'])->name('warranties.reminder');
-    Route::resource('warranties', WarrantyController::class);
-    Route::post('warranties/{warranty}/claims', [WarrantyClaimController::class, 'store'])->name('warranty-claims.store');
-    Route::put('warranty-claims/{warrantyClaim}', [WarrantyClaimController::class, 'update'])->name('warranty-claims.update');
+    Route::controller(ServiceController::class)->group(function () {
+        Route::get('services', 'index')->name('services.index')->middleware('permission:service.access');
+        Route::get('services/create', 'create')->name('services.create')->middleware('permission:service.create');
+        Route::post('services', 'store')->name('services.store')->middleware('permission:service.create');
+        Route::get('services/{service}', 'show')->name('services.show')->middleware('permission:service.access');
+        Route::put('services/{service}', 'update')->name('services.update')->middleware('permission:service.create');
+        Route::post('services/{service}/status', 'updateStatus')->name('services.status')->middleware('permission:service.update_status');
+        Route::post('services/{service}/items', 'addItem')->name('services.items.store')->middleware('permission:service.add_sparepart');
+    });
 
-    Route::get('pos', [PosController::class, 'index'])->name('pos.index');
-    Route::post('pos/cart', [PosController::class, 'addToCart'])->name('pos.cart.add');
-    Route::patch('pos/cart/{product}', [PosController::class, 'updateCart'])->name('pos.cart.update');
-    Route::delete('pos/cart/{product}', [PosController::class, 'removeFromCart'])->name('pos.cart.remove');
-    Route::post('pos/checkout', [PosController::class, 'checkout'])->name('pos.checkout');
-    Route::get('pos/transactions/{transaction}/receipt', [PosController::class, 'receipt'])->name('pos.receipt');
+    Route::controller(PurchaseController::class)->group(function () {
+        Route::get('purchases', 'index')->name('purchases.index')->middleware('permission:purchase.view');
+        Route::post('purchases', 'store')->name('purchases.store')->middleware('permission:purchase.create');
+    });
 
-    Route::resource('wa-templates', WaTemplateController::class);
-    Route::get('wa/broadcast', [WaBroadcastController::class, 'index'])->name('wa.broadcast');
-    Route::post('wa/broadcast', [WaBroadcastController::class, 'send'])->name('wa.broadcast.send');
-    Route::get('wa/logs', [WaBroadcastController::class, 'logs'])->name('wa.logs');
+    Route::get('stock-movements', [StockMovementController::class, 'index'])
+        ->middleware('permission:inventory.view')
+        ->name('stock-movements.index');
+    Route::post('stock-movements', [StockMovementController::class, 'store'])
+        ->middleware('permission:inventory.adjust_stock')
+        ->name('stock-movements.store');
+
+    Route::controller(FinanceController::class)->group(function () {
+        Route::get('finances', 'index')->name('finances.index')->middleware('permission:finance.view');
+        Route::post('finances/income', 'storeIncome')->name('finances.income.store')->middleware('permission:finance.create_income');
+        Route::post('finances/expense', 'storeExpense')->name('finances.expense.store')->middleware('permission:finance.create_expense');
+        Route::post('finances/cash/open', 'openCash')->name('finances.cash.open')->middleware('permission:finance.create_income');
+        Route::post('finances/cash/close', 'closeCash')->name('finances.cash.close')->middleware('permission:finance.close_cash');
+        Route::get('finances/export', 'export')->name('finances.export')->middleware('permission:finance.report');
+    });
+
+    Route::get('warranties/reminders', [WarrantyController::class, 'reminder'])
+        ->middleware('permission:warranty.view')
+        ->name('warranties.reminder');
+    Route::controller(WarrantyController::class)->group(function () {
+        Route::get('warranties', 'index')->name('warranties.index')->middleware('permission:warranty.view');
+        Route::get('warranties/create', 'create')->name('warranties.create')->middleware('permission:warranty.claim');
+        Route::post('warranties', 'store')->name('warranties.store')->middleware('permission:warranty.claim');
+        Route::get('warranties/{warranty}', 'show')->name('warranties.show')->middleware('permission:warranty.view');
+        Route::get('warranties/{warranty}/edit', 'edit')->name('warranties.edit')->middleware('permission:warranty.approve');
+        Route::put('warranties/{warranty}', 'update')->name('warranties.update')->middleware('permission:warranty.approve');
+        Route::delete('warranties/{warranty}', 'destroy')->name('warranties.destroy')->middleware('permission:warranty.approve');
+    });
+    Route::post('warranties/{warranty}/claims', [WarrantyClaimController::class, 'store'])
+        ->middleware('permission:warranty.claim')
+        ->name('warranty-claims.store');
+    Route::put('warranty-claims/{warrantyClaim}', [WarrantyClaimController::class, 'update'])
+        ->middleware('permission:warranty.approve')
+        ->name('warranty-claims.update');
+
+    Route::controller(PosController::class)->group(function () {
+        Route::get('pos', 'index')->name('pos.index')->middleware('permission:pos.access');
+        Route::post('pos/cart', 'addToCart')->name('pos.cart.add')->middleware('permission:pos.create');
+        Route::patch('pos/cart/{product}', 'updateCart')->name('pos.cart.update')->middleware('permission:pos.create');
+        Route::delete('pos/cart/{product}', 'removeFromCart')->name('pos.cart.remove')->middleware('permission:pos.create');
+        Route::post('pos/checkout', 'checkout')->name('pos.checkout')->middleware('permission:pos.create');
+        Route::get('pos/transactions/{transaction}/receipt', 'receipt')->name('pos.receipt')->middleware('permission:pos.print');
+    });
+
+    Route::resource('wa-templates', WaTemplateController::class)->middleware('permission:whatsapp.template_manage');
+    Route::get('wa/broadcast', [WaBroadcastController::class, 'index'])
+        ->middleware('permission:whatsapp.broadcast')
+        ->name('wa.broadcast');
+    Route::post('wa/broadcast', [WaBroadcastController::class, 'send'])
+        ->middleware('permission:whatsapp.broadcast')
+        ->name('wa.broadcast.send');
+    Route::get('wa/logs', [WaBroadcastController::class, 'logs'])
+        ->middleware('permission:whatsapp.log_view')
+        ->name('wa.logs');
 });
 
 require __DIR__.'/auth.php';

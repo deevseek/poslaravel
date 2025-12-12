@@ -65,12 +65,19 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->roles()->whereIn('slug', $roles)->exists();
     }
 
+    public function hasAnyPermission(string|array $permissions): bool
+    {
+        $permissions = is_array($permissions) ? $permissions : [$permissions];
+        $userPermissions = $this->allPermissions()->pluck('slug');
+
+        return collect($permissions)->some(fn (string $permission) => $userPermissions->contains($permission));
+    }
+
     public function hasPermission(string|array $permissions): bool
     {
         $permissions = is_array($permissions) ? $permissions : [$permissions];
+        $userPermissions = $this->allPermissions()->pluck('slug');
 
-        return $this->roles()->whereHas('permissions', function ($query) use ($permissions) {
-            $query->whereIn('slug', $permissions);
-        })->exists();
+        return collect($permissions)->every(fn (string $permission) => $userPermissions->contains($permission));
     }
 }
