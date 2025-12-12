@@ -17,13 +17,21 @@
                 @include('layouts.navigation')
 
                 <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
-                    @hasSection('header')
+                    @isset($header)
+                        <header class="border-b border-gray-200 pb-4">
+                            {{ $header }}
+                        </header>
+                    @elseif(View::hasSection('header'))
                         <header class="border-b border-gray-200 pb-4">
                             @yield('header')
                         </header>
                     @endif
 
-                    @yield('content')
+                    @isset($slot)
+                        {{ $slot }}
+                    @else
+                        @yield('content')
+                    @endisset
                 </main>
             </div>
         </div>
