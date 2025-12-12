@@ -75,8 +75,12 @@ class PurchaseController extends Controller
                     'subtotal' => $item['subtotal'],
                 ]);
 
-                $product->cost_price = $product->cost_price > 0
-                    ? ($product->cost_price + $purchaseItem->price) / 2
+                $currentStock = $product->stock;
+                $existingCostPrice = $product->cost_price ?? 0;
+                $newStockTotal = $currentStock + $purchaseItem->quantity;
+
+                $product->cost_price = $newStockTotal > 0
+                    ? (($currentStock * $existingCostPrice) + ($purchaseItem->quantity * $purchaseItem->price)) / $newStockTotal
                     : $purchaseItem->price;
 
                 $product->save();

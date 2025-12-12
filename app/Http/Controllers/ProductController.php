@@ -13,7 +13,10 @@ class ProductController extends Controller
 {
     public function index(): View
     {
-        $products = Product::with('category')->latest()->paginate(10);
+        $products = Product::select(['id', 'category_id', 'sku', 'name', 'stock', 'cost_price', 'price'])
+            ->with('category')
+            ->latest()
+            ->paginate(10);
 
         return view('products.index', compact('products'));
     }
