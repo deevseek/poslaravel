@@ -59,6 +59,8 @@ class PurchaseController extends Controller
             ]);
 
             $items->each(function ($item) use ($purchase) {
+                $product = Product::lockForUpdate()->findOrFail($item['product_id']);
+
                 $purchaseItem = PurchaseItem::create([
                     'purchase_id' => $purchase->id,
                     'product_id' => $item['product_id'],
@@ -67,11 +69,19 @@ class PurchaseController extends Controller
                     'subtotal' => $item['subtotal'],
                 ]);
 
+                $product->cost_price = $product->cost_price > 0
+                    ? ($product->cost_price + $purchaseItem->price) / 2
+                    : $purchaseItem->price;
+
+                $product->save();
+
                 StockMovement::create([
                     'product_id' => $purchaseItem->product_id,
                     'type' => StockMovement::TYPE_IN,
+                    'source' => 'purchase',
+                    'reference' => $purchase->id,
                     'quantity' => $purchaseItem->quantity,
-                    'note' => 'Pembelian ' . $purchase->invoice_number,
+                    'note' => 'Pembelian Supplier - ' . $purchase->invoice_number,
                 ]);
             });
         });
