@@ -20,8 +20,9 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700" for="sku">SKU</label>
-                    <input type="text" id="sku" name="sku" value="{{ old('sku', $product->sku) }}" required
-                        class="mt-2 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <input type="text" id="sku" name="sku" value="{{ old('sku', $product->sku) }}" readonly
+                        class="mt-2 w-full rounded-lg border-gray-300 bg-gray-100 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <p class="mt-1 text-sm text-gray-500">SKU tidak dapat diubah.</p>
                     @error('sku')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror

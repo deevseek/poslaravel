@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -29,14 +30,36 @@ class ProductController extends Controller
         $validated = $request->validate([
             'category_id' => ['required', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:255'],
-            'sku' => ['required', 'string', 'max:255', 'unique:products,sku'],
+            'sku' => ['nullable', 'string', 'max:255', 'unique:products,sku'],
             'price' => ['required', 'numeric', 'min:0'],
             'stock' => ['required', 'integer', 'min:0'],
             'warranty_days' => ['nullable', 'integer', 'min:0'],
             'description' => ['nullable', 'string'],
         ]);
 
-        Product::create($validated);
+        $category = Category::findOrFail($validated['category_id']);
+        $shouldGenerateSku = !$request->filled('sku');
+
+        if ($shouldGenerateSku) {
+            $validated['sku'] = Product::generateSku($category);
+        }
+
+        $attempts = 0;
+
+        while (true) {
+            try {
+                Product::create($validated);
+                break;
+            } catch (QueryException $exception) {
+                if ($shouldGenerateSku && $this->isUniqueConstraintViolation($exception) && $attempts < 3) {
+                    $validated['sku'] = Product::generateSku($category);
+                    $attempts++;
+                    continue;
+                }
+
+                throw $exception;
+            }
+        }
 
         return redirect()->route('products.index')->with('success', 'Produk berhasil ditambahkan.');
     }
@@ -62,7 +85,6 @@ class ProductController extends Controller
         $validated = $request->validate([
             'category_id' => ['required', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:255'],
-            'sku' => ['required', 'string', 'max:255', 'unique:products,sku,' . $product->id],
             'price' => ['required', 'numeric', 'min:0'],
             'stock' => ['required', 'integer', 'min:0'],
             'warranty_days' => ['nullable', 'integer', 'min:0'],
@@ -79,5 +101,10 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('products.index')->with('success', 'Produk berhasil dihapus.');
+    }
+
+    private function isUniqueConstraintViolation(QueryException $exception): bool
+    {
+        return $exception->getCode() === '23000';
     }
 }
