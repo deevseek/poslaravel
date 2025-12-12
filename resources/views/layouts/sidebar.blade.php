@@ -39,5 +39,21 @@
             <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">💰</span>
             <span>Keuangan</span>
         </a>
+
+        <div class="pt-2">
+            <p class="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">Garansi</p>
+            <a href="{{ route('warranties.index') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-blue-50 {{ request()->routeIs('warranties.index') ? 'bg-blue-50 text-blue-700' : 'text-gray-700' }}">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">🛡️</span>
+                <span>Daftar Garansi</span>
+            </a>
+            <a href="{{ route('warranties.create') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-blue-50 {{ request()->routeIs('warranties.create') ? 'bg-blue-50 text-blue-700' : 'text-gray-700' }}">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">📝</span>
+                <span>Klaim Garansi</span>
+            </a>
+            <a href="{{ route('warranties.reminder') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-blue-50 {{ request()->routeIs('warranties.reminder') ? 'bg-blue-50 text-blue-700' : 'text-gray-700' }}">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">⏰</span>
+                <span>Reminder Garansi</span>
+            </a>
+        </div>
     </nav>
 </aside>

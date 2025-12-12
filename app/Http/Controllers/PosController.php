@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
+use App\Models\Warranty;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -31,6 +33,7 @@ class PosController extends Controller
             'products' => $products,
             'cartItems' => $cartItems,
             'subtotal' => $subtotal,
+            'customers' => Customer::orderBy('name')->get(),
             'paymentMethods' => [
                 'cash' => 'Tunai',
                 'transfer' => 'Transfer',
@@ -117,6 +120,7 @@ class PosController extends Controller
             'discount' => 'nullable|numeric|min:0',
             'payment_method' => 'required|in:cash,transfer,e-wallet',
             'paid_amount' => 'required|numeric|min:0',
+            'customer_id' => 'nullable|exists:customers,id',
         ]);
 
         $discount = min($validated['discount'] ?? 0, $subtotal);
@@ -133,6 +137,7 @@ class PosController extends Controller
             $transaction = DB::transaction(function () use ($cartItems, $discount, $subtotal, $total, $validated, $paidAmount) {
                 $transaction = Transaction::create([
                     'invoice_number' => $this->generateInvoiceNumber(),
+                    'customer_id' => $validated['customer_id'] ?? null,
                     'subtotal' => $subtotal,
                     'discount' => $discount,
                     'total' => $total,
@@ -161,6 +166,8 @@ class PosController extends Controller
                         'discount' => 0,
                     ]);
 
+                    $this->createProductWarranty($transaction, $product, $item['quantity']);
+
                     $product->decrement('stock', $item['quantity']);
                 }
 
@@ -177,7 +184,7 @@ class PosController extends Controller
 
     public function receipt(Transaction $transaction)
     {
-        $transaction->load('items.product');
+        $transaction->load(['items.product', 'customer']);
 
         return view('pos.receipt', [
             'transaction' => $transaction,
@@ -223,5 +230,22 @@ class PosController extends Controller
         $count = Transaction::whereDate('created_at', now()->toDateString())->count() + 1;
 
         return 'INV-'.$date.'-'.str_pad((string) $count, 4, '0', STR_PAD_LEFT);
+    }
+
+    protected function createProductWarranty(Transaction $transaction, Product $product, int $quantity): void
+    {
+        if (($product->warranty_days ?? 0) <= 0) {
+            return;
+        }
+
+        Warranty::create([
+            'type' => Warranty::TYPE_PRODUCT,
+            'reference_id' => $transaction->id,
+            'customer_id' => $transaction->customer_id,
+            'start_date' => now()->toDateString(),
+            'end_date' => now()->addDays($product->warranty_days)->toDateString(),
+            'description' => 'Garansi produk ' . $product->name . ' (Qty: ' . $quantity . ')',
+            'status' => Warranty::STATUS_ACTIVE,
+        ]);
     }
 }

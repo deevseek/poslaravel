@@ -59,6 +59,15 @@
                         @enderror
                     </div>
                 </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700" for="warranty_days">Masa Garansi (hari)</label>
+                    <input type="number" id="warranty_days" name="warranty_days" value="{{ old('warranty_days', 0) }}" min="0"
+                        class="mt-2 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    @error('warranty_days')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             <div>

@@ -10,6 +10,7 @@ use App\Models\ServiceItem;
 use App\Models\StockMovement;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
+use App\Models\Warranty;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -39,6 +40,7 @@ class ServiceController extends Controller
             'device' => ['required', 'string', 'max:255'],
             'complaint' => ['required', 'string'],
             'service_fee' => ['nullable', 'numeric', 'min:0'],
+            'warranty_days' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $service = Service::create([
@@ -46,6 +48,7 @@ class ServiceController extends Controller
             'device' => $validated['device'],
             'complaint' => $validated['complaint'],
             'service_fee' => $validated['service_fee'] ?? 0,
+            'warranty_days' => $validated['warranty_days'] ?? 0,
             'status' => Service::STATUS_MENUNGGU,
         ]);
 
@@ -78,6 +81,7 @@ class ServiceController extends Controller
             'diagnosis' => ['nullable', 'string'],
             'notes' => ['nullable', 'string'],
             'service_fee' => ['required', 'numeric', 'min:0'],
+            'warranty_days' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $service->update($validated);
@@ -143,6 +147,10 @@ class ServiceController extends Controller
 
                 $service->update(['status' => $validated['status']]);
                 $service->addLog('Status diubah menjadi ' . $validated['status']);
+
+                if ($validated['status'] === Service::STATUS_SELESAI) {
+                    $this->createServiceWarranty($service);
+                }
 
                 if ($validated['status'] === Service::STATUS_DIAMBIL) {
                     $this->createTransaction($service);
@@ -215,6 +223,27 @@ class ServiceController extends Controller
 
         $service->update(['transaction_id' => $transaction->id]);
         $service->addLog('Transaksi POS otomatis dibuat: ' . $transaction->invoice_number);
+    }
+
+    protected function createServiceWarranty(Service $service): void
+    {
+        if ($service->warranty_days <= 0) {
+            return;
+        }
+
+        if (Warranty::where('type', Warranty::TYPE_SERVICE)->where('reference_id', $service->id)->exists()) {
+            return;
+        }
+
+        Warranty::create([
+            'type' => Warranty::TYPE_SERVICE,
+            'reference_id' => $service->id,
+            'customer_id' => $service->customer_id,
+            'start_date' => now()->toDateString(),
+            'end_date' => now()->addDays($service->warranty_days)->toDateString(),
+            'description' => 'Garansi layanan untuk ' . $service->device,
+            'status' => Warranty::STATUS_ACTIVE,
+        ]);
     }
 
     protected function generateInvoiceNumber(): string

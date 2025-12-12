@@ -11,6 +11,7 @@ class Transaction extends Model
 
     protected $fillable = [
         'invoice_number',
+        'customer_id',
         'subtotal',
         'discount',
         'total',
@@ -30,5 +31,10 @@ class Transaction extends Model
     public function items()
     {
         return $this->hasMany(TransactionItem::class);
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
     }
 }

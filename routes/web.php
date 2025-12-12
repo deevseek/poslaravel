@@ -12,6 +12,8 @@ use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\FinanceController;
+use App\Http\Controllers\WarrantyClaimController;
+use App\Http\Controllers\WarrantyController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -42,6 +44,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('finances/cash/open', [FinanceController::class, 'openCash'])->name('finances.cash.open');
     Route::post('finances/cash/close', [FinanceController::class, 'closeCash'])->name('finances.cash.close');
     Route::get('finances/export', [FinanceController::class, 'export'])->name('finances.export');
+
+    Route::get('warranties/reminders', [WarrantyController::class, 'reminder'])->name('warranties.reminder');
+    Route::resource('warranties', WarrantyController::class);
+    Route::post('warranties/{warranty}/claims', [WarrantyClaimController::class, 'store'])->name('warranty-claims.store');
+    Route::put('warranty-claims/{warrantyClaim}', [WarrantyClaimController::class, 'update'])->name('warranty-claims.update');
 
     Route::get('pos', [PosController::class, 'index'])->name('pos.index');
     Route::post('pos/cart', [PosController::class, 'addToCart'])->name('pos.cart.add');
