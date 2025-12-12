@@ -83,6 +83,16 @@ class PurchaseController extends Controller
                     ? (($currentStock * $existingCostPrice) + ($purchaseItem->quantity * $purchaseItem->price)) / $newStockTotal
                     : $purchaseItem->price;
 
+                if (
+                    $product->pricing_mode === Product::PRICING_MODE_PERCENTAGE &&
+                    !is_null($product->margin_percentage)
+                ) {
+                    $product->price = Product::calculateSellingPrice(
+                        (float) $product->cost_price,
+                        (float) $product->margin_percentage
+                    );
+                }
+
                 $product->save();
 
                 StockMovement::create([

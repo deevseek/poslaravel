@@ -17,7 +17,8 @@
     @endif
 
     <div class="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
-        ℹ️ HPP dihitung menggunakan metode rata-rata tertimbang dari pembelian supplier.
+        <p>ℹ️ HPP dihitung menggunakan metode rata-rata tertimbang dari pembelian supplier.</p>
+        <p class="mt-1 text-xs text-blue-700">Harga otomatis dihitung dari HPP menggunakan margin persentase.</p>
     </div>
 
     <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
@@ -32,6 +33,7 @@
                         <span class="text-gray-400" title="HPP dihitung menggunakan metode rata-rata pembelian">ⓘ</span>
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Harga</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Mode Harga</th>
                     <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Stok</th>
                     <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">Aksi</th>
                 </tr>
@@ -43,15 +45,29 @@
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $product->sku }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $product->category?->name ?? '-' }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">
-                            @if (!is_null($product->cost_price))
+                            @if (!is_null($product->cost_price) && $product->cost_price > 0)
                                 Rp {{ number_format($product->cost_price, 0, ',', '.') }}
                             @else
                                 <span class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-500">
-                                    Belum ada pembelian
+                                    Belum ada HPP
                                 </span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-600">Rp {{ number_format($product->price, 0, ',', '.') }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">
+                            <p>Rp {{ number_format($product->price, 0, ',', '.') }}</p>
+                            @if ($product->pricing_mode === \App\Models\Product::PRICING_MODE_PERCENTAGE && !is_null($product->margin_percentage))
+                                <p class="text-xs text-gray-500">Margin: {{ number_format($product->margin_percentage, 2) }}%</p>
+                            @else
+                                <p class="text-xs text-gray-500">Harga manual</p>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-600">
+                            @if ($product->pricing_mode === \App\Models\Product::PRICING_MODE_PERCENTAGE)
+                                <span class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Persentase</span>
+                            @else
+                                <span class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">Manual</span>
+                            @endif
+                        </td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $product->stock }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">
                             <div class="flex items-center justify-end gap-2">
@@ -67,7 +83,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">Belum ada data produk.</td>
+                        <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">Belum ada data produk.</td>
                     </tr>
                 @endforelse
             </tbody>

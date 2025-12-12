@@ -45,10 +45,11 @@
                 </div>
                 <div class="grid gap-4 md:grid-cols-2">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700" for="price">Harga</label>
-                        <input type="number" step="0.01" id="price" name="price" value="{{ old('price', $product->price) }}" required
+                        <label class="block text-sm font-medium text-gray-700" for="cost_price">HPP (Cost Price)</label>
+                        <input type="number" step="0.01" id="cost_price" name="cost_price" value="{{ old('cost_price', $product->cost_price) }}" min="0"
                             class="mt-2 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        @error('price')
+                        <p class="mt-1 text-xs text-gray-500">Biaya perolehan rata-rata yang menjadi dasar harga otomatis.</p>
+                        @error('cost_price')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
@@ -59,6 +60,69 @@
                         @error('stock')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
+                    </div>
+                </div>
+
+                <div class="md:col-span-2">
+                    <div class="rounded-lg border border-gray-200 p-4">
+                        <p class="text-sm font-medium text-gray-800">Pengaturan Harga Jual</p>
+                        <p class="mt-1 text-xs text-gray-500">Harga otomatis dihitung dari HPP menggunakan margin persentase.</p>
+
+                        @php
+                            $costPriceValue = old('cost_price', $product->cost_price);
+                            $hasCostPrice = !is_null($costPriceValue) && $costPriceValue !== '' && (float) $costPriceValue > 0;
+                            $selectedPricingMode = old('pricing_mode', $product->pricing_mode ?? \App\Models\Product::PRICING_MODE_MANUAL);
+                        @endphp
+
+                        <div class="mt-3 grid gap-4 md:grid-cols-2">
+                            <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 p-3">
+                                <input type="radio" name="pricing_mode" value="manual" class="mt-1" @checked($selectedPricingMode === \App\Models\Product::PRICING_MODE_MANUAL)>
+                                <div>
+                                    <span class="text-sm font-semibold text-gray-800">Manual</span>
+                                    <p class="text-xs text-gray-500">Harga jual diisi langsung dan tidak mengikuti perubahan HPP.</p>
+                                </div>
+                            </label>
+                            <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 p-3" id="auto_pricing_option">
+                                <input type="radio" name="pricing_mode" value="percentage" class="mt-1"
+                                    @checked($selectedPricingMode === \App\Models\Product::PRICING_MODE_PERCENTAGE) @disabled(!$hasCostPrice)>
+                                <div class="flex-1">
+                                    <span class="text-sm font-semibold text-gray-800">Otomatis (HPP + %)</span>
+                                    <p class="text-xs text-gray-500">Harga mengikuti HPP dengan margin persentase yang ditentukan.</p>
+                                    <p class="mt-1 text-[11px] text-amber-600" id="auto_pricing_notice" @class(['hidden' => $hasCostPrice])>
+                                        Belum ada HPP
+                                    </p>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="mt-4 grid gap-4 md:grid-cols-2">
+                            <div id="manual_fields">
+                                <label class="block text-sm font-medium text-gray-700" for="price">Harga Jual</label>
+                                <input type="number" step="0.01" id="price" name="price" value="{{ old('price', $product->price) }}"
+                                    class="mt-2 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                @error('price')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div id="percentage_fields" class="hidden">
+                                <div class="grid gap-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700" for="margin_percentage">Margin (%)</label>
+                                        <input type="number" step="0.01" id="margin_percentage" name="margin_percentage" value="{{ old('margin_percentage', $product->margin_percentage) }}"
+                                            class="mt-2 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        @error('margin_percentage')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700" for="preview_price">Preview Harga Jual</label>
+                                        <input type="text" id="preview_price" value="" readonly
+                                            class="mt-2 w-full rounded-lg border-gray-200 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <p class="mt-1 text-xs text-gray-500">Ditampilkan berdasarkan HPP dan margin yang diisi.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -87,4 +151,78 @@
             </div>
         </form>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const manualFields = document.getElementById('manual_fields');
+            const percentageFields = document.getElementById('percentage_fields');
+            const priceInput = document.getElementById('price');
+            const marginInput = document.getElementById('margin_percentage');
+            const previewInput = document.getElementById('preview_price');
+            const costPriceInput = document.getElementById('cost_price');
+            const autoRadio = document.querySelector('input[name="pricing_mode"][value="percentage"]');
+            const manualRadio = document.querySelector('input[name="pricing_mode"][value="manual"]');
+            const notice = document.getElementById('auto_pricing_notice');
+
+            const toggleFields = (mode) => {
+                if (mode === 'percentage') {
+                    manualFields.classList.add('hidden');
+                    percentageFields.classList.remove('hidden');
+                    priceInput.required = false;
+                    priceInput.disabled = true;
+                    marginInput.required = true;
+                    marginInput.disabled = false;
+                    updatePreview();
+                } else {
+                    manualFields.classList.remove('hidden');
+                    percentageFields.classList.add('hidden');
+                    priceInput.required = true;
+                    priceInput.disabled = false;
+                    marginInput.required = false;
+                    marginInput.disabled = true;
+                    previewInput.value = '';
+                }
+            };
+
+            const updatePreview = () => {
+                const costPrice = parseFloat(costPriceInput.value);
+                const margin = parseFloat(marginInput.value);
+
+                if (!Number.isNaN(costPrice) && costPrice > 0 && !Number.isNaN(margin)) {
+                    const calculatedPrice = costPrice + costPrice * (margin / 100);
+                    previewInput.value = calculatedPrice.toFixed(2);
+                } else {
+                    previewInput.value = '';
+                }
+            };
+
+            const syncAutoAvailability = () => {
+                const costPrice = parseFloat(costPriceInput.value);
+                const hasCostPrice = !Number.isNaN(costPrice) && costPrice > 0;
+
+                autoRadio.disabled = !hasCostPrice;
+                notice.classList.toggle('hidden', hasCostPrice);
+
+                if (!hasCostPrice && autoRadio.checked) {
+                    manualRadio.checked = true;
+                    toggleFields('manual');
+                }
+            };
+
+            document.querySelectorAll('input[name="pricing_mode"]').forEach((radio) => {
+                radio.addEventListener('change', (event) => toggleFields(event.target.value));
+            });
+
+            marginInput.addEventListener('input', updatePreview);
+            costPriceInput.addEventListener('input', () => {
+                syncAutoAvailability();
+                updatePreview();
+            });
+
+            syncAutoAvailability();
+            const checked = document.querySelector('input[name="pricing_mode"]:checked');
+            toggleFields(checked ? checked.value : 'manual');
+            updatePreview();
+        });
+    </script>
 </x-app-layout>
