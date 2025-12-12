@@ -7,12 +7,12 @@
             <p class="text-gray-600">Pantau pembelian dari supplier dan status pembayarannya.</p>
         </div>
 
-        @can('purchase.create')
+        @permission('purchase.create')
             <a href="{{ route('purchases.create') }}"
                 class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">
                 Tambah Pembelian
             </a>
-        @endcan
+        @endpermission
     </div>
 
     @if (session('success'))
@@ -24,9 +24,9 @@
     <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-semibold text-gray-900">Riwayat Pembelian</h2>
-            @can('purchase.create')
+            @permission('purchase.create')
                 <a href="{{ route('purchases.create') }}" class="text-sm font-semibold text-blue-600 hover:underline">Tambah Pembelian</a>
-            @endcan
+            @endpermission
         </div>
 
         <div class="overflow-hidden rounded-lg border border-gray-100">
