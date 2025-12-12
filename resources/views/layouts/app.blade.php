@@ -21,7 +21,7 @@
                         <header class="border-b border-gray-200 pb-4">
                             @yield('header')
                         </header>
-                    @endhasSection
+                    @endif
 
                     @yield('content')
                 </main>
