@@ -113,6 +113,16 @@
             <form method="POST" action="{{ route('pos.checkout') }}" class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm space-y-4">
                 @csrf
                 <div>
+                    <label for="customer_id" class="text-sm font-semibold text-gray-700">Customer</label>
+                    <select id="customer_id" name="customer_id" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="">Tanpa customer</option>
+                        @foreach ($customers as $customer)
+                            <option value="{{ $customer->id }}" @selected(old('customer_id') == $customer->id)>{{ $customer->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
                     <label for="discount" class="text-sm font-semibold text-gray-700">Diskon</label>
                     <input type="number" step="0.01" name="discount" id="discount" value="{{ old('discount', 0) }}" min="0" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
                 </div>

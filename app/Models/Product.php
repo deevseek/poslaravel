@@ -15,12 +15,14 @@ class Product extends Model
         'sku',
         'price',
         'stock',
+        'warranty_days',
         'description',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
         'stock' => 'integer',
+        'warranty_days' => 'integer',
     ];
 
     public function category()

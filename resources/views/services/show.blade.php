@@ -43,6 +43,10 @@
                             <dt class="text-gray-500">Biaya Jasa</dt>
                             <dd class="font-medium text-gray-900">Rp {{ number_format($service->service_fee, 0, ',', '.') }}</dd>
                         </div>
+                        <div>
+                            <dt class="text-gray-500">Masa Garansi</dt>
+                            <dd class="font-medium text-gray-900">{{ $service->warranty_days }} hari</dd>
+                        </div>
                         <div class="md:col-span-2">
                             <dt class="text-gray-500">Diagnosa Teknisi</dt>
                             <dd class="font-medium text-gray-900">{{ $service->diagnosis ?? '-' }}</dd>
@@ -145,6 +149,10 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Biaya Jasa</label>
                             <input type="number" step="0.01" name="service_fee" value="{{ old('service_fee', $service->service_fee) }}" class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Masa Garansi (hari)</label>
+                            <input type="number" name="warranty_days" min="0" value="{{ old('warranty_days', $service->warranty_days) }}" class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500" />
                         </div>
                         <button type="submit" class="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">Simpan Diagnosa</button>
                     </form>

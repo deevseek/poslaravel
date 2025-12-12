@@ -32,11 +32,13 @@ class Service extends Model
         'diagnosis',
         'notes',
         'service_fee',
+        'warranty_days',
         'status',
     ];
 
     protected $casts = [
         'service_fee' => 'decimal:2',
+        'warranty_days' => 'integer',
     ];
 
     public function customer(): BelongsTo

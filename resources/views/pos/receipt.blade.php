@@ -20,6 +20,13 @@
                 </div>
             </div>
 
+            @if ($transaction->customer)
+                <div class="border-b border-gray-100 py-4 text-sm text-gray-700">
+                    <p class="font-semibold text-gray-900">Customer</p>
+                    <p>{{ $transaction->customer->name }}</p>
+                </div>
+            @endif
+
             <div class="py-4">
                 <table class="min-w-full text-sm text-gray-700">
                     <thead>
