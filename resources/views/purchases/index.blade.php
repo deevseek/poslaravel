@@ -24,9 +24,6 @@
     <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-semibold text-gray-900">Riwayat Pembelian</h2>
-            @permission('purchase.create')
-                <a href="{{ route('purchases.create') }}" class="text-sm font-semibold text-blue-600 hover:underline">Tambah Pembelian</a>
-            @endpermission
         </div>
 
         <div class="overflow-hidden rounded-lg border border-gray-100">
