@@ -17,6 +17,10 @@ class Finance extends Model
         'nominal',
         'note',
         'recorded_at',
+        'reference_id',
+        'reference_type',
+        'source',
+        'created_by',
     ];
 
     protected $casts = [

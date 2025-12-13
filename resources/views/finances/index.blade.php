@@ -218,7 +218,14 @@
                                                 {{ $finance->type === 'income' ? 'Pemasukan' : 'Pengeluaran' }}
                                             </span>
                                         </td>
-                                        <td class="px-4 py-3 text-sm font-semibold text-gray-900">{{ $finance->category }}</td>
+                                        <td class="px-4 py-3 text-sm font-semibold text-gray-900">
+                                            <div class="flex items-center gap-2">
+                                                <span>{{ $finance->category }}</span>
+                                                @if ($finance->source === 'pos')
+                                                    <span class="rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-semibold uppercase text-blue-700">POS</span>
+                                                @endif
+                                            </div>
+                                        </td>
                                         <td class="px-4 py-3 text-sm text-gray-700">Rp {{ number_format($finance->nominal, 0, ',', '.') }}</td>
                                         <td class="px-4 py-3 text-sm text-gray-600">{{ $finance->note ?? '-' }}</td>
                                     </tr>

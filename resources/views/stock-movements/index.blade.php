@@ -83,6 +83,7 @@
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Tanggal</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Produk</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Sumber</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Jenis</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Jumlah</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Catatan</th>
@@ -93,6 +94,9 @@
                             <tr>
                                 <td class="px-6 py-4 text-sm text-gray-700">{{ $movement->created_at->format('d M Y H:i') }}</td>
                                 <td class="px-6 py-4 text-sm font-semibold text-gray-900">{{ $movement->product->name }}</td>
+                                <td class="px-6 py-4 text-sm">
+                                    <span class="rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-semibold uppercase text-blue-700">{{ $movement->source ?? 'Manual' }}</span>
+                                </td>
                                 <td class="px-6 py-4 text-sm">
                                     <span class="rounded-full px-2 py-1 text-xs font-semibold {{ $movement->type === 'in' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
                                         {{ $movement->type === 'in' ? 'Masuk' : 'Keluar' }}

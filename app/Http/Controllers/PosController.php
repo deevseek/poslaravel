@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\Finance;
 use App\Models\Product;
+use App\Models\StockMovement;
 use App\Models\Setting;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
@@ -170,7 +172,30 @@ class PosController extends Controller
                     $this->createProductWarranty($transaction, $product, $item['quantity']);
 
                     $product->decrement('stock', $item['quantity']);
+
+                    StockMovement::withoutEvents(function () use ($product, $transaction, $item) {
+                        StockMovement::create([
+                            'product_id' => $product->id,
+                            'type' => StockMovement::TYPE_OUT,
+                            'source' => 'pos',
+                            'reference' => $transaction->id,
+                            'quantity' => $item['quantity'],
+                            'note' => 'Penjualan POS - '.$transaction->invoice_number,
+                        ]);
+                    });
                 }
+
+                Finance::create([
+                    'type' => 'income',
+                    'category' => 'Penjualan',
+                    'nominal' => $total,
+                    'note' => 'Pembayaran POS - '.$transaction->invoice_number,
+                    'recorded_at' => $transaction->created_at->toDateString(),
+                    'source' => 'pos',
+                    'reference_id' => $transaction->id,
+                    'reference_type' => 'pos',
+                    'created_by' => auth()->id(),
+                ]);
 
                 return $transaction;
             });
