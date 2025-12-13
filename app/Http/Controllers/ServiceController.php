@@ -188,20 +188,32 @@ class ServiceController extends Controller
         $itemsTotal = $items->sum('total');
         $subtotal = $itemsTotal + (float) $service->service_fee;
         $totalHpp = 0;
-        $transaction = $service->transaction_id
-            ? Transaction::with('items')->find($service->transaction_id)
-            : null;
 
-        if (! $transaction) {
-            $transaction = Transaction::create([
-                'invoice_number' => $this->generateInvoiceNumber(),
-                'customer_id' => $service->customer_id,
-                'subtotal' => $subtotal,
+        $transaction = Transaction::create([
+            'invoice_number' => $this->generateInvoiceNumber(),
+            'customer_id' => $service->customer_id,
+            'subtotal' => $subtotal,
+            'discount' => 0,
+            'total' => $subtotal,
+            'payment_method' => 'cash',
+            'paid_amount' => $subtotal,
+            'change_amount' => 0,
+        ]);
+
+        foreach ($items as $item) {
+            $hpp = $item->product?->cost_price ?? 0;
+            $subtotalHpp = $hpp * $item->quantity;
+            $totalHpp += $subtotalHpp;
+
+            TransactionItem::create([
+                'transaction_id' => $transaction->id,
+                'product_id' => $item->product_id,
+                'quantity' => $item->quantity,
+                'price' => $item->price,
                 'discount' => 0,
-                'total' => $subtotal,
-                'payment_method' => 'cash',
-                'paid_amount' => $subtotal,
-                'change_amount' => 0,
+                'hpp' => $hpp,
+                'subtotal_hpp' => $subtotalHpp,
+                'total' => $item->total,
             ]);
 
             foreach ($items as $item) {
@@ -250,47 +262,50 @@ class ServiceController extends Controller
                 ]);
             }
 
-            $service->update(['transaction_id' => $transaction->id]);
-            $service->addLog('Transaksi POS otomatis dibuat: ' . $transaction->invoice_number);
-        } else {
-            foreach ($items as $item) {
-                $totalHpp += ($item->product?->cost_price ?? 0) * $item->quantity;
-            }
-        }
+            $placeholderProduct = Product::firstOrCreate(
+                ['sku' => 'SERVICE-FEE'],
+                [
+                    'category_id' => $categoryId,
+                    'name' => 'Jasa Service',
+                    'price' => 0,
+                    'stock' => 0,
+                ]
+            );
 
-        $recordedDate = $transaction->created_at?->toDateString() ?? now()->toDateString();
-        $incomeExists = Finance::where('reference_id', $service->id)
-            ->where('reference_type', 'service')
-            ->where('type', 'income')
-            ->exists();
-
-        if (! $incomeExists) {
-            Finance::create([
-                'type' => 'income',
-                'category' => 'Service',
-                'nominal' => $transaction->total,
-                'note' => 'Pembayaran service - ' . $transaction->invoice_number,
-                'recorded_at' => $recordedDate,
-                'source' => 'service',
-                'reference_id' => $service->id,
-                'reference_type' => 'service',
-                'created_by' => auth()->id(),
+            TransactionItem::create([
+                'transaction_id' => $transaction->id,
+                'product_id' => $placeholderProduct->id,
+                'quantity' => 1,
+                'price' => $service->service_fee,
+                'discount' => 0,
+                'hpp' => 0,
+                'subtotal_hpp' => 0,
+                'total' => $service->service_fee,
             ]);
         }
 
-        $hppExists = Finance::where('reference_id', $service->id)
-            ->where('reference_type', 'service')
-            ->where('type', 'expense')
-            ->where('category', 'HPP')
-            ->exists();
+        $service->update(['transaction_id' => $transaction->id]);
+        $service->addLog('Transaksi POS otomatis dibuat: ' . $transaction->invoice_number);
 
-        if ($totalHpp > 0 && ! $hppExists) {
+        Finance::create([
+            'type' => 'income',
+            'category' => 'Service',
+            'nominal' => $subtotal,
+            'note' => 'Pembayaran service - ' . $transaction->invoice_number,
+            'recorded_at' => $transaction->created_at->toDateString(),
+            'source' => 'service',
+            'reference_id' => $service->id,
+            'reference_type' => 'service',
+            'created_by' => auth()->id(),
+        ]);
+
+        if ($totalHpp > 0) {
             Finance::create([
                 'type' => 'expense',
                 'category' => 'HPP',
                 'nominal' => $totalHpp,
                 'note' => 'HPP service - ' . $transaction->invoice_number,
-                'recorded_at' => $recordedDate,
+                'recorded_at' => $transaction->created_at->toDateString(),
                 'source' => 'service',
                 'reference_id' => $service->id,
                 'reference_type' => 'service',
