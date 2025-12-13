@@ -138,6 +138,8 @@ class PosController extends Controller
 
         try {
             $transaction = DB::transaction(function () use ($cartItems, $discount, $subtotal, $total, $validated, $paidAmount) {
+                $totalHpp = 0;
+
                 $transaction = Transaction::create([
                     'invoice_number' => $this->generateInvoiceNumber(),
                     'customer_id' => $validated['customer_id'] ?? null,
@@ -159,15 +161,21 @@ class PosController extends Controller
                     }
 
                     $lineTotal = $product->price * $item['quantity'];
+                    $hpp = $product->cost_price ?? 0;
+                    $subtotalHpp = $hpp * $item['quantity'];
 
                     TransactionItem::create([
                         'transaction_id' => $transaction->id,
                         'product_id' => $product->id,
                         'quantity' => $item['quantity'],
                         'price' => $product->price,
+                        'hpp' => $hpp,
+                        'subtotal_hpp' => $subtotalHpp,
                         'total' => $lineTotal,
                         'discount' => 0,
                     ]);
+
+                    $totalHpp += $subtotalHpp;
 
                     $this->createProductWarranty($transaction, $product, $item['quantity']);
 
@@ -190,6 +198,18 @@ class PosController extends Controller
                     'category' => 'Penjualan',
                     'nominal' => $total,
                     'note' => 'Pembayaran POS - '.$transaction->invoice_number,
+                    'recorded_at' => $transaction->created_at->toDateString(),
+                    'source' => 'pos',
+                    'reference_id' => $transaction->id,
+                    'reference_type' => 'pos',
+                    'created_by' => auth()->id(),
+                ]);
+
+                Finance::create([
+                    'type' => 'expense',
+                    'category' => 'HPP',
+                    'nominal' => $totalHpp,
+                    'note' => 'HPP POS - '.$transaction->invoice_number,
                     'recorded_at' => $transaction->created_at->toDateString(),
                     'source' => 'pos',
                     'reference_id' => $transaction->id,
