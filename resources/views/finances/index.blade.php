@@ -198,14 +198,22 @@
                         </div>
                     </div>
 
-                    <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         <div class="rounded-lg border border-gray-100 bg-gray-50 p-4">
                             <p class="text-sm text-gray-600">Omset POS</p>
-                            <p class="text-xl font-semibold text-gray-900">Rp {{ number_format($total_income, 0, ',', '.') }}</p>
+                            <p class="text-xl font-semibold text-gray-900">Rp {{ number_format($posIncome, 0, ',', '.') }}</p>
+                        </div>
+                        <div class="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                            <p class="text-sm text-gray-600">Omset Service</p>
+                            <p class="text-xl font-semibold text-gray-900">Rp {{ number_format($serviceIncome, 0, ',', '.') }}</p>
                         </div>
                         <div class="rounded-lg border border-gray-100 bg-gray-50 p-4">
                             <p class="text-sm text-gray-600">HPP POS</p>
-                            <p class="text-xl font-semibold text-red-700">Rp {{ number_format($total_hpp, 0, ',', '.') }}</p>
+                            <p class="text-xl font-semibold text-red-700">Rp {{ number_format($posHpp, 0, ',', '.') }}</p>
+                        </div>
+                        <div class="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                            <p class="text-sm text-gray-600">HPP Service</p>
+                            <p class="text-xl font-semibold text-red-700">Rp {{ number_format($serviceHpp, 0, ',', '.') }}</p>
                         </div>
                         <div class="rounded-lg border border-gray-100 bg-gray-50 p-4">
                             <p class="text-sm text-gray-600">Biaya Operasional</p>
@@ -246,6 +254,8 @@
                                                 <span>{{ $finance->category }}</span>
                                                 @if ($finance->source === 'pos')
                                                     <span class="rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-semibold uppercase text-blue-700">POS</span>
+                                                @elseif ($finance->source === 'service')
+                                                    <span class="rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-semibold uppercase text-purple-700">SERVICE</span>
                                                 @endif
                                             </div>
                                         </td>

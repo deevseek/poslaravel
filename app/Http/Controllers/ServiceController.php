@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Customer;
+use App\Models\Finance;
 use App\Models\Product;
 use App\Models\Service;
 use App\Models\ServiceItem;
@@ -183,64 +184,119 @@ class ServiceController extends Controller
 
     protected function createTransaction(Service $service): void
     {
-        if ($service->transaction_id) {
-            return;
-        }
-
         $items = $service->items()->with('product')->get();
         $itemsTotal = $items->sum('total');
         $subtotal = $itemsTotal + (float) $service->service_fee;
+        $totalHpp = 0;
+        $transaction = $service->transaction_id
+            ? Transaction::with('items')->find($service->transaction_id)
+            : null;
 
-        $transaction = Transaction::create([
-            'invoice_number' => $this->generateInvoiceNumber(),
-            'subtotal' => $subtotal,
-            'discount' => 0,
-            'total' => $subtotal,
-            'payment_method' => 'cash',
-            'paid_amount' => $subtotal,
-            'change_amount' => 0,
-        ]);
-
-        foreach ($items as $item) {
-            TransactionItem::create([
-                'transaction_id' => $transaction->id,
-                'product_id' => $item->product_id,
-                'quantity' => $item->quantity,
-                'price' => $item->price,
+        if (! $transaction) {
+            $transaction = Transaction::create([
+                'invoice_number' => $this->generateInvoiceNumber(),
+                'customer_id' => $service->customer_id,
+                'subtotal' => $subtotal,
                 'discount' => 0,
-                'total' => $item->total,
+                'total' => $subtotal,
+                'payment_method' => 'cash',
+                'paid_amount' => $subtotal,
+                'change_amount' => 0,
             ]);
-        }
 
-        if ($service->service_fee > 0) {
-            $categoryId = Category::first()?->id;
+            foreach ($items as $item) {
+                $hpp = $item->product?->cost_price ?? 0;
+                $subtotalHpp = $hpp * $item->quantity;
+                $totalHpp += $subtotalHpp;
 
-            if (! $categoryId) {
-                $categoryId = Category::create(['name' => 'Layanan'])->id;
+                TransactionItem::create([
+                    'transaction_id' => $transaction->id,
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'discount' => 0,
+                    'hpp' => $hpp,
+                    'subtotal_hpp' => $subtotalHpp,
+                    'total' => $item->total,
+                ]);
             }
 
-            $placeholderProduct = Product::firstOrCreate(
-                ['sku' => 'SERVICE-FEE'],
-                [
-                    'category_id' => $categoryId,
-                    'name' => 'Jasa Service',
-                    'price' => 0,
-                    'stock' => 0,
-                ]
-            );
+            if ($service->service_fee > 0) {
+                $categoryId = Category::first()?->id;
 
-            TransactionItem::create([
-                'transaction_id' => $transaction->id,
-                'product_id' => $placeholderProduct->id,
-                'quantity' => 1,
-                'price' => $service->service_fee,
-                'discount' => 0,
-                'total' => $service->service_fee,
+                if (! $categoryId) {
+                    $categoryId = Category::create(['name' => 'Layanan'])->id;
+                }
+
+                $placeholderProduct = Product::firstOrCreate(
+                    ['sku' => 'SERVICE-FEE'],
+                    [
+                        'category_id' => $categoryId,
+                        'name' => 'Jasa Service',
+                        'price' => 0,
+                        'stock' => 0,
+                    ]
+                );
+
+                TransactionItem::create([
+                    'transaction_id' => $transaction->id,
+                    'product_id' => $placeholderProduct->id,
+                    'quantity' => 1,
+                    'price' => $service->service_fee,
+                    'discount' => 0,
+                    'hpp' => 0,
+                    'subtotal_hpp' => 0,
+                    'total' => $service->service_fee,
+                ]);
+            }
+
+            $service->update(['transaction_id' => $transaction->id]);
+            $service->addLog('Transaksi POS otomatis dibuat: ' . $transaction->invoice_number);
+        } else {
+            foreach ($items as $item) {
+                $totalHpp += ($item->product?->cost_price ?? 0) * $item->quantity;
+            }
+        }
+
+        $recordedDate = $transaction->created_at?->toDateString() ?? now()->toDateString();
+        $incomeExists = Finance::where('reference_id', $service->id)
+            ->where('reference_type', 'service')
+            ->where('type', 'income')
+            ->exists();
+
+        if (! $incomeExists) {
+            Finance::create([
+                'type' => 'income',
+                'category' => 'Service',
+                'nominal' => $transaction->total,
+                'note' => 'Pembayaran service - ' . $transaction->invoice_number,
+                'recorded_at' => $recordedDate,
+                'source' => 'service',
+                'reference_id' => $service->id,
+                'reference_type' => 'service',
+                'created_by' => auth()->id(),
             ]);
         }
 
-        $service->update(['transaction_id' => $transaction->id]);
-        $service->addLog('Transaksi POS otomatis dibuat: ' . $transaction->invoice_number);
+        $hppExists = Finance::where('reference_id', $service->id)
+            ->where('reference_type', 'service')
+            ->where('type', 'expense')
+            ->where('category', 'HPP')
+            ->exists();
+
+        if ($totalHpp > 0 && ! $hppExists) {
+            Finance::create([
+                'type' => 'expense',
+                'category' => 'HPP',
+                'nominal' => $totalHpp,
+                'note' => 'HPP service - ' . $transaction->invoice_number,
+                'recorded_at' => $recordedDate,
+                'source' => 'service',
+                'reference_id' => $service->id,
+                'reference_type' => 'service',
+                'created_by' => auth()->id(),
+            ]);
+        }
     }
 
     protected function createServiceWarranty(Service $service): void
