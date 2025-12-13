@@ -15,12 +15,16 @@ class TransactionItem extends Model
         'quantity',
         'price',
         'discount',
+        'hpp',
+        'subtotal_hpp',
         'total',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
         'discount' => 'decimal:2',
+        'hpp' => 'decimal:2',
+        'subtotal_hpp' => 'decimal:2',
         'total' => 'decimal:2',
     ];
 
