@@ -45,6 +45,8 @@ class ServiceController extends Controller
         $validated = $request->validate([
             'customer_id' => ['required', 'exists:customers,id'],
             'device' => ['required', 'string', 'max:255'],
+            'serial_number' => ['nullable', 'string', 'max:255'],
+            'accessories' => ['nullable', 'string'],
             'complaint' => ['required', 'string'],
             'service_fee' => ['nullable', 'numeric', 'min:0'],
             'warranty_days' => ['nullable', 'integer', 'min:0'],
@@ -53,6 +55,8 @@ class ServiceController extends Controller
         $service = Service::create([
             'customer_id' => $validated['customer_id'],
             'device' => $validated['device'],
+            'serial_number' => $validated['serial_number'] ?? null,
+            'accessories' => $validated['accessories'] ?? null,
             'complaint' => $validated['complaint'],
             'service_fee' => $validated['service_fee'] ?? 0,
             'warranty_days' => $validated['warranty_days'] ?? 0,
