@@ -184,10 +184,6 @@ class ServiceController extends Controller
 
     protected function createTransaction(Service $service): void
     {
-        if ($service->transaction_id) {
-            return;
-        }
-
         $items = $service->items()->with('product')->get();
         $itemsTotal = $items->sum('total');
         $subtotal = $itemsTotal + (float) $service->service_fee;
@@ -219,13 +215,51 @@ class ServiceController extends Controller
                 'subtotal_hpp' => $subtotalHpp,
                 'total' => $item->total,
             ]);
-        }
 
-        if ($service->service_fee > 0) {
-            $categoryId = Category::first()?->id;
+            foreach ($items as $item) {
+                $hpp = $item->product?->cost_price ?? 0;
+                $subtotalHpp = $hpp * $item->quantity;
+                $totalHpp += $subtotalHpp;
 
-            if (! $categoryId) {
-                $categoryId = Category::create(['name' => 'Layanan'])->id;
+                TransactionItem::create([
+                    'transaction_id' => $transaction->id,
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'discount' => 0,
+                    'hpp' => $hpp,
+                    'subtotal_hpp' => $subtotalHpp,
+                    'total' => $item->total,
+                ]);
+            }
+
+            if ($service->service_fee > 0) {
+                $categoryId = Category::first()?->id;
+
+                if (! $categoryId) {
+                    $categoryId = Category::create(['name' => 'Layanan'])->id;
+                }
+
+                $placeholderProduct = Product::firstOrCreate(
+                    ['sku' => 'SERVICE-FEE'],
+                    [
+                        'category_id' => $categoryId,
+                        'name' => 'Jasa Service',
+                        'price' => 0,
+                        'stock' => 0,
+                    ]
+                );
+
+                TransactionItem::create([
+                    'transaction_id' => $transaction->id,
+                    'product_id' => $placeholderProduct->id,
+                    'quantity' => 1,
+                    'price' => $service->service_fee,
+                    'discount' => 0,
+                    'hpp' => 0,
+                    'subtotal_hpp' => 0,
+                    'total' => $service->service_fee,
+                ]);
             }
 
             $placeholderProduct = Product::firstOrCreate(
