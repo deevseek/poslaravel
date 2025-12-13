@@ -67,6 +67,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('services', 'store')->name('services.store')->middleware('permission:service.create');
         Route::get('services/{service}', 'show')->name('services.show')->middleware('permission:service.access');
         Route::put('services/{service}', 'update')->name('services.update')->middleware('permission:service.create');
+        Route::patch('services/{service}', 'update')->name('services.update')->middleware('permission:service.create');
         Route::post('services/{service}/status', 'updateStatus')->name('services.status')->middleware('permission:service.update_status');
         Route::post('services/{service}/items', 'addItem')->name('services.items.store')->middleware('permission:service.add_sparepart');
     });
