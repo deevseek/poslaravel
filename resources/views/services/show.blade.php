@@ -36,6 +36,14 @@
                             <dd class="font-medium text-gray-900">{{ $service->device }}</dd>
                         </div>
                         <div>
+                            <dt class="text-gray-500">Serial Number</dt>
+                            <dd class="font-medium text-gray-900">{{ $service->serial_number ?? '-' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-gray-500">Kelengkapan</dt>
+                            <dd class="font-medium text-gray-900">{{ $service->accessories ?? '-' }}</dd>
+                        </div>
+                        <div>
                             <dt class="text-gray-500">Keluhan</dt>
                             <dd class="font-medium text-gray-900">{{ $service->complaint }}</dd>
                         </div>

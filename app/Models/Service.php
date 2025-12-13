@@ -28,6 +28,8 @@ class Service extends Model
         'customer_id',
         'transaction_id',
         'device',
+        'serial_number',
+        'accessories',
         'complaint',
         'diagnosis',
         'notes',
