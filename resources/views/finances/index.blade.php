@@ -198,6 +198,29 @@
                         </div>
                     </div>
 
+                    <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                        <div class="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                            <p class="text-sm text-gray-600">Omset POS</p>
+                            <p class="text-xl font-semibold text-gray-900">Rp {{ number_format($total_income, 0, ',', '.') }}</p>
+                        </div>
+                        <div class="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                            <p class="text-sm text-gray-600">HPP POS</p>
+                            <p class="text-xl font-semibold text-red-700">Rp {{ number_format($total_hpp, 0, ',', '.') }}</p>
+                        </div>
+                        <div class="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                            <p class="text-sm text-gray-600">Biaya Operasional</p>
+                            <p class="text-xl font-semibold text-red-700">Rp {{ number_format($total_expense, 0, ',', '.') }}</p>
+                        </div>
+                        <div class="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                            <p class="text-sm text-gray-600">Laba Kotor</p>
+                            <p class="text-xl font-semibold text-green-700">Rp {{ number_format($gross_profit, 0, ',', '.') }}</p>
+                        </div>
+                        <div class="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                            <p class="text-sm text-gray-600">Laba Bersih</p>
+                            <p class="text-xl font-semibold text-blue-700">Rp {{ number_format($net_profit, 0, ',', '.') }}</p>
+                        </div>
+                    </div>
+
                     <div class="mt-4 overflow-hidden rounded-lg border border-gray-100">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
