@@ -39,42 +39,41 @@ class FinanceController extends Controller
             ->where('type', 'expense')
             ->sum('nominal');
 
-        $posIncome = Finance::whereBetween('recorded_at', [$start, $end])
+        $omsetPos = Finance::whereBetween('recorded_at', [$start, $end])
             ->where('type', 'income')
             ->where('category', 'Penjualan')
             ->where('source', 'pos')
             ->sum('nominal');
 
-        $serviceIncome = Finance::whereBetween('recorded_at', [$start, $end])
+        $omsetService = Finance::whereBetween('recorded_at', [$start, $end])
             ->where('type', 'income')
-            ->where('category', 'Service')
+            ->where('category', 'Penjualan')
             ->where('source', 'service')
             ->sum('nominal');
 
-        $totalIncome = $posIncome + $serviceIncome;
+        $totalIncome = $omsetPos + $omsetService;
 
-        $posHpp = Finance::whereBetween('recorded_at', [$start, $end])
+        $hppPos = Finance::whereBetween('recorded_at', [$start, $end])
             ->where('type', 'expense')
             ->where('category', 'HPP')
             ->where('source', 'pos')
             ->sum('nominal');
 
-        $serviceHpp = Finance::whereBetween('recorded_at', [$start, $end])
+        $hppService = Finance::whereBetween('recorded_at', [$start, $end])
             ->where('type', 'expense')
             ->where('category', 'HPP')
             ->where('source', 'service')
             ->sum('nominal');
 
-        $totalHpp = $posHpp + $serviceHpp;
+        $totalHpp = $hppPos + $hppService;
 
         $operationalExpense = Finance::whereBetween('recorded_at', [$start, $end])
             ->where('type', 'expense')
-            ->where(function ($query) {
-                $query->where('category', '!=', 'HPP')->orWhereNull('category');
-            })
+            ->where('source', 'manual')
+            ->where('category', '!=', 'HPP')
             ->sum('nominal');
 
-        $grossProfit = $totalIncome - $totalHpp;
+        $grossProfit = ($omsetPos + $omsetService) - ($hppPos + $hppService);
         $netProfit = $grossProfit - $operationalExpense;
 
         $today = now()->toDateString();
@@ -88,11 +87,15 @@ class FinanceController extends Controller
             'finances' => $finances,
             'incomeTotal' => $incomeTotal,
             'expenseTotal' => $expenseTotal,
-            'posIncome' => $posIncome,
-            'serviceIncome' => $serviceIncome,
+            'posIncome' => $omsetPos,
+            'serviceIncome' => $omsetService,
+            'omset_pos' => $omsetPos,
+            'omset_service' => $omsetService,
             'total_income' => $totalIncome,
-            'posHpp' => $posHpp,
-            'serviceHpp' => $serviceHpp,
+            'posHpp' => $hppPos,
+            'serviceHpp' => $hppService,
+            'hpp_pos' => $hppPos,
+            'hpp_service' => $hppService,
             'total_hpp' => $totalHpp,
             'total_expense' => $operationalExpense,
             'gross_profit' => $grossProfit,
