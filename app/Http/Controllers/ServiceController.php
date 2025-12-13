@@ -249,30 +249,47 @@ class ServiceController extends Controller
         $service->update(['transaction_id' => $transaction->id]);
         $service->addLog('Transaksi POS otomatis dibuat: ' . $transaction->invoice_number);
 
-        Finance::create([
-            'type' => 'income',
-            'category' => 'Service',
-            'nominal' => $subtotal,
-            'note' => 'Pembayaran service - ' . $transaction->invoice_number,
-            'recorded_at' => $transaction->created_at->toDateString(),
-            'source' => 'service',
-            'reference_id' => $service->id,
-            'reference_type' => 'service',
-            'created_by' => auth()->id(),
-        ]);
-
-        if ($totalHpp > 0) {
-            Finance::create([
-                'type' => 'expense',
-                'category' => 'HPP',
-                'nominal' => $totalHpp,
-                'note' => 'HPP service - ' . $transaction->invoice_number,
+        Finance::updateOrCreate(
+            [
+                'reference_type' => 'service',
+                'reference_id' => $service->id,
+                'type' => 'income',
+                'category' => 'Penjualan',
+            ],
+            [
+                'nominal' => $subtotal,
+                'note' => 'Pembayaran service - ' . $transaction->invoice_number,
                 'recorded_at' => $transaction->created_at->toDateString(),
                 'source' => 'service',
-                'reference_id' => $service->id,
-                'reference_type' => 'service',
                 'created_by' => auth()->id(),
-            ]);
+            ]
+        );
+
+        if ($totalHpp > 0) {
+            Finance::updateOrCreate(
+                [
+                    'reference_type' => 'service',
+                    'reference_id' => $service->id,
+                    'type' => 'expense',
+                    'category' => 'HPP',
+                ],
+                [
+                    'nominal' => $totalHpp,
+                    'note' => 'HPP service - ' . $transaction->invoice_number,
+                    'recorded_at' => $transaction->created_at->toDateString(),
+                    'source' => 'service',
+                    'created_by' => auth()->id(),
+                ]
+            );
+        }
+
+        $latestFinance = Finance::where('reference_type', 'service')
+            ->where('reference_id', $service->id)
+            ->latest()
+            ->first();
+
+        if ($latestFinance && $latestFinance->source !== 'service') {
+            $latestFinance->update(['source' => 'service']);
         }
     }
 
