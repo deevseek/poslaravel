@@ -39,6 +39,28 @@ class FinanceController extends Controller
             ->where('type', 'expense')
             ->sum('nominal');
 
+        $totalIncome = Finance::whereBetween('recorded_at', [$start, $end])
+            ->where('type', 'income')
+            ->where('category', 'Penjualan')
+            ->where('source', 'pos')
+            ->sum('nominal');
+
+        $totalHpp = Finance::whereBetween('recorded_at', [$start, $end])
+            ->where('type', 'expense')
+            ->where('category', 'HPP')
+            ->where('source', 'pos')
+            ->sum('nominal');
+
+        $operationalExpense = Finance::whereBetween('recorded_at', [$start, $end])
+            ->where('type', 'expense')
+            ->where(function ($query) {
+                $query->where('category', '!=', 'HPP')->orWhereNull('category');
+            })
+            ->sum('nominal');
+
+        $grossProfit = $totalIncome - $totalHpp;
+        $netProfit = $grossProfit - $operationalExpense;
+
         $today = now()->toDateString();
         $todayIncome = Finance::whereDate('recorded_at', $today)->where('type', 'income')->sum('nominal');
         $todayExpense = Finance::whereDate('recorded_at', $today)->where('type', 'expense')->sum('nominal');
@@ -50,6 +72,11 @@ class FinanceController extends Controller
             'finances' => $finances,
             'incomeTotal' => $incomeTotal,
             'expenseTotal' => $expenseTotal,
+            'total_income' => $totalIncome,
+            'total_hpp' => $totalHpp,
+            'total_expense' => $operationalExpense,
+            'gross_profit' => $grossProfit,
+            'net_profit' => $netProfit,
             'todayIncome' => $todayIncome,
             'todayExpense' => $todayExpense,
             'month' => $month,
