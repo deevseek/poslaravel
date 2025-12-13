@@ -39,17 +39,33 @@ class FinanceController extends Controller
             ->where('type', 'expense')
             ->sum('nominal');
 
-        $totalIncome = Finance::whereBetween('recorded_at', [$start, $end])
+        $posIncome = Finance::whereBetween('recorded_at', [$start, $end])
             ->where('type', 'income')
             ->where('category', 'Penjualan')
             ->where('source', 'pos')
             ->sum('nominal');
 
-        $totalHpp = Finance::whereBetween('recorded_at', [$start, $end])
+        $serviceIncome = Finance::whereBetween('recorded_at', [$start, $end])
+            ->where('type', 'income')
+            ->where('category', 'Service')
+            ->where('source', 'service')
+            ->sum('nominal');
+
+        $totalIncome = $posIncome + $serviceIncome;
+
+        $posHpp = Finance::whereBetween('recorded_at', [$start, $end])
             ->where('type', 'expense')
             ->where('category', 'HPP')
             ->where('source', 'pos')
             ->sum('nominal');
+
+        $serviceHpp = Finance::whereBetween('recorded_at', [$start, $end])
+            ->where('type', 'expense')
+            ->where('category', 'HPP')
+            ->where('source', 'service')
+            ->sum('nominal');
+
+        $totalHpp = $posHpp + $serviceHpp;
 
         $operationalExpense = Finance::whereBetween('recorded_at', [$start, $end])
             ->where('type', 'expense')
@@ -72,7 +88,11 @@ class FinanceController extends Controller
             'finances' => $finances,
             'incomeTotal' => $incomeTotal,
             'expenseTotal' => $expenseTotal,
+            'posIncome' => $posIncome,
+            'serviceIncome' => $serviceIncome,
             'total_income' => $totalIncome,
+            'posHpp' => $posHpp,
+            'serviceHpp' => $serviceHpp,
             'total_hpp' => $totalHpp,
             'total_expense' => $operationalExpense,
             'gross_profit' => $grossProfit,
