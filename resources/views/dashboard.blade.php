@@ -50,7 +50,7 @@
     <div class="grid gap-4 lg:grid-cols-3">
         <div class="lg:col-span-2 rounded-xl bg-white p-6 shadow border">
             <h2 class="mb-4 text-lg font-semibold text-gray-900">
-                Grafik Penjualan (7 Hari Terakhir)
+                Tren Keuangan (7 Hari Terakhir)
             </h2>
             <canvas id="salesChart" height="120"></canvas>
         </div>
@@ -138,20 +138,30 @@ const ctx = document.getElementById('salesChart');
 new Chart(ctx, {
     type: 'line',
     data: {
-        labels: {!! json_encode($chartLabels ?? ['Sen','Sel','Rab','Kam','Jum','Sab','Min']) !!},
-        datasets: [{
-            label: 'Penjualan',
-            data: {!! json_encode($chartData ?? [0,0,0,0,0,0,0]) !!},
-            borderColor: '#2563eb',
-            backgroundColor: 'rgba(37,99,235,0.15)',
-            tension: 0.4,
-            fill: true
-        }]
+        labels: {!! json_encode($financeChartLabels) !!},
+        datasets: [
+            {
+                label: 'Pemasukan',
+                data: {!! json_encode($financeChartIncome) !!},
+                borderColor: '#16a34a',
+                backgroundColor: 'rgba(22,163,74,0.12)',
+                tension: 0.4,
+                fill: true,
+            },
+            {
+                label: 'Pengeluaran',
+                data: {!! json_encode($financeChartExpense) !!},
+                borderColor: '#ef4444',
+                backgroundColor: 'rgba(239,68,68,0.12)',
+                tension: 0.4,
+                fill: true,
+            }
+        ]
     },
     options: {
         responsive: true,
         plugins: {
-            legend: { display: false }
+            legend: { display: true }
         },
         scales: {
             y: {
