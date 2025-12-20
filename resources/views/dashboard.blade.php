@@ -3,24 +3,40 @@
         $formatCurrency = fn($value) => 'Rp ' . number_format((float) $value, 0, ',', '.');
     @endphp
 
-    <div class="space-y-6">
-        <section class="rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-6 text-white shadow-xl">
-            <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <p class="text-sm uppercase tracking-wide text-blue-100">Selamat datang kembali</p>
-                    <h1 class="text-3xl font-semibold">{{ auth()->user()->name }}</h1>
-                    <p class="mt-2 text-blue-100">
-                        Pantau performa penjualan, layanan, dan stok dalam satu tampilan profesional.
+    <div class="space-y-8">
+        <section class="overflow-hidden rounded-2xl bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 p-6 text-white shadow-xl">
+            <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                <div class="space-y-2">
+                    <p class="text-xs uppercase tracking-[0.2em] text-blue-100">Dashboard utama</p>
+                    <h1 class="text-3xl font-semibold">Halo, {{ auth()->user()->name }}</h1>
+                    <p class="max-w-2xl text-blue-100">
+                        Ringkasan performa penjualan, layanan, dan inventaris dalam satu panel yang bersih dan mudah dipindai.
                     </p>
+                    <div class="flex flex-wrap gap-2 text-xs font-semibold text-white">
+                        <span class="rounded-full bg-white/15 px-3 py-1">{{ auth()->user()->roles->count() }} Role</span>
+                        <span class="rounded-full bg-white/15 px-3 py-1">{{ auth()->user()->allPermissions()->count() }} Permission</span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 backdrop-blur">
-                    <span class="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-2xl">💻</span>
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-blue-100">Hak akses</p>
-                        <div class="flex items-center gap-2 text-sm font-semibold">
-                            <span class="rounded-full bg-white/20 px-3 py-1">{{ auth()->user()->roles->count() }} Role</span>
-                            <span class="rounded-full bg-white/20 px-3 py-1">{{ auth()->user()->allPermissions()->count() }} Permission</span>
-                        </div>
+                <div class="grid w-full max-w-xl gap-3 sm:grid-cols-2">
+                    <div class="rounded-xl bg-white/10 p-4 backdrop-blur">
+                        <p class="text-xs uppercase tracking-wide text-blue-100">Penjualan hari ini</p>
+                        <p class="mt-2 text-2xl font-semibold">{{ $formatCurrency($todaySales) }}</p>
+                        <p class="text-xs text-blue-100">Monitor aktivitas kasir harian.</p>
+                    </div>
+                    <div class="rounded-xl bg-white/10 p-4 backdrop-blur">
+                        <p class="text-xs uppercase tracking-wide text-blue-100">Transaksi hari ini</p>
+                        <p class="mt-2 text-2xl font-semibold">{{ $transactionsToday }}</p>
+                        <p class="text-xs text-blue-100">Invoice terproses sampai saat ini.</p>
+                    </div>
+                    <div class="rounded-xl bg-white/10 p-4 backdrop-blur">
+                        <p class="text-xs uppercase tracking-wide text-blue-100">Penjualan bulan ini</p>
+                        <p class="mt-2 text-2xl font-semibold">{{ $formatCurrency($monthlySales) }}</p>
+                        <p class="text-xs text-blue-100">Akumulasi omzet periode berjalan.</p>
+                    </div>
+                    <div class="rounded-xl bg-white/10 p-4 backdrop-blur">
+                        <p class="text-xs uppercase tracking-wide text-blue-100">Pelanggan aktif</p>
+                        <p class="mt-2 text-2xl font-semibold">{{ $customersCount }}</p>
+                        <p class="text-xs text-blue-100">Total akun yang terdaftar.</p>
                     </div>
                 </div>
             </div>
@@ -30,45 +46,45 @@
             <div class="rounded-xl border border-blue-100 bg-white p-5 shadow-sm">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-500">Penjualan Hari Ini</p>
+                        <p class="text-xs uppercase tracking-wide text-blue-600">Penjualan hari ini</p>
                         <h3 class="mt-2 text-2xl font-semibold text-gray-900">{{ $formatCurrency($todaySales) }}</h3>
                     </div>
-                    <span class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600">💰</span>
+                    <span class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-lg">💰</span>
                 </div>
-                <p class="mt-3 text-xs text-gray-500">Total nilai transaksi yang tercatat hari ini.</p>
+                <p class="mt-3 text-sm text-gray-500">Total nilai transaksi yang tercatat sampai saat ini.</p>
             </div>
 
             <div class="rounded-xl border border-indigo-100 bg-white p-5 shadow-sm">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-500">Penjualan Bulan Ini</p>
+                        <p class="text-xs uppercase tracking-wide text-indigo-600">Penjualan bulan ini</p>
                         <h3 class="mt-2 text-2xl font-semibold text-gray-900">{{ $formatCurrency($monthlySales) }}</h3>
                     </div>
-                    <span class="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">📈</span>
+                    <span class="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50 text-lg">📈</span>
                 </div>
-                <p class="mt-3 text-xs text-gray-500">Akumulasi penjualan sejak awal bulan berjalan.</p>
+                <p class="mt-3 text-sm text-gray-500">Akumulasi omzet sejak awal bulan berjalan.</p>
             </div>
 
             <div class="rounded-xl border border-emerald-100 bg-white p-5 shadow-sm">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-500">Transaksi Hari Ini</p>
+                        <p class="text-xs uppercase tracking-wide text-emerald-600">Transaksi hari ini</p>
                         <h3 class="mt-2 text-2xl font-semibold text-gray-900">{{ $transactionsToday }}</h3>
                     </div>
-                    <span class="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">🧾</span>
+                    <span class="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-lg">🧾</span>
                 </div>
-                <p class="mt-3 text-xs text-gray-500">Jumlah invoice yang diproses pada hari ini.</p>
+                <p class="mt-3 text-sm text-gray-500">Jumlah invoice yang sudah diproses.</p>
             </div>
 
             <div class="rounded-xl border border-purple-100 bg-white p-5 shadow-sm">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-500">Pelanggan Aktif</p>
+                        <p class="text-xs uppercase tracking-wide text-purple-600">Pelanggan aktif</p>
                         <h3 class="mt-2 text-2xl font-semibold text-gray-900">{{ $customersCount }}</h3>
                     </div>
-                    <span class="flex h-12 w-12 items-center justify-center rounded-full bg-purple-50 text-purple-600">👥</span>
+                    <span class="flex h-12 w-12 items-center justify-center rounded-full bg-purple-50 text-lg">👥</span>
                 </div>
-                <p class="mt-3 text-xs text-gray-500">Jumlah pelanggan yang tercatat di sistem.</p>
+                <p class="mt-3 text-sm text-gray-500">Jumlah pelanggan tersimpan di sistem.</p>
             </div>
         </div>
 
@@ -76,8 +92,8 @@
             <section class="lg:col-span-2 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-500">Inventaris & Layanan</p>
-                        <h2 class="text-xl font-semibold text-gray-900">Kesehatan Operasional</h2>
+                        <p class="text-xs uppercase tracking-wide text-gray-500">Inventaris & layanan</p>
+                        <h2 class="text-xl font-semibold text-gray-900">Ringkasan operasional</h2>
                     </div>
                     <span class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-600">🛠️</span>
                 </div>
@@ -88,41 +104,72 @@
                         <p class="text-xs text-gray-500">SKU aktif di katalog.</p>
                     </div>
                     <div class="rounded-lg border border-amber-50 bg-amber-50/60 px-4 py-3">
-                        <p class="text-xs font-semibold uppercase tracking-wide text-amber-600">Layanan Berjalan</p>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-amber-600">Layanan berjalan</p>
                         <p class="mt-1 text-2xl font-semibold text-gray-900">{{ $activeServicesCount }}</p>
                         <p class="text-xs text-gray-500">Unit yang belum diambil pelanggan.</p>
                     </div>
                     <div class="rounded-lg border border-rose-50 bg-rose-50/60 px-4 py-3">
-                        <p class="text-xs font-semibold uppercase tracking-wide text-rose-600">Hutang Pembelian</p>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-rose-600">Hutang pembelian</p>
                         <p class="mt-1 text-2xl font-semibold text-gray-900">{{ $formatCurrency($outstandingPurchases) }}</p>
                         <p class="text-xs text-gray-500">Nilai invoice supplier berstatus hutang.</p>
                     </div>
                 </div>
-                <div class="mt-6 rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
-                    Gunakan menu sidebar untuk menambah produk, mencatat pembelian, atau memperbarui status layanan.
+                <div class="mt-6 grid gap-3 md:grid-cols-2">
+                    <div class="rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
+                        <p class="font-semibold text-gray-900">Rekomendasi harian</p>
+                        <p class="text-gray-600">Periksa stok produk laris dan pastikan status layanan diperbarui sebelum penutupan kasir.</p>
+                    </div>
+                    <div class="rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
+                        <p class="font-semibold text-gray-900">Catatan kas</p>
+                        <p class="text-gray-600">Pantau hutang pembelian untuk menjaga arus kas tetap sehat.</p>
+                    </div>
                 </div>
             </section>
 
             <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-semibold text-gray-900">Aksi Cepat</h2>
+                    <h2 class="text-lg font-semibold text-gray-900">Pintasan cepat</h2>
                     <span class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50">⚡</span>
                 </div>
                 <div class="mt-4 space-y-3 text-sm">
-                    <a href="{{ route('pos.index') }}" class="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3 hover:border-blue-300 hover:bg-blue-50">
-                        <span>Transaksi Baru</span>
+                    <a href="{{ route('pos.index') }}" class="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3 transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50">🧾</span>
+                            <div>
+                                <p class="font-semibold text-gray-900">Transaksi baru</p>
+                                <p class="text-gray-500">Buka POS untuk mencatat penjualan.</p>
+                            </div>
+                        </div>
                         <span class="text-blue-600">→</span>
                     </a>
-                    <a href="{{ route('services.index') }}" class="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3 hover:border-blue-300 hover:bg-blue-50">
-                        <span>Kelola Layanan</span>
+                    <a href="{{ route('services.index') }}" class="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3 transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-amber-50">🧰</span>
+                            <div>
+                                <p class="font-semibold text-gray-900">Kelola layanan</p>
+                                <p class="text-gray-500">Perbarui status service device.</p>
+                            </div>
+                        </div>
                         <span class="text-blue-600">→</span>
                     </a>
-                    <a href="{{ route('products.index') }}" class="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3 hover:border-blue-300 hover:bg-blue-50">
-                        <span>Inventaris Produk</span>
+                    <a href="{{ route('products.index') }}" class="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3 transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-green-50">📦</span>
+                            <div>
+                                <p class="font-semibold text-gray-900">Inventaris produk</p>
+                                <p class="text-gray-500">Atur stok, harga, dan kategori.</p>
+                            </div>
+                        </div>
                         <span class="text-blue-600">→</span>
                     </a>
-                    <a href="{{ route('purchases.index') }}" class="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3 hover:border-blue-300 hover:bg-blue-50">
-                        <span>Pembelian Supplier</span>
+                    <a href="{{ route('purchases.index') }}" class="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3 transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-purple-50">🧮</span>
+                            <div>
+                                <p class="font-semibold text-gray-900">Pembelian supplier</p>
+                                <p class="text-gray-500">Catat penerimaan dan pembayaran.</p>
+                            </div>
+                        </div>
                         <span class="text-blue-600">→</span>
                     </a>
                 </div>
@@ -132,7 +179,7 @@
         <div class="grid gap-4 lg:grid-cols-2">
             <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-semibold text-gray-900">Transaksi Terbaru</h2>
+                    <h2 class="text-lg font-semibold text-gray-900">Transaksi terbaru</h2>
                     <span class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50">📄</span>
                 </div>
                 <div class="mt-4 space-y-3">
@@ -155,7 +202,7 @@
 
             <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-semibold text-gray-900">Layanan Terbaru</h2>
+                    <h2 class="text-lg font-semibold text-gray-900">Layanan terbaru</h2>
                     <span class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50">🧰</span>
                 </div>
                 <div class="mt-4 space-y-3">
