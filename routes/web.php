@@ -19,7 +19,7 @@ use App\Http\Controllers\WaBroadcastController;
 use App\Http\Controllers\WaTemplateController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 Route::middleware(['auth'])->group(function () {

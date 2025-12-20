@@ -140,10 +140,10 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminRoleId = Role::where('slug', 'admin')->value('id');
 
         $adminUser = User::firstOrCreate(
-            ['email' => 'admin@pos.com'],
+            ['email' => 'nugraha.deev@gmail.com'],
             [
                 'name' => 'Administrator',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('Kmzwa8awa@'),
                 'email_verified_at' => now(),
             ]
         );
