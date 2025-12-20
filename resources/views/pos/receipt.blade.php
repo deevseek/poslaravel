@@ -9,14 +9,31 @@
         </div>
 
         <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-            <div class="flex items-center justify-between border-b border-gray-100 pb-4 text-sm text-gray-700">
-                <div>
-                    <p class="font-semibold text-gray-900">Tanggal</p>
-                    <p>{{ $transaction->created_at->format('d M Y H:i') }}</p>
+            <div class="flex flex-wrap items-start justify-between gap-4 border-b border-gray-100 pb-4 text-sm text-gray-700">
+                <div class="flex items-start gap-3">
+                    @if ($store['logo'])
+                        <img src="{{ asset($store['logo']) }}" alt="{{ $store['name'] }}" class="h-14 w-14 rounded" />
+                    @endif
+                    <div class="space-y-1">
+                        <p class="text-base font-semibold text-gray-900">{{ $store['name'] }}</p>
+                        @if ($store['address'])
+                            <p class="text-gray-600 leading-snug">{{ $store['address'] }}</p>
+                        @endif
+                        <div class="flex flex-col text-gray-600">
+                            @if ($store['phone'])
+                                <span>Telp: {{ $store['phone'] }}</span>
+                            @endif
+                            @if ($store['hours'])
+                                <span>Jam Operasional: {{ $store['hours'] }}</span>
+                            @endif
+                        </div>
+                    </div>
                 </div>
-                <div class="text-right">
-                    <p class="font-semibold text-gray-900">Metode Pembayaran</p>
-                    <p class="uppercase">{{ str_replace('-', ' ', $transaction->payment_method) }}</p>
+                <div class="text-right space-y-1">
+                    <p class="text-sm font-semibold text-gray-900">Invoice</p>
+                    <p class="text-gray-700">{{ $transaction->invoice_number }}</p>
+                    <p class="text-gray-600">{{ $transaction->created_at->format('d M Y H:i') }}</p>
+                    <p class="text-gray-600 uppercase">{{ str_replace('-', ' ', $transaction->payment_method) }}</p>
                 </div>
             </div>
 
@@ -71,6 +88,12 @@
                     <span>Kembalian</span>
                     <span>Rp {{ number_format($transaction->change_amount, 0, ',', '.') }}</span>
                 </div>
+            </div>
+
+            <div class="mt-6 rounded-lg bg-gray-50 p-4 text-sm text-gray-700">
+                <p class="font-semibold text-gray-900">Terima kasih telah berbelanja!</p>
+                <p class="text-gray-600">Simpan struk ini sebagai bukti pembayaran. Jika ada pertanyaan, hubungi kami di
+                    {{ $store['phone'] ?? 'kontak toko' }}.</p>
             </div>
         </div>
     </div>

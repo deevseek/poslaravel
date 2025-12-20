@@ -342,9 +342,17 @@ class ServiceController extends Controller
     {
         $service->load(['customer']);
 
+        $store = [
+            'name' => Setting::getValue(Setting::STORE_NAME, config('app.name')),
+            'address' => Setting::getValue(Setting::STORE_ADDRESS),
+            'phone' => Setting::getValue(Setting::STORE_PHONE),
+            'hours' => Setting::getValue(Setting::STORE_HOURS),
+            'logo' => Setting::getValue(Setting::STORE_LOGO_PATH),
+        ];
+
         return view('services.receipt', [
             'service' => $service,
-            'storeName' => Setting::getValue(Setting::STORE_NAME, config('app.name')),
+            'store' => $store,
         ]);
     }
 
