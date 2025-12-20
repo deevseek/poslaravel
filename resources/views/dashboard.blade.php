@@ -73,11 +73,11 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-xs uppercase tracking-wide text-blue-600">Penjualan hari ini</p>
-                        <h3 class="mt-2 text-2xl font-semibold text-gray-900">{{ $formatCurrency($todaySales) }}</h3>
+                        <h3 class="text-2xl font-semibold text-gray-900">{{ $formatCurrency($todaySales) }}</h3>
+                        <p class="text-xs text-gray-500">Nilai transaksi tercatat hingga sekarang.</p>
                     </div>
                     <span class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-lg">💳</span>
                 </div>
-                <p class="mt-3 text-sm text-gray-500">Total nilai transaksi yang tercatat sampai saat ini.</p>
             </div>
 
             <div class="group relative overflow-hidden rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
@@ -85,11 +85,11 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-xs uppercase tracking-wide text-indigo-600">Penjualan bulan ini</p>
-                        <h3 class="mt-2 text-2xl font-semibold text-gray-900">{{ $formatCurrency($monthlySales) }}</h3>
+                        <h3 class="text-2xl font-semibold text-gray-900">{{ $formatCurrency($monthlySales) }}</h3>
+                        <p class="text-xs text-gray-500">Akumulasi omzet sejak awal bulan.</p>
                     </div>
-                    <span class="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50 text-lg">📈</span>
+                    <span class="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50 text-lg">📈</span>
                 </div>
-                <p class="mt-3 text-sm text-gray-500">Akumulasi omzet sejak awal bulan berjalan.</p>
             </div>
 
             <div class="group relative overflow-hidden rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
@@ -97,11 +97,11 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-xs uppercase tracking-wide text-emerald-600">Transaksi hari ini</p>
-                        <h3 class="mt-2 text-2xl font-semibold text-gray-900">{{ $transactionsToday }}</h3>
+                        <h3 class="text-2xl font-semibold text-gray-900">{{ $transactionsToday }}</h3>
+                        <p class="text-xs text-gray-500">Total invoice selesai.</p>
                     </div>
-                    <span class="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-lg">🧾</span>
+                    <span class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50 text-lg">🧾</span>
                 </div>
-                <p class="mt-3 text-sm text-gray-500">Jumlah invoice yang sudah diproses.</p>
             </div>
 
             <div class="group relative overflow-hidden rounded-2xl border border-purple-100 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
@@ -109,11 +109,11 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-xs uppercase tracking-wide text-purple-600">Pelanggan aktif</p>
-                        <h3 class="mt-2 text-2xl font-semibold text-gray-900">{{ $customersCount }}</h3>
+                        <h3 class="text-2xl font-semibold text-gray-900">{{ $customersCount }}</h3>
+                        <p class="text-xs text-gray-500">Kontak pelanggan yang aktif tercatat.</p>
                     </div>
-                    <span class="flex h-12 w-12 items-center justify-center rounded-full bg-purple-50 text-lg">👥</span>
+                    <span class="flex h-10 w-10 items-center justify-center rounded-full bg-purple-50 text-lg">👥</span>
                 </div>
-                <p class="mt-3 text-sm text-gray-500">Jumlah pelanggan tersimpan di sistem.</p>
             </div>
         </section>
 
