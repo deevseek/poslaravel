@@ -4,9 +4,12 @@
     @endphp
 
     <div class="space-y-8">
-        <section class="overflow-hidden rounded-2xl bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 p-6 text-white shadow-xl">
-            <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-                <div class="space-y-2">
+        <section class="relative isolate overflow-hidden rounded-2xl bg-gradient-to-r from-blue-800 via-indigo-800 to-purple-800 p-6 text-white shadow-xl">
+            <div class="absolute inset-0 bg-gradient-to-br from-white/15 via-white/5 to-transparent opacity-60"></div>
+            <div class="absolute -right-16 -top-12 h-48 w-48 rounded-full bg-white/15 blur-3xl"></div>
+
+            <div class="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                <div class="space-y-2 drop-shadow-sm">
                     <p class="text-xs uppercase tracking-[0.2em] text-white/80">Dashboard utama</p>
                     <h1 class="text-3xl font-semibold">Halo, {{ auth()->user()->name }}</h1>
                     <p class="max-w-2xl text-white/90">
@@ -18,22 +21,22 @@
                     </div>
                 </div>
                 <div class="grid w-full max-w-xl gap-3 sm:grid-cols-2">
-                    <div class="rounded-xl bg-white/10 p-4 backdrop-blur">
+                    <div class="rounded-xl bg-white/15 p-4 ring-1 ring-white/10 backdrop-blur">
                         <p class="text-xs uppercase tracking-wide text-white/80">Penjualan hari ini</p>
                         <p class="mt-2 text-2xl font-semibold">{{ $formatCurrency($todaySales) }}</p>
                         <p class="text-xs text-white/80">Monitor aktivitas kasir harian.</p>
                     </div>
-                    <div class="rounded-xl bg-white/10 p-4 backdrop-blur">
+                    <div class="rounded-xl bg-white/15 p-4 ring-1 ring-white/10 backdrop-blur">
                         <p class="text-xs uppercase tracking-wide text-white/80">Transaksi hari ini</p>
                         <p class="mt-2 text-2xl font-semibold">{{ $transactionsToday }}</p>
                         <p class="text-xs text-white/80">Invoice terproses sampai saat ini.</p>
                     </div>
-                    <div class="rounded-xl bg-white/10 p-4 backdrop-blur">
+                    <div class="rounded-xl bg-white/15 p-4 ring-1 ring-white/10 backdrop-blur">
                         <p class="text-xs uppercase tracking-wide text-white/80">Penjualan bulan ini</p>
                         <p class="mt-2 text-2xl font-semibold">{{ $formatCurrency($monthlySales) }}</p>
                         <p class="text-xs text-white/80">Akumulasi omzet periode berjalan.</p>
                     </div>
-                    <div class="rounded-xl bg-white/10 p-4 backdrop-blur">
+                    <div class="rounded-xl bg-white/15 p-4 ring-1 ring-white/10 backdrop-blur">
                         <p class="text-xs uppercase tracking-wide text-white/80">Pelanggan aktif</p>
                         <p class="mt-2 text-2xl font-semibold">{{ $customersCount }}</p>
                         <p class="text-xs text-white/80">Total akun yang terdaftar.</p>
