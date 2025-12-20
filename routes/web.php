@@ -70,6 +70,8 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('services/{service}', 'update')->name('services.update')->middleware('permission:service.create');
         Route::post('services/{service}/status', 'updateStatus')->name('services.status')->middleware('permission:service.update_status');
         Route::post('services/{service}/items', 'addItem')->name('services.items.store')->middleware('permission:service.add_sparepart');
+        Route::get('services/{service}/receipt', 'receipt')->name('services.receipt')->middleware('permission:service.access');
+        Route::get('services/{service}/invoice', 'invoice')->name('services.invoice')->middleware('permission:service.access');
     });
 
     Route::controller(PurchaseController::class)->group(function () {

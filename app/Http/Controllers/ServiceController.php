@@ -132,6 +132,8 @@ class ServiceController extends Controller
                 StockMovement::create([
                     'product_id' => $product->id,
                     'type' => StockMovement::TYPE_OUT,
+                    'source' => 'service',
+                    'reference' => $service->id,
                     'quantity' => $validated['quantity'],
                     'note' => 'Penggunaan untuk service #' . $service->id,
                 ]);
@@ -255,7 +257,7 @@ class ServiceController extends Controller
                 'reference_id' => $service->id,
                 'type' => 'income',
                 'category' => 'Penjualan',
-                'nominal' => (float) $service->service_fee,
+                'nominal' => $subtotal,
                 'note' => 'Pembayaran Service - ' . $transaction->invoice_number,
                 'recorded_at' => $transaction->created_at->toDateString(),
                 'source' => 'service',
@@ -334,5 +336,32 @@ class ServiceController extends Controller
         );
 
         $this->whatsAppService->sendMessage($customer->phone, $message, 'service');
+    }
+
+    public function receipt(Service $service): View
+    {
+        $service->load(['customer']);
+
+        return view('services.receipt', [
+            'service' => $service,
+            'storeName' => Setting::getValue(Setting::STORE_NAME, config('app.name')),
+        ]);
+    }
+
+    public function invoice(Service $service): RedirectResponse|View
+    {
+        if (! $service->transaction) {
+            return redirect()
+                ->route('services.show', $service)
+                ->with('error', 'Invoice belum tersedia karena transaksi belum dibuat.');
+        }
+
+        $service->load(['customer', 'transaction.items.product']);
+
+        return view('services.invoice', [
+            'service' => $service,
+            'transaction' => $service->transaction,
+            'storeName' => Setting::getValue(Setting::STORE_NAME, config('app.name')),
+        ]);
     }
 }

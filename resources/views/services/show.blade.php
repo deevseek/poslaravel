@@ -6,6 +6,12 @@
             </div>
         @endif
 
+        @if (session('error'))
+            <div class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+                {{ session('error') }}
+            </div>
+        @endif
+
         @if ($errors->any())
             <div class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
                 <ul class="list-disc pl-5">
@@ -24,7 +30,10 @@
                             <h2 class="text-xl font-semibold text-gray-900">Informasi Service</h2>
                             <p class="text-gray-600">Detail keluhan dan pelanggan.</p>
                         </div>
-                        <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">{{ ucfirst($service->status) }}</span>
+                        <div class="flex items-center gap-2">
+                            <a href="{{ route('services.receipt', $service) }}" class="rounded-lg bg-white px-3 py-2 text-xs font-semibold text-gray-700 border border-gray-200 shadow-sm hover:bg-gray-50">Cetak Tanda Terima</a>
+                            <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">{{ ucfirst($service->status) }}</span>
+                        </div>
                     </div>
                     <dl class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div>
@@ -181,6 +190,9 @@
                         <button type="submit" class="w-full rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-gray-900">Perbarui Status</button>
                         @if ($service->transaction)
                             <p class="text-xs text-gray-500">Transaksi: {{ $service->transaction->invoice_number }}</p>
+                            <a href="{{ route('services.invoice', $service) }}" class="mt-2 inline-flex w-full items-center justify-center rounded-lg bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-100">Cetak Invoice</a>
+                        @else
+                            <button type="button" disabled class="mt-2 inline-flex w-full items-center justify-center rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-500">Invoice tersedia setelah transaksi</button>
                         @endif
                     </form>
                 </div>
