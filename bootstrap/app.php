@@ -6,6 +6,8 @@ use Illuminate\Foundation\Configuration\Middleware;
 
 use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\RoleMiddleware;
+use App\Tenancy\Middleware\EnsureSubscriptionActive;
+use App\Tenancy\Middleware\InitializeTenant;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,6 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,
+            'tenant' => InitializeTenant::class,
+            'subscription.active' => EnsureSubscriptionActive::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
