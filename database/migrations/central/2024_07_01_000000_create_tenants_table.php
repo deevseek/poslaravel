@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->string('subdomain')->unique();
             $table->string('database_name')->unique();
             $table->enum('status', ['active', 'suspended'])->default('active');
-            $table->foreignId('plan_id')->nullable()->constrained('subscription_plans');
+            $table->foreignId('plan_id')->nullable();
             $table->timestamps();
         });
     }
