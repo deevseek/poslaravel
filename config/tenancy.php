@@ -12,6 +12,6 @@ return [
         database_path('migrations/tenant'),
     ],
     'seeders' => [
-        // Add tenant seeders here when ready
+        Database\Seeders\RolesAndPermissionsSeeder::class,
     ],
 ];
