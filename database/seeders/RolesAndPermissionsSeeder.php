@@ -137,28 +137,35 @@ class RolesAndPermissionsSeeder extends Seeder
             $role->permissions()->sync($roleData['permissions']);
         }
 
-        $ownerRoleId = Role::where('slug', 'owner')->value('id');
-        $adminRoleId = Role::where('slug', 'admin')->value('id');
+        if ($this->isCentralConnection()) {
+            $ownerRoleId = Role::where('slug', 'owner')->value('id');
+            $adminRoleId = Role::where('slug', 'admin')->value('id');
 
-        $adminUser = User::firstOrCreate(
-            ['email' => 'nugraha.deev@gmail.com'],
-            [
-                'name' => 'Administrator',
-                'password' => Hash::make('Kmzwa8awa@'),
-                'email_verified_at' => now(),
-            ]
-        );
+            $adminUser = User::firstOrCreate(
+                ['email' => 'nugraha.deev@gmail.com'],
+                [
+                    'name' => 'Administrator',
+                    'password' => Hash::make('Kmzwa8awa@'),
+                    'email_verified_at' => now(),
+                ]
+            );
 
-        $ownerUser = User::firstOrCreate(
-            ['email' => 'owner@pos.com'],
-            [
-                'name' => 'Owner',
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-            ]
-        );
+            $ownerUser = User::firstOrCreate(
+                ['email' => 'owner@pos.com'],
+                [
+                    'name' => 'Owner',
+                    'password' => Hash::make('password'),
+                    'email_verified_at' => now(),
+                ]
+            );
 
-        $adminUser->roles()->syncWithoutDetaching([$adminRoleId]);
-        $ownerUser->roles()->syncWithoutDetaching([$ownerRoleId]);
+            $adminUser->roles()->syncWithoutDetaching([$adminRoleId]);
+            $ownerUser->roles()->syncWithoutDetaching([$ownerRoleId]);
+        }
+    }
+
+    protected function isCentralConnection(): bool
+    {
+        return config('database.default') === config('tenancy.central_connection', 'mysql');
     }
 }

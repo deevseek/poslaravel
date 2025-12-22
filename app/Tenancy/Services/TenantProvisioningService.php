@@ -2,6 +2,8 @@
 
 namespace App\Tenancy\Services;
 
+use App\Models\Role;
+use App\Models\User;
 use App\Tenancy\Models\Subscription;
 use App\Tenancy\Models\SubscriptionPlan;
 use App\Tenancy\Models\Tenant;
@@ -63,21 +65,26 @@ class TenantProvisioningService
         $manager = $this->tenantManager;
         $manager->switchToTenantConnection(new Tenant(['database_name' => $databaseName]));
 
-        DB::connection('tenant')->table('users')->insert([
-            'name' => $payload['admin_name'] ?? $payload['name'],
-            'email' => $payload['email'],
-            'password' => Hash::make($payload['password']),
-            'email_verified_at' => now(),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
         foreach (Config::get('tenancy.seeders', []) as $seeder) {
             Artisan::call('db:seed', [
                 '--class' => $seeder,
                 '--database' => 'tenant',
                 '--force' => true,
             ]);
+        }
+
+        $ownerRoleId = Role::where('slug', 'owner')->value('id');
+
+        $user = User::create([
+            'name' => $payload['admin_name'] ?? $payload['name'],
+            'email' => $payload['email'],
+            'password' => Hash::make($payload['password']),
+        ]);
+
+        $user->forceFill(['email_verified_at' => now()])->save();
+
+        if ($ownerRoleId) {
+            $user->roles()->sync([$ownerRoleId]);
         }
     }
 
