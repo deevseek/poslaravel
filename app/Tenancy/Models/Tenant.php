@@ -2,6 +2,7 @@
 
 namespace App\Tenancy\Models;
 
+use App\Tenancy\Models\SubscriptionPlan;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,5 +21,10 @@ class Tenant extends Model
     public function getConnectionName()
     {
         return config('tenancy.central_connection', 'mysql');
+    }
+
+    public function plan()
+    {
+        return $this->belongsTo(SubscriptionPlan::class);
     }
 }

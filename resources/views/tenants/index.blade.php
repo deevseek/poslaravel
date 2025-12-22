@@ -1,0 +1,65 @@
+<x-app-layout title="Daftar Tenant">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-900">Tenant</h1>
+            <p class="text-gray-600">Kelola tenant yang terhubung dengan sistem POS.</p>
+        </div>
+        <a href="{{ route('tenants.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">
+            ➕
+            <span>Tambah Tenant</span>
+        </a>
+    </div>
+
+    @if (session('success'))
+        <div class="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Nama</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Subdomain</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Paket</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Database</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Dibuat</th>
+                    <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 bg-white">
+                @forelse ($tenants as $tenant)
+                    <tr>
+                        <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $tenant->name }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ $tenant->subdomain }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ $tenant->plan->name ?? '-' }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">
+                            @if ($tenant->status === 'active')
+                                <span class="inline-flex items-center rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700">Aktif</span>
+                            @else
+                                <span class="inline-flex items-center rounded-full bg-yellow-50 px-3 py-1 text-xs font-semibold text-yellow-700">Ditangguhkan</span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ $tenant->database_name }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ $tenant->created_at?->format('d M Y') }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">
+                            <div class="flex items-center justify-end gap-2">
+                                <a href="{{ route('tenants.edit', $tenant) }}" class="rounded-lg border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50">Kelola</a>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">Belum ada tenant terdaftar.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        {{ $tenants->links() }}
+    </div>
+</x-app-layout>

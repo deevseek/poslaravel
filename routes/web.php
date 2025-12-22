@@ -17,6 +17,7 @@ use App\Http\Controllers\WarrantyController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\WaBroadcastController;
 use App\Http\Controllers\WaTemplateController;
+use App\Http\Controllers\TenantController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -134,6 +135,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('wa/logs', [WaBroadcastController::class, 'logs'])
         ->middleware('permission:whatsapp.log_view')
         ->name('wa.logs');
+
+    Route::resource('tenants', TenantController::class)
+        ->only(['index', 'create', 'store', 'edit', 'update'])
+        ->middleware('permission:tenant.manage');
 });
 
 require __DIR__.'/auth.php';

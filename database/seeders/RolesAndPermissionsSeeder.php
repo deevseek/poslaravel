@@ -49,6 +49,7 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'Kelola User', 'slug' => 'user.manage'],
             ['name' => 'Kelola Role', 'slug' => 'role.manage'],
             ['name' => 'Kelola Permission', 'slug' => 'permission.manage'],
+            ['name' => 'Kelola Tenant', 'slug' => 'tenant.manage'],
         ])->mapWithKeys(fn ($permission) => [
             $permission['slug'] => Permission::firstOrCreate(
                 ['slug' => $permission['slug']],
