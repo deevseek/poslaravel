@@ -67,6 +67,23 @@
                 <span>Servis</span>
             </a>
         @endpermission
+        @permission(['user.manage', 'role.manage'])
+            <div class="pt-2">
+                <p class="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">Pengguna</p>
+                @permission('user.manage')
+                    <a href="{{ route('users.index') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-blue-50 {{ request()->routeIs('users.*') ? 'bg-blue-50 text-blue-700' : 'text-gray-700' }}">
+                        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">👥</span>
+                        <span>Users</span>
+                    </a>
+                @endpermission
+                @permission('role.manage')
+                    <a href="{{ route('roles.index') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-blue-50 {{ request()->routeIs('roles.*') ? 'bg-blue-50 text-blue-700' : 'text-gray-700' }}">
+                        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">🛡️</span>
+                        <span>Roles & Permissions</span>
+                    </a>
+                @endpermission
+            </div>
+        @endpermission
         @permission('settings.view')
             <a href="{{ route('settings.index') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-blue-50 {{ request()->routeIs('settings.*') ? 'bg-blue-50 text-blue-700' : 'text-gray-700' }}">
                 <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">⚙️</span>

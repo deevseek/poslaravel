@@ -18,6 +18,8 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\WaBroadcastController;
 use App\Http\Controllers\WaTemplateController;
 use App\Http\Controllers\TenantController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -139,6 +141,11 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('tenants', TenantController::class)
         ->only(['index', 'create', 'store', 'edit', 'update'])
         ->middleware('permission:tenant.manage');
+
+    Route::resource('roles', RoleController::class)
+        ->middleware('permission:role.manage');
+    Route::resource('users', UserController::class)
+        ->middleware('permission:user.manage');
 });
 
 require __DIR__.'/auth.php';
