@@ -17,6 +17,10 @@ return new class extends Migration {
             $table->timestamps();
         });
 
+        Schema::table('tenants', function (Blueprint $table) {
+            $table->foreign('plan_id')->references('id')->on('subscription_plans');
+        });
+
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tenant_id')->constrained('tenants');
@@ -31,6 +35,11 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::dropIfExists('subscriptions');
+
+        Schema::table('tenants', function (Blueprint $table) {
+            $table->dropForeign(['plan_id']);
+        });
+
         Schema::dropIfExists('subscription_plans');
     }
 };
