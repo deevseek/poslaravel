@@ -22,6 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant' => InitializeTenant::class,
             'subscription.active' => EnsureSubscriptionActive::class,
         ]);
+
+        $middleware->web(append: [
+            InitializeTenant::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
