@@ -58,6 +58,30 @@
 
             <div class="grid gap-4 md:grid-cols-2">
                 <div>
+                    <label class="block text-sm font-medium text-gray-700" for="subscription_end_date">Berakhir Pada</label>
+                    <input type="date" id="subscription_end_date" name="subscription_end_date"
+                        value="{{ old('subscription_end_date', $tenant->latestSubscription?->end_date?->format('Y-m-d')) }}"
+                        class="mt-2 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    @error('subscription_end_date')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Perpanjang Otomatis</label>
+                    <div class="mt-3 flex items-center gap-2">
+                        <input type="checkbox" id="auto_renew" name="auto_renew" value="1"
+                            @checked(old('auto_renew', $tenant->latestSubscription?->auto_renew) == true)
+                            class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <label for="auto_renew" class="text-sm text-gray-600">Aktifkan perpanjangan saat masa habis</label>
+                    </div>
+                    @error('auto_renew')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="grid gap-4 md:grid-cols-2">
+                <div>
                     <label class="block text-sm font-medium text-gray-700">Database</label>
                     <div class="mt-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-600">
                         {{ $tenant->database_name }}
