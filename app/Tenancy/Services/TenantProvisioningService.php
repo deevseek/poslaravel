@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use RuntimeException;
 use Throwable;
 
 class TenantProvisioningService
@@ -55,7 +56,7 @@ class TenantProvisioningService
         DB::purge('tenant');
         DB::reconnect('tenant');
 
-        Artisan::call('migrate', [
+        $this->callArtisanOrFail('migrate', [
             '--database' => 'tenant',
             '--path' => Config::get('tenancy.tenant_migrations_paths'),
             '--force' => true,
@@ -68,7 +69,7 @@ class TenantProvisioningService
         $manager->switchToTenantConnection(new Tenant(['database_name' => $databaseName]));
 
         foreach (Config::get('tenancy.seeders', []) as $seeder) {
-            Artisan::call('db:seed', [
+            $this->callArtisanOrFail('db:seed', [
                 '--class' => $seeder,
                 '--database' => 'tenant',
                 '--force' => true,
@@ -116,5 +117,17 @@ class TenantProvisioningService
         $prefix = Config::get('tenancy.tenant_database_prefix', 'tenant_');
 
         return $prefix . $subdomain;
+    }
+
+    protected function callArtisanOrFail(string $command, array $arguments = []): void
+    {
+        $exitCode = Artisan::call($command, $arguments);
+
+        if ($exitCode !== 0) {
+            $output = trim(Artisan::output());
+            $message = $output !== '' ? $output : "Command {$command} failed.";
+
+            throw new RuntimeException($message);
+        }
     }
 }
