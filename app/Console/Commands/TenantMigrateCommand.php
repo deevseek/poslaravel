@@ -30,6 +30,7 @@ class TenantMigrateCommand extends Command
             Artisan::call('migrate' . ($this->option('fresh') ? ':fresh' : ''), [
                 '--database' => 'tenant',
                 '--path' => Config::get('tenancy.tenant_migrations_paths'),
+                '--realpath' => true,
                 '--force' => true,
             ]);
 
