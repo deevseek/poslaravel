@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Tenancy\Models\SubscriptionPlan;
+use App\Tenancy\Models\Subscription;
 use App\Tenancy\Models\Tenant;
 use App\Tenancy\Services\TenantProvisioningService;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -15,7 +17,7 @@ class TenantController extends Controller
 {
     public function index(): View
     {
-        $tenants = Tenant::with('plan')->latest()->paginate(10);
+        $tenants = Tenant::with(['plan', 'latestSubscription'])->latest()->paginate(10);
 
         return view('tenants.index', compact('tenants'));
     }
@@ -54,6 +56,7 @@ class TenantController extends Controller
     public function edit(Tenant $tenant): View
     {
         $plans = SubscriptionPlan::orderBy('price')->get();
+        $tenant->load('latestSubscription');
 
         return view('tenants.edit', compact('tenant', 'plans'));
     }
@@ -64,10 +67,53 @@ class TenantController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'status' => ['required', Rule::in(['active', 'suspended'])],
             'plan_id' => ['nullable', 'exists:subscription_plans,id'],
+            'subscription_end_date' => ['nullable', 'date'],
+            'auto_renew' => ['nullable', 'boolean'],
         ]);
 
         $tenant->update($validated);
+        $this->syncSubscription($tenant, $validated);
 
         return redirect()->route('tenants.index')->with('success', 'Tenant berhasil diperbarui.');
+    }
+
+    protected function syncSubscription(Tenant $tenant, array $validated): void
+    {
+        if (! array_key_exists('plan_id', $validated) || ! $validated['plan_id']) {
+            return;
+        }
+
+        $endDate = $validated['subscription_end_date'] ?? null;
+        $autoRenew = (bool) ($validated['auto_renew'] ?? false);
+        $status = 'active';
+
+        if ($endDate) {
+            $endDate = Carbon::parse($endDate)->endOfDay();
+            if (Carbon::now()->gt($endDate)) {
+                $status = 'expired';
+            }
+        }
+
+        $subscription = $tenant->latestSubscription;
+
+        if ($subscription) {
+            $subscription->fill([
+                'plan_id' => $validated['plan_id'],
+                'end_date' => $endDate,
+                'status' => $status,
+                'auto_renew' => $autoRenew,
+            ])->save();
+
+            return;
+        }
+
+        Subscription::create([
+            'tenant_id' => $tenant->id,
+            'plan_id' => $validated['plan_id'],
+            'start_date' => now(),
+            'end_date' => $endDate,
+            'status' => $status,
+            'auto_renew' => $autoRenew,
+        ]);
     }
 }

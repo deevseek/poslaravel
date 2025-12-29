@@ -13,11 +13,13 @@ class Subscription extends Model
         'start_date',
         'end_date',
         'status',
+        'auto_renew',
     ];
 
     protected $casts = [
         'start_date' => 'datetime',
         'end_date' => 'datetime',
+        'auto_renew' => 'boolean',
     ];
 
     public function getConnectionName()

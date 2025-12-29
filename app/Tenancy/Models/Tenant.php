@@ -5,6 +5,8 @@ namespace App\Tenancy\Models;
 use App\Tenancy\Models\SubscriptionPlan;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Tenant extends Model
 {
@@ -26,5 +28,15 @@ class Tenant extends Model
     public function plan()
     {
         return $this->belongsTo(SubscriptionPlan::class);
+    }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function latestSubscription(): HasOne
+    {
+        return $this->hasOne(Subscription::class)->latestOfMany('start_date');
     }
 }

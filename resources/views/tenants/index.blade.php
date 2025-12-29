@@ -24,6 +24,8 @@
                     <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Subdomain</th>
                     <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Paket</th>
                     <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Berakhir</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Perpanjang</th>
                     <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Database</th>
                     <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Dibuat</th>
                     <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">Aksi</th>
@@ -42,6 +44,32 @@
                                 <span class="inline-flex items-center rounded-full bg-yellow-50 px-3 py-1 text-xs font-semibold text-yellow-700">Ditangguhkan</span>
                             @endif
                         </td>
+                        <td class="px-6 py-4 text-sm text-gray-600">
+                            @php
+                                $subscription = $tenant->latestSubscription;
+                            @endphp
+                            @if ($subscription?->end_date)
+                                <div class="text-sm text-gray-700">
+                                    {{ $subscription->end_date->format('d M Y') }}
+                                </div>
+                                @if ($subscription->end_date->isPast())
+                                    <span class="inline-flex items-center rounded-full bg-red-50 px-2 py-1 text-[11px] font-semibold text-red-700">Kadaluarsa</span>
+                                @endif
+                            @else
+                                <span class="text-gray-400">-</span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-600">
+                            @if ($subscription)
+                                @if ($subscription->auto_renew)
+                                    <span class="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">Otomatis</span>
+                                @else
+                                    <span class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">Manual</span>
+                                @endif
+                            @else
+                                <span class="text-gray-400">-</span>
+                            @endif
+                        </td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $tenant->database_name }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $tenant->created_at?->format('d M Y') }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">
@@ -52,7 +80,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">Belum ada tenant terdaftar.</td>
+                        <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500">Belum ada tenant terdaftar.</td>
                     </tr>
                 @endforelse
             </tbody>
