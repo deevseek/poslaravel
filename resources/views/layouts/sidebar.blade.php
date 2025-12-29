@@ -13,6 +13,21 @@
                 <span>Dashboard</span>
             </a>
         @endpermission
+
+        @permission('pos.access')
+            <a href="{{ route('pos.index') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-blue-50 {{ request()->routeIs('pos.*') ? 'bg-blue-50 text-blue-700' : 'text-gray-700' }}">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">🧾</span>
+                <span>Point of Sales</span>
+            </a>
+        @endpermission
+
+        @permission('service.access')
+            <a href="{{ route('services.index') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-blue-50 {{ request()->routeIs('services.*') ? 'bg-blue-50 text-blue-700' : 'text-gray-700' }}">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">🛠️</span>
+                <span>Servis</span>
+            </a>
+        @endpermission
+        
         @permission('customer.manage')
             <a href="{{ route('customers.index') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-blue-50 {{ request()->routeIs('customers.*') ? 'bg-blue-50 text-blue-700' : 'text-gray-700' }}">
                 <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">👤</span>
@@ -54,19 +69,6 @@
             </a>
         @endpermission
 
-        @permission('pos.access')
-            <a href="{{ route('pos.index') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-blue-50 {{ request()->routeIs('pos.*') ? 'bg-blue-50 text-blue-700' : 'text-gray-700' }}">
-                <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">🧾</span>
-                <span>Point of Sales</span>
-            </a>
-        @endpermission
-
-        @permission('service.access')
-            <a href="{{ route('services.index') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-blue-50 {{ request()->routeIs('services.*') ? 'bg-blue-50 text-blue-700' : 'text-gray-700' }}">
-                <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">🛠️</span>
-                <span>Servis</span>
-            </a>
-        @endpermission
         @permission(['user.manage', 'role.manage'])
             <div class="pt-2">
                 <p class="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">Pengguna</p>
