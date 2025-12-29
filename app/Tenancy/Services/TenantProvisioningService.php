@@ -68,6 +68,7 @@ class TenantProvisioningService
     {
         $manager = $this->tenantManager;
         $manager->switchToTenantConnection(new Tenant(['database_name' => $databaseName]));
+        $tenantConnection = Config::get('tenancy.tenant_connection', 'tenant');
 
         foreach (Config::get('tenancy.seeders', []) as $seeder) {
             $this->callArtisanOrFail('db:seed', [
@@ -77,9 +78,9 @@ class TenantProvisioningService
             ]);
         }
 
-        $ownerRoleId = Role::where('slug', 'owner')->value('id');
+        $ownerRoleId = Role::on($tenantConnection)->where('slug', 'owner')->value('id');
 
-        $user = User::create([
+        $user = User::on($tenantConnection)->create([
             'name' => $payload['admin_name'] ?? $payload['name'],
             'email' => $payload['email'],
             'password' => Hash::make($payload['password']),

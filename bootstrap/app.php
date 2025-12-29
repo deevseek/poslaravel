@@ -23,7 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'subscription.active' => EnsureSubscriptionActive::class,
         ]);
 
-        $middleware->web(append: [
+        $middleware->web(prepend: [
             InitializeTenant::class,
         ]);
     })
