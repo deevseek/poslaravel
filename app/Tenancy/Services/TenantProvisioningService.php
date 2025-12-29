@@ -52,6 +52,8 @@ class TenantProvisioningService
     protected function runMigrations(string $databaseName): void
     {
         Config::set('database.connections.tenant.database', $databaseName);
+        DB::purge('tenant');
+        DB::reconnect('tenant');
 
         Artisan::call('migrate', [
             '--database' => 'tenant',
