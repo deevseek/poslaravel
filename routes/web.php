@@ -26,6 +26,10 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
+Route::get('service-progress/{service}', [ServiceController::class, 'progress'])
+    ->name('services.progress')
+    ->middleware('signed');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', DashboardController::class)
         ->middleware('permission:dashboard.view')

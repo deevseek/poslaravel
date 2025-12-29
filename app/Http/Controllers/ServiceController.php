@@ -18,6 +18,7 @@ use App\Services\WhatsAppService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -350,7 +351,27 @@ class ServiceController extends Controller
             'logo' => Setting::getValue(Setting::STORE_LOGO_PATH),
         ];
 
+        $progressUrl = URL::signedRoute('services.progress', $service);
+        $progressQrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' . urlencode($progressUrl);
+
         return view('services.receipt', [
+            'service' => $service,
+            'store' => $store,
+            'progressUrl' => $progressUrl,
+            'progressQrUrl' => $progressQrUrl,
+        ]);
+    }
+
+    public function progress(Service $service): View
+    {
+        $service->load(['customer', 'logs.user']);
+
+        $store = [
+            'name' => Setting::getValue(Setting::STORE_NAME, config('app.name')),
+            'phone' => Setting::getValue(Setting::STORE_PHONE),
+        ];
+
+        return view('services.progress', [
             'service' => $service,
             'store' => $store,
         ]);
