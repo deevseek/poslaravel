@@ -21,20 +21,26 @@ class SubscriptionPlanController extends Controller
 
     public function create(): View
     {
-        return view('subscription-plans.create');
+        $featureOptions = config('modules.subscription_features', []);
+
+        return view('subscription-plans.create', compact('featureOptions'));
     }
 
     public function store(Request $request): RedirectResponse
     {
+        $featureOptions = config('modules.subscription_features', []);
+        $featureValues = collect($featureOptions)->pluck('value')->all();
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'code' => ['required', 'string', 'max:50', 'unique:subscription_plans,code'],
             'price' => ['required', 'numeric', 'min:0'],
             'billing_cycle' => ['required', 'string', 'max:50'],
-            'features' => ['nullable', 'string'],
+            'features' => ['nullable', 'array'],
+            'features.*' => ['string', Rule::in($featureValues)],
         ]);
 
-        $features = $this->normalizeFeatures($validated['features'] ?? null);
+        $features = $this->normalizeFeatures($validated['features'] ?? [], $featureOptions);
 
         SubscriptionPlan::create([
             'name' => $validated['name'],
@@ -50,22 +56,27 @@ class SubscriptionPlanController extends Controller
 
     public function edit(SubscriptionPlan $subscriptionPlan): View
     {
-        $featuresText = implode(PHP_EOL, $subscriptionPlan->features ?? []);
+        $featureOptions = config('modules.subscription_features', []);
+        $selectedFeatures = $this->resolveSelectedFeatures($subscriptionPlan->features ?? [], $featureOptions);
 
-        return view('subscription-plans.edit', compact('subscriptionPlan', 'featuresText'));
+        return view('subscription-plans.edit', compact('subscriptionPlan', 'featureOptions', 'selectedFeatures'));
     }
 
     public function update(Request $request, SubscriptionPlan $subscriptionPlan): RedirectResponse
     {
+        $featureOptions = config('modules.subscription_features', []);
+        $featureValues = collect($featureOptions)->pluck('value')->all();
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'code' => ['required', 'string', 'max:50', Rule::unique('subscription_plans', 'code')->ignore($subscriptionPlan->id)],
             'price' => ['required', 'numeric', 'min:0'],
             'billing_cycle' => ['required', 'string', 'max:50'],
-            'features' => ['nullable', 'string'],
+            'features' => ['nullable', 'array'],
+            'features.*' => ['string', Rule::in($featureValues)],
         ]);
 
-        $features = $this->normalizeFeatures($validated['features'] ?? null);
+        $features = $this->normalizeFeatures($validated['features'] ?? [], $featureOptions);
 
         $subscriptionPlan->update([
             'name' => $validated['name'],
@@ -93,14 +104,25 @@ class SubscriptionPlanController extends Controller
             ->with('success', 'Paket langganan berhasil dihapus.');
     }
 
-    private function normalizeFeatures(?string $features): array
+    private function normalizeFeatures(array $features, array $availableFeatures): array
     {
-        if (! $features) {
-            return [];
-        }
+        $featureMap = collect($availableFeatures)
+            ->mapWithKeys(fn (array $feature) => [$feature['value'] => $feature['label']]);
 
-        return collect(preg_split("/\r\n|\r|\n/", $features))
-            ->map(fn (string $feature) => trim($feature))
+        return collect($features)
+            ->map(fn (string $feature) => $featureMap->get($feature))
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    private function resolveSelectedFeatures(array $storedFeatures, array $availableFeatures): array
+    {
+        $featureMap = collect($availableFeatures)
+            ->mapWithKeys(fn (array $feature) => [$feature['label'] => $feature['value']]);
+
+        return collect($storedFeatures)
+            ->map(fn (string $feature) => $featureMap->get($feature))
             ->filter()
             ->values()
             ->all();
