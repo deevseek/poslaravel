@@ -37,6 +37,10 @@ class PosController extends Controller
             'cartItems' => $cartItems,
             'subtotal' => $subtotal,
             'customers' => Customer::orderBy('name')->get(),
+            'recentTransactions' => Transaction::with('customer')
+                ->latest()
+                ->limit(10)
+                ->get(),
             'paymentMethods' => [
                 'cash' => 'Tunai',
                 'transfer' => 'Transfer',
