@@ -120,6 +120,26 @@
                             <option value="{{ $customer->id }}" @selected(old('customer_id') == $customer->id)>{{ $customer->name }}</option>
                         @endforeach
                     </select>
+                    <p class="mt-2 text-xs text-gray-500">Jika customer belum ada, isi data baru di bawah.</p>
+                </div>
+
+                <div class="space-y-3 rounded-lg border border-dashed border-gray-200 bg-gray-50 p-3">
+                    <div>
+                        <label for="new_customer_name" class="text-sm font-semibold text-gray-700">Nama Customer Baru</label>
+                        <input type="text" id="new_customer_name" name="new_customer_name" value="{{ old('new_customer_name') }}" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                    </div>
+                    <div>
+                        <label for="new_customer_phone" class="text-sm font-semibold text-gray-700">No. HP</label>
+                        <input type="text" id="new_customer_phone" name="new_customer_phone" value="{{ old('new_customer_phone') }}" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                    </div>
+                    <div>
+                        <label for="new_customer_email" class="text-sm font-semibold text-gray-700">Email</label>
+                        <input type="email" id="new_customer_email" name="new_customer_email" value="{{ old('new_customer_email') }}" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                    </div>
+                    <div>
+                        <label for="new_customer_address" class="text-sm font-semibold text-gray-700">Alamat</label>
+                        <textarea id="new_customer_address" name="new_customer_address" rows="2" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('new_customer_address') }}</textarea>
+                    </div>
                 </div>
 
                 <div>
