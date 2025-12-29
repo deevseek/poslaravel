@@ -128,11 +128,26 @@ class PosController extends Controller
             'payment_method' => 'required|in:cash,transfer,e-wallet',
             'paid_amount' => 'required|numeric|min:0',
             'customer_id' => 'nullable|exists:customers,id',
+            'new_customer_name' => 'nullable|string|max:255|required_with:new_customer_email,new_customer_phone,new_customer_address',
+            'new_customer_email' => 'nullable|email|max:255|unique:customers,email',
+            'new_customer_phone' => 'nullable|string|max:50',
+            'new_customer_address' => 'nullable|string|max:255',
         ]);
 
         $discount = min($validated['discount'] ?? 0, $subtotal);
         $total = $subtotal - $discount;
         $paidAmount = $validated['paid_amount'];
+
+        $customerId = $validated['customer_id'] ?? null;
+        if (! $customerId && filled($validated['new_customer_name'] ?? null)) {
+            $customer = Customer::create([
+                'name' => $validated['new_customer_name'],
+                'email' => $validated['new_customer_email'] ?? null,
+                'phone' => $validated['new_customer_phone'] ?? null,
+                'address' => $validated['new_customer_address'] ?? null,
+            ]);
+            $customerId = $customer->id;
+        }
 
         if ($paidAmount < $total) {
             return back()->withErrors([
@@ -141,12 +156,12 @@ class PosController extends Controller
         }
 
         try {
-            $transaction = DB::transaction(function () use ($cartItems, $discount, $subtotal, $total, $validated, $paidAmount) {
+            $transaction = DB::transaction(function () use ($cartItems, $discount, $subtotal, $total, $customerId, $validated, $paidAmount) {
                 $totalHpp = 0;
 
                 $transaction = Transaction::create([
                     'invoice_number' => $this->generateInvoiceNumber(),
-                    'customer_id' => $validated['customer_id'] ?? null,
+                    'customer_id' => $customerId,
                     'subtotal' => $subtotal,
                     'discount' => $discount,
                     'total' => $total,
