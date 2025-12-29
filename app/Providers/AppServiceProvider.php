@@ -20,6 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->loadMigrationsFrom([
+            database_path('migrations/central'),
+        ]);
+
         Blade::if('permission', function ($permissions, bool $requireAll = false) {
             $user = auth()->user();
 
