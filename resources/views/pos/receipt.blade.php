@@ -1,14 +1,58 @@
 <x-app-layout title="Struk Pembayaran">
+    <style>
+        .receipt-layout[data-format="standard"] .receipt-thermal {
+            display: none;
+        }
+
+        .receipt-layout[data-format="thermal"] .receipt-standard {
+            display: none;
+        }
+
+        @media print {
+            .receipt-actions {
+                display: none !important;
+            }
+
+            .receipt-layout {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+            }
+
+            .receipt-layout[data-format="thermal"] {
+                width: 80mm;
+            }
+        }
+    </style>
+
     <div class="mx-auto max-w-3xl space-y-6">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-semibold text-gray-900">Struk Pembayaran</h1>
                 <p class="text-gray-600">Invoice {{ $transaction->invoice_number }}</p>
             </div>
-            <button onclick="window.print()" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">Cetak</button>
+            <div class="receipt-actions flex flex-wrap items-center gap-2">
+                <button type="button" data-receipt-format="standard"
+                    class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50">
+                    Preview Printer Biasa
+                </button>
+                <button type="button" data-receipt-format="thermal"
+                    class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50">
+                    Preview Thermal 80mm
+                </button>
+                <button type="button" data-receipt-format="standard" data-receipt-print="true"
+                    class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">
+                    Cetak Printer Biasa
+                </button>
+                <button type="button" data-receipt-format="thermal" data-receipt-print="true"
+                    class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-700">
+                    Cetak Thermal 80mm
+                </button>
+            </div>
         </div>
 
-        <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+        <div class="receipt-layout rounded-lg border border-gray-200 bg-white p-6 shadow-sm" data-receipt-layout data-format="standard">
+            <div class="receipt-standard space-y-6">
             <div class="flex flex-wrap items-start justify-between gap-4 border-b border-gray-100 pb-4 text-sm text-gray-700">
                 <div class="flex items-start gap-3">
                     @if ($store['logo'])
@@ -96,5 +140,122 @@
                     {{ $store['phone'] ?? 'kontak toko' }}.</p>
             </div>
         </div>
+
+            <div class="receipt-thermal text-[11px] font-mono text-gray-900">
+                <div class="space-y-1 text-center">
+                    <p class="text-sm font-semibold uppercase">{{ $store['name'] }}</p>
+                    @if ($store['address'])
+                        <p>{{ $store['address'] }}</p>
+                    @endif
+                    @if ($store['phone'])
+                        <p>Telp: {{ $store['phone'] }}</p>
+                    @endif
+                </div>
+
+                <div class="my-3 border-t border-dashed border-gray-400"></div>
+
+                <div class="space-y-1">
+                    <div class="flex items-center justify-between">
+                        <span>Invoice</span>
+                        <span>{{ $transaction->invoice_number }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span>Tanggal</span>
+                        <span>{{ $transaction->created_at->format('d M Y H:i') }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span>Bayar</span>
+                        <span class="uppercase">{{ str_replace('-', ' ', $transaction->payment_method) }}</span>
+                    </div>
+                    @if ($transaction->customer)
+                        <div class="flex items-center justify-between">
+                            <span>Customer</span>
+                            <span>{{ $transaction->customer->name }}</span>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="my-3 border-t border-dashed border-gray-400"></div>
+
+                <div class="space-y-2">
+                    @foreach ($transaction->items as $item)
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <span class="max-w-[60%] truncate">{{ $item->product?->name ?? 'Produk' }}</span>
+                                <span>Rp {{ number_format($item->total, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex items-center justify-between text-gray-600">
+                                <span>{{ $item->quantity }} x Rp {{ number_format($item->price, 0, ',', '.') }}</span>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="my-3 border-t border-dashed border-gray-400"></div>
+
+                <div class="space-y-1">
+                    <div class="flex items-center justify-between">
+                        <span>Subtotal</span>
+                        <span>Rp {{ number_format($transaction->subtotal, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span>Diskon</span>
+                        <span>Rp {{ number_format($transaction->discount, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex items-center justify-between font-semibold">
+                        <span>Total</span>
+                        <span>Rp {{ number_format($transaction->total, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span>Bayar</span>
+                        <span>Rp {{ number_format($transaction->paid_amount, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span>Kembali</span>
+                        <span>Rp {{ number_format($transaction->change_amount, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+
+                <div class="my-3 border-t border-dashed border-gray-400"></div>
+
+                <div class="space-y-1 text-center text-gray-700">
+                    <p>Terima kasih telah berbelanja!</p>
+                    <p>Simpan struk ini sebagai bukti pembayaran.</p>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const layout = document.querySelector('[data-receipt-layout]');
+            const buttons = document.querySelectorAll('[data-receipt-format]');
+            const previewButtons = document.querySelectorAll('[data-receipt-format]:not([data-receipt-print])');
+
+            const setFormat = (format) => {
+                layout.dataset.format = format;
+                previewButtons.forEach((button) => {
+                    const isActive = button.dataset.receiptFormat === format;
+                    button.classList.toggle('bg-blue-600', isActive);
+                    button.classList.toggle('text-white', isActive);
+                    button.classList.toggle('border-blue-600', isActive);
+                    button.classList.toggle('bg-white', !isActive);
+                    button.classList.toggle('text-gray-700', !isActive);
+                });
+            };
+
+            buttons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    const format = button.dataset.receiptFormat;
+                    setFormat(format);
+
+                    if (button.dataset.receiptPrint) {
+                        window.print();
+                    }
+                });
+            });
+
+            setFormat(layout.dataset.format || 'standard');
+        });
+    </script>
 </x-app-layout>
