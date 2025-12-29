@@ -50,12 +50,22 @@
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-gray-700" for="features">Fitur</label>
-                <textarea id="features" name="features" rows="4"
-                    class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-                    placeholder="Masukkan satu fitur per baris">{{ old('features') }}</textarea>
-                <p class="mt-1 text-xs text-gray-500">Pisahkan setiap fitur dengan baris baru.</p>
+                <p class="block text-sm font-semibold text-gray-700">Fitur</p>
+                <div class="mt-2 grid gap-2 sm:grid-cols-2">
+                    @foreach ($featureOptions as $feature)
+                        <label class="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700">
+                            <input type="checkbox" name="features[]" value="{{ $feature['value'] }}"
+                                class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                {{ in_array($feature['value'], old('features', []), true) ? 'checked' : '' }}>
+                            <span>{{ $feature['label'] }}</span>
+                        </label>
+                    @endforeach
+                </div>
+                <p class="mt-1 text-xs text-gray-500">Pilih fitur sesuai modul yang tersedia.</p>
                 @error('features')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+                @error('features.*')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
