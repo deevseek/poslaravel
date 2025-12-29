@@ -59,6 +59,7 @@ class TenantProvisioningService
         $this->callArtisanOrFail('migrate', [
             '--database' => 'tenant',
             '--path' => Config::get('tenancy.tenant_migrations_paths'),
+            '--realpath' => true,
             '--force' => true,
         ]);
     }
