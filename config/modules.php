@@ -21,5 +21,7 @@ return [
         ['value' => 'whatsapp_broadcast', 'label' => 'Broadcast WhatsApp'],
         ['value' => 'whatsapp_templates', 'label' => 'Template Pesan WhatsApp'],
         ['value' => 'whatsapp_logs', 'label' => 'Log Pengiriman WhatsApp'],
+        ['value' => 'tenants', 'label' => 'Tenant'],
+        ['value' => 'tenant_management', 'label' => 'Manajemen Tenant'],
     ],
 ];
