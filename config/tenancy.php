@@ -8,6 +8,10 @@ return [
         'localhost',
         '127.0.0.1',
     ],
+    'central_subdomains' => array_values(array_filter(array_map(
+        'trim',
+        explode(',', env('CENTRAL_SUBDOMAINS', 'admin'))
+    ))),
     'tenant_database_prefix' => env('TENANT_DB_PREFIX', 'tenant_'),
     'tenant_migrations_paths' => [
         database_path('migrations'),
