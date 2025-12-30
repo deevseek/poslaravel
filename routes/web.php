@@ -19,12 +19,13 @@ use App\Http\Controllers\WaBroadcastController;
 use App\Http\Controllers\WaTemplateController;
 use App\Http\Controllers\SubscriptionPlanController;
 use App\Http\Controllers\TenantController;
+use App\Http\Controllers\TenantRegistrationController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 
-Route::get('/', function () {
-    return view('auth.login');
-});
+Route::get('/', [TenantRegistrationController::class, 'landing'])->name('landing');
+Route::post('tenant-registrations', [TenantRegistrationController::class, 'store'])
+    ->name('tenant-registrations.store');
 
 Route::get('service-progress/{service}', [ServiceController::class, 'progress'])
     ->name('services.progress')
@@ -146,6 +147,16 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('tenants', TenantController::class)
         ->only(['index', 'create', 'store', 'edit', 'update'])
         ->middleware('permission:tenant.manage');
+
+    Route::get('tenant-registrations', [TenantRegistrationController::class, 'index'])
+        ->middleware('permission:tenant.manage')
+        ->name('tenant-registrations.index');
+    Route::post('tenant-registrations/{tenantRegistration}/approve', [TenantRegistrationController::class, 'approve'])
+        ->middleware('permission:tenant.manage')
+        ->name('tenant-registrations.approve');
+    Route::post('tenant-registrations/{tenantRegistration}/reject', [TenantRegistrationController::class, 'reject'])
+        ->middleware('permission:tenant.manage')
+        ->name('tenant-registrations.reject');
 
     Route::resource('subscription-plans', SubscriptionPlanController::class)
         ->except(['show'])
