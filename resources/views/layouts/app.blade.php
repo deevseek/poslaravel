@@ -1,44 +1,70 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-slate-950">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title ?? config('app.name') }}</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
-<body class="font-sans antialiased h-full text-slate-900">
-    <div class="min-h-screen bg-slate-950">
-        <div class="flex min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
-            @include('layouts.sidebar')
+<body class="hold-transition sidebar-mini layout-fixed">
+    <div class="wrapper">
+        @include('layouts.navigation')
+        @include('layouts.sidebar')
 
-            <div class="flex-1 flex flex-col min-h-screen">
-                @include('layouts.navigation')
+        <div class="content-wrapper">
+            @isset($header)
+                <section class="content-header">
+                    <div class="container-fluid">
+                        <div class="row mb-2">
+                            <div class="col-sm-12">
+                                <div class="card card-outline card-primary mb-0">
+                                    <div class="card-body">
+                                        {{ $header }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            @elseif(View::hasSection('header'))
+                <section class="content-header">
+                    <div class="container-fluid">
+                        <div class="row mb-2">
+                            <div class="col-sm-12">
+                                <div class="card card-outline card-primary mb-0">
+                                    <div class="card-body">
+                                        @yield('header')
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            @endif
 
-                <main class="flex-1 px-4 pb-10 pt-6 sm:px-6 lg:px-10">
-                    <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
-                        @isset($header)
-                            <header class="rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur">
-                                {{ $header }}
-                            </header>
-                        @elseif(View::hasSection('header'))
-                            <header class="rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur">
-                                @yield('header')
-                            </header>
-                        @endif
-
-                        <section class="rounded-3xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur">
+            <section class="content">
+                <div class="container-fluid">
+                    <div class="card">
+                        <div class="card-body">
                             @isset($slot)
                                 {{ $slot }}
                             @else
                                 @yield('content')
                             @endisset
-                        </section>
+                        </div>
                     </div>
-                </main>
-            </div>
+                </div>
+            </section>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
 </body>
 </html>

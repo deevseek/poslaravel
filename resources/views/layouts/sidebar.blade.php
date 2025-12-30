@@ -1,156 +1,197 @@
-<aside class="hidden w-72 flex-shrink-0 border-r border-slate-900/10 bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-white md:block">
-    <div class="flex items-center gap-3 px-6 py-6">
-        <x-application-logo class="h-11 w-11" />
-        <div>
-            <p class="text-xs uppercase tracking-wide text-slate-400">POS Dealer</p>
-            <p class="text-lg font-semibold text-white">Komputer & Service</p>
-        </div>
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <a href="{{ route('dashboard') }}" class="brand-link">
+        <x-application-logo class="brand-image img-circle elevation-3" />
+        <span class="brand-text font-weight-light">POS Dealer</span>
+    </a>
+
+    <div class="sidebar">
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                @permission('dashboard.view')
+                    <li class="nav-item">
+                        <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-chart-line"></i>
+                            <p>Dashboard</p>
+                        </a>
+                    </li>
+                @endpermission
+
+                @permission('pos.access')
+                    <li class="nav-item">
+                        <a href="{{ route('pos.index') }}" class="nav-link {{ request()->routeIs('pos.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-receipt"></i>
+                            <p>Point of Sales</p>
+                        </a>
+                    </li>
+                @endpermission
+
+                @permission('service.access')
+                    <li class="nav-item">
+                        <a href="{{ route('services.index') }}" class="nav-link {{ request()->routeIs('services.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-tools"></i>
+                            <p>Servis</p>
+                        </a>
+                    </li>
+                @endpermission
+
+                @permission('customer.manage')
+                    <li class="nav-item">
+                        <a href="{{ route('customers.index') }}" class="nav-link {{ request()->routeIs('customers.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-user"></i>
+                            <p>Customers</p>
+                        </a>
+                    </li>
+                @endpermission
+                @permission('supplier.manage')
+                    <li class="nav-item">
+                        <a href="{{ route('suppliers.index') }}" class="nav-link {{ request()->routeIs('suppliers.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-truck"></i>
+                            <p>Suppliers</p>
+                        </a>
+                    </li>
+                @endpermission
+
+                @permission('inventory.view')
+                    <li class="nav-item">
+                        <a href="{{ route('categories.index') }}" class="nav-link {{ request()->routeIs('categories.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-tags"></i>
+                            <p>Kategori</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('products.index') }}" class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-boxes"></i>
+                            <p>Produk</p>
+                        </a>
+                    </li>
+                @endpermission
+
+                @permission(['purchase.view', 'purchase.create'])
+                    <li class="nav-item">
+                        <a href="{{ route('purchases.index') }}" class="nav-link {{ request()->routeIs('purchases.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-shopping-cart"></i>
+                            <p>Pembelian</p>
+                        </a>
+                    </li>
+                @endpermission
+
+                @permission('inventory.view')
+                    <li class="nav-item">
+                        <a href="{{ route('stock-movements.index') }}" class="nav-link {{ request()->routeIs('stock-movements.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-dolly"></i>
+                            <p>Pergerakan Stok</p>
+                        </a>
+                    </li>
+                @endpermission
+
+                @permission('finance.view')
+                    <li class="nav-item">
+                        <a href="{{ route('finances.index') }}" class="nav-link {{ request()->routeIs('finances.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-coins"></i>
+                            <p>Keuangan</p>
+                        </a>
+                    </li>
+                @endpermission
+
+                @permission(['user.manage', 'role.manage'])
+                    <li class="nav-header">Pengguna</li>
+                    @permission('user.manage')
+                        <li class="nav-item">
+                            <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-users"></i>
+                                <p>Users</p>
+                            </a>
+                        </li>
+                    @endpermission
+                    @permission('role.manage')
+                        <li class="nav-item">
+                            <a href="{{ route('roles.index') }}" class="nav-link {{ request()->routeIs('roles.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-user-shield"></i>
+                                <p>Roles & Permissions</p>
+                            </a>
+                        </li>
+                    @endpermission
+                @endpermission
+
+                @permission('settings.view')
+                    <li class="nav-item">
+                        <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-cog"></i>
+                            <p>Pengaturan</p>
+                        </a>
+                    </li>
+                @endpermission
+
+                @permission('tenant.manage')
+                    <li class="nav-header">Tenant</li>
+                    <li class="nav-item">
+                        <a href="{{ route('tenants.index') }}" class="nav-link {{ request()->routeIs('tenants.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-building"></i>
+                            <p>Daftar Tenant</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('subscription-plans.index') }}" class="nav-link {{ request()->routeIs('subscription-plans.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-box"></i>
+                            <p>Manajemen Paket</p>
+                        </a>
+                    </li>
+                @endpermission
+
+                @permission(['warranty.view', 'warranty.claim'])
+                    <li class="nav-header">Garansi</li>
+                    @permission('warranty.view')
+                        <li class="nav-item">
+                            <a href="{{ route('warranties.index') }}" class="nav-link {{ request()->routeIs('warranties.index') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-shield-alt"></i>
+                                <p>Daftar Garansi</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('warranties.reminder') }}" class="nav-link {{ request()->routeIs('warranties.reminder') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-bell"></i>
+                                <p>Reminder Garansi</p>
+                            </a>
+                        </li>
+                    @endpermission
+                    @permission('warranty.claim')
+                        <li class="nav-item">
+                            <a href="{{ route('warranties.create') }}" class="nav-link {{ request()->routeIs('warranties.create') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-clipboard-check"></i>
+                                <p>Klaim Garansi</p>
+                            </a>
+                        </li>
+                    @endpermission
+                @endpermission
+
+                @permission(['whatsapp.broadcast', 'whatsapp.template_manage', 'whatsapp.log_view'])
+                    <li class="nav-header">WhatsApp</li>
+                    @permission('whatsapp.broadcast')
+                        <li class="nav-item">
+                            <a href="{{ route('wa.broadcast') }}" class="nav-link {{ request()->routeIs('wa.broadcast') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-bullhorn"></i>
+                                <p>Broadcast</p>
+                            </a>
+                        </li>
+                    @endpermission
+                    @permission('whatsapp.template_manage')
+                        <li class="nav-item">
+                            <a href="{{ route('wa-templates.index') }}" class="nav-link {{ request()->routeIs('wa-templates.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-puzzle-piece"></i>
+                                <p>Template Pesan</p>
+                            </a>
+                        </li>
+                    @endpermission
+                    @permission('whatsapp.log_view')
+                        <li class="nav-item">
+                            <a href="{{ route('wa.logs') }}" class="nav-link {{ request()->routeIs('wa.logs') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-file-alt"></i>
+                                <p>Log Pengiriman</p>
+                            </a>
+                        </li>
+                    @endpermission
+                @endpermission
+            </ul>
+        </nav>
     </div>
-    <nav class="px-4 pb-8 pt-2 space-y-1">
-        @permission('dashboard.view')
-            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('dashboard') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">📊</span>
-                <span>Dashboard</span>
-            </a>
-        @endpermission
-
-        @permission('pos.access')
-            <a href="{{ route('pos.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('pos.*') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">🧾</span>
-                <span>Point of Sales</span>
-            </a>
-        @endpermission
-
-        @permission('service.access')
-            <a href="{{ route('services.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('services.*') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">🛠️</span>
-                <span>Servis</span>
-            </a>
-        @endpermission
-        
-        @permission('customer.manage')
-            <a href="{{ route('customers.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('customers.*') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">👤</span>
-                <span>Customers</span>
-            </a>
-        @endpermission
-        @permission('supplier.manage')
-            <a href="{{ route('suppliers.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('suppliers.*') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">🚚</span>
-                <span>Suppliers</span>
-            </a>
-        @endpermission
-        @permission('inventory.view')
-            <a href="{{ route('categories.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('categories.*') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">🏷️</span>
-                <span>Kategori</span>
-            </a>
-            <a href="{{ route('products.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('products.*') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">🛒</span>
-                <span>Produk</span>
-            </a>
-        @endpermission
-        @permission(['purchase.view', 'purchase.create'])
-            <a href="{{ route('purchases.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('purchases.*') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">🧾</span>
-                <span>Pembelian</span>
-            </a>
-        @endpermission
-        @permission('inventory.view')
-            <a href="{{ route('stock-movements.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('stock-movements.*') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">📦</span>
-                <span>Pergerakan Stok</span>
-            </a>
-        @endpermission
-        @permission('finance.view')
-            <a href="{{ route('finances.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('finances.*') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">💰</span>
-                <span>Keuangan</span>
-            </a>
-        @endpermission
-
-        @permission(['user.manage', 'role.manage'])
-            <div class="pt-2">
-                <p class="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Pengguna</p>
-                @permission('user.manage')
-                    <a href="{{ route('users.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('users.*') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">👥</span>
-                        <span>Users</span>
-                    </a>
-                @endpermission
-                @permission('role.manage')
-                    <a href="{{ route('roles.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('roles.*') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">🛡️</span>
-                        <span>Roles & Permissions</span>
-                    </a>
-                @endpermission
-            </div>
-        @endpermission
-        @permission('settings.view')
-            <a href="{{ route('settings.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('settings.*') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">⚙️</span>
-                <span>Pengaturan</span>
-            </a>
-        @endpermission
-
-        @permission('tenant.manage')
-            <div class="pt-2">
-                <p class="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Tenant</p>
-                <a href="{{ route('tenants.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('tenants.*') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">🏢</span>
-                    <span>Daftar Tenant</span>
-                </a>
-                <a href="{{ route('subscription-plans.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('subscription-plans.*') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">📦</span>
-                    <span>Manajemen Paket</span>
-                </a>
-            </div>
-        @endpermission
-
-        @permission(['warranty.view', 'warranty.claim'])
-            <div class="pt-2">
-                <p class="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Garansi</p>
-                @permission('warranty.view')
-                    <a href="{{ route('warranties.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('warranties.index') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">🛡️</span>
-                        <span>Daftar Garansi</span>
-                    </a>
-                    <a href="{{ route('warranties.reminder') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('warranties.reminder') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">⏰</span>
-                        <span>Reminder Garansi</span>
-                    </a>
-                @endpermission
-                @permission('warranty.claim')
-                    <a href="{{ route('warranties.create') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('warranties.create') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">📝</span>
-                        <span>Klaim Garansi</span>
-                    </a>
-                @endpermission
-            </div>
-        @endpermission
-
-        @permission(['whatsapp.broadcast', 'whatsapp.template_manage', 'whatsapp.log_view'])
-            <div class="pt-2">
-                <p class="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">WhatsApp</p>
-                @permission('whatsapp.broadcast')
-                    <a href="{{ route('wa.broadcast') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('wa.broadcast') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">📣</span>
-                        <span>Broadcast</span>
-                    </a>
-                @endpermission
-                @permission('whatsapp.template_manage')
-                    <a href="{{ route('wa-templates.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('wa-templates.*') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">🧩</span>
-                        <span>Template Pesan</span>
-                    </a>
-                @endpermission
-                @permission('whatsapp.log_view')
-                    <a href="{{ route('wa.logs') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 {{ request()->routeIs('wa.logs') ? 'bg-indigo-500/20 text-white ring-1 ring-indigo-500/30' : 'text-slate-200' }}">
-                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white">📜</span>
-                        <span>Log Pengiriman</span>
-                    </a>
-                @endpermission
-            </div>
-        @endpermission
-    </nav>
 </aside>
