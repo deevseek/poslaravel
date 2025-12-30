@@ -18,9 +18,7 @@ class InitializeTenant
         $tenant = $this->tenantManager->resolve($request);
 
         if (! $tenant) {
-            $centralDomains = config('tenancy.central_domains', []);
-
-            if (in_array($request->getHost(), $centralDomains, true)) {
+            if ($this->tenantManager->isCentralHost($request->getHost())) {
                 return $next($request);
             }
 

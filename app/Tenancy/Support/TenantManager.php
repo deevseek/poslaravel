@@ -26,7 +26,7 @@ class TenantManager
         $host = $request->getHost();
         $baseDomains = Config::get('tenancy.central_domains', []);
 
-        if (in_array($host, $baseDomains, true)) {
+        if ($this->isCentralHost($host, $baseDomains)) {
             return null;
         }
 
@@ -37,6 +37,25 @@ class TenantManager
         }
 
         return $this->tenant = Tenant::query()->where('subdomain', $subdomain)->first();
+    }
+
+    public function isCentralHost(string $host, ?array $baseDomains = null): bool
+    {
+        $baseDomains ??= Config::get('tenancy.central_domains', []);
+
+        if (in_array($host, $baseDomains, true)) {
+            return true;
+        }
+
+        $subdomain = $this->extractSubdomain($host, $baseDomains);
+
+        if (! $subdomain) {
+            return false;
+        }
+
+        $centralSubdomains = Config::get('tenancy.central_subdomains', []);
+
+        return in_array($subdomain, $centralSubdomains, true);
     }
 
     public function current(): ?Tenant
