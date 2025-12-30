@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'Dealer Management') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
@@ -18,7 +18,7 @@
         </div>
         <div class="card card-outline card-primary">
             <div class="card-header text-center">
-                <span class="h5 mb-0">{{ config('app.name', 'Laravel') }}</span>
+                <span class="h5 mb-0">{{ config('app.name', 'Dealer Management') }}</span>
             </div>
             <div class="card-body">
                 {{ $slot }}
