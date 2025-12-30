@@ -24,7 +24,9 @@ class TenantProvisioningService
 
     public function provision(array $payload): Tenant
     {
-        return DB::transaction(function () use ($payload) {
+        $centralConnection = Config::get('tenancy.central_connection', 'mysql');
+
+        return DB::connection($centralConnection)->transaction(function () use ($payload, $centralConnection) {
             $subdomain = Str::slug($payload['subdomain']);
             $databaseName = $this->makeDatabaseName($subdomain);
 
@@ -36,7 +38,7 @@ class TenantProvisioningService
                 'plan_id' => $payload['plan_id'] ?? null,
             ]);
 
-            $this->createTenantDatabase($databaseName);
+            $this->createTenantDatabase($databaseName, $centralConnection);
             $this->runMigrations($databaseName);
             $this->seedTenant($databaseName, $payload);
             $this->attachSubscription($tenant, $payload['plan_id'] ?? null);
@@ -45,9 +47,11 @@ class TenantProvisioningService
         });
     }
 
-    protected function createTenantDatabase(string $databaseName): void
+    protected function createTenantDatabase(string $databaseName, string $centralConnection): void
     {
-        DB::statement("CREATE DATABASE IF NOT EXISTS `{$databaseName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+        DB::connection($centralConnection)->statement(
+            "CREATE DATABASE IF NOT EXISTS `{$databaseName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+        );
     }
 
     protected function runMigrations(string $databaseName): void
