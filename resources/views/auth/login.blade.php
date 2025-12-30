@@ -1,38 +1,52 @@
 <x-guest-layout>
-    <div class="space-y-2 text-center">
-        <h2 class="text-xl font-semibold text-gray-900">Masuk ke akun Anda</h2>
-        <p class="text-sm text-gray-600">Gunakan email dan password terdaftar untuk mengakses dashboard.</p>
-    </div>
+    <p class="login-box-msg">Masuk ke akun Anda</p>
 
-    <form method="POST" action="{{ route('login') }}" class="space-y-6">
+    <form method="POST" action="{{ route('login') }}">
         @csrf
 
-        <x-auth-session-status class="mb-4" :status="session('status')" />
+        <x-auth-session-status class="mb-3" :status="session('status')" />
 
-        <div>
-            <x-input-label for="email" value="Email" />
-            <x-text-input id="email" class="block w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <div class="input-group mb-3">
+            <x-text-input id="email" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" placeholder="Email" />
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <span class="fas fa-envelope"></span>
+                </div>
+            </div>
+        </div>
+        <x-input-error :messages="$errors->get('email')" class="mb-2" />
+
+        <div class="input-group mb-3">
+            <x-text-input id="password" type="password" name="password" required autocomplete="current-password" placeholder="Password" />
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <span class="fas fa-lock"></span>
+                </div>
+            </div>
+        </div>
+        <x-input-error :messages="$errors->get('password')" class="mb-2" />
+
+        <div class="row align-items-center mb-3">
+            <div class="col-7">
+                <div class="form-check">
+                    <input type="checkbox" name="remember" class="form-check-input" id="remember">
+                    <label class="form-check-label" for="remember">Ingat saya</label>
+                </div>
+            </div>
+            <div class="col-5 text-right">
+                <a class="text-sm" href="{{ route('password.request') }}">Lupa password?</a>
+            </div>
         </div>
 
-        <div>
-            <x-input-label for="password" value="Password" />
-            <x-text-input id="password" class="block w-full" type="password" name="password" required autocomplete="current-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <div class="row">
+            <div class="col-12">
+                <x-primary-button class="btn-block">Masuk</x-primary-button>
+            </div>
         </div>
 
-        <div class="flex items-center justify-between text-sm">
-            <label class="inline-flex items-center gap-2">
-                <input type="checkbox" name="remember" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
-                <span class="text-gray-700">Ingat saya</span>
-            </label>
-
-            <a class="text-blue-600 hover:underline" href="{{ route('password.request') }}">Lupa password?</a>
-        </div>
-
-        <div class="space-y-3">
-            <x-primary-button class="w-full justify-center">Masuk</x-primary-button>
-            <p class="text-sm text-center text-gray-600">Belum punya akun? <a href="{{ route('register') }}" class="text-blue-600 hover:underline">Daftar sekarang</a></p>
-        </div>
+        <p class="mt-3 mb-0 text-center text-sm">
+            Belum punya akun?
+            <a href="{{ route('register') }}">Daftar sekarang</a>
+        </p>
     </form>
 </x-guest-layout>

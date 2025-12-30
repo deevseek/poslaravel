@@ -1,38 +1,51 @@
-<nav class="sticky top-0 z-30 border-b border-slate-200/80 bg-white/80 shadow-sm backdrop-blur">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="flex h-16 items-center justify-between gap-6">
-            <div class="flex items-center gap-3 md:hidden">
-                <x-application-logo class="h-10 w-10" />
-                <div class="leading-tight">
-                    <p class="text-xs uppercase tracking-wide text-slate-400">POS Dealer</p>
-                    <p class="text-lg font-semibold text-slate-900">Komputer & Service</p>
-                </div>
-            </div>
+<nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" data-widget="pushmenu" href="#" role="button">
+                <i class="fas fa-bars"></i>
+            </a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                Dashboard
+            </a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="{{ route('customers.index') }}" class="nav-link {{ request()->routeIs('customers.*') ? 'active' : '' }}">
+                Customers
+            </a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="{{ route('suppliers.index') }}" class="nav-link {{ request()->routeIs('suppliers.*') ? 'active' : '' }}">
+                Suppliers
+            </a>
+        </li>
+    </ul>
 
-            <div class="flex flex-1 items-center gap-6">
-                <div class="hidden space-x-6 md:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        Dashboard
-                    </x-nav-link>
-                    <x-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.*')">
-                        Customers
-                    </x-nav-link>
-                    <x-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')">
-                        Suppliers
-                    </x-nav-link>
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item dropdown">
+            <a class="nav-link" data-toggle="dropdown" href="#" role="button">
+                <i class="far fa-user"></i>
+                <span class="d-none d-md-inline">{{ auth()->user()->name }}</span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                <div class="dropdown-item-text">
+                    <div class="d-flex flex-column">
+                        <strong>{{ auth()->user()->name }}</strong>
+                        <span class="text-muted text-sm">{{ auth()->user()->email }}</span>
+                    </div>
+                </div>
+                <div class="dropdown-divider"></div>
+                <div class="px-3">
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="btn btn-block btn-outline-danger btn-sm">
+                            <i class="fas fa-sign-out-alt mr-1"></i>
+                            Logout
+                        </button>
+                    </form>
                 </div>
             </div>
-
-            <div class="flex items-center gap-4">
-                <div class="hidden text-right sm:block">
-                    <p class="text-sm font-semibold text-slate-900">{{ auth()->user()->name }}</p>
-                    <p class="text-xs text-slate-500">{{ auth()->user()->email }}</p>
-                </div>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <x-secondary-button type="submit">Logout</x-secondary-button>
-                </form>
-            </div>
-        </div>
-    </div>
+        </li>
+    </ul>
 </nav>
