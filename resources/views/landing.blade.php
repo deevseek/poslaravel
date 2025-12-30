@@ -8,13 +8,13 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-slate-50 text-slate-900">
-    <header class="bg-white shadow-sm">
+    <header class="sticky top-0 z-10 border-b border-slate-100 bg-white/80 backdrop-blur">
         <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
             <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white font-bold">PD</div>
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold">PD</div>
                 <div>
                     <p class="text-sm font-semibold uppercase tracking-wide text-blue-600">{{ config('app.name', 'POS Dealer') }}</p>
-                    <p class="text-xs text-slate-500">Platform POS & servis berbasis tenant</p>
+                    <p class="text-xs text-slate-500">POS berlangganan tanpa domain & hosting</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -26,54 +26,62 @@
     </header>
 
     <main>
-        <section class="mx-auto max-w-6xl px-6 py-16">
-            <div class="grid items-center gap-10 lg:grid-cols-2">
+        <section class="relative overflow-hidden">
+            <div class="pointer-events-none absolute inset-0">
+                <div class="absolute -right-16 top-12 h-56 w-56 rounded-full bg-blue-200/40 blur-3xl"></div>
+                <div class="absolute -left-24 bottom-10 h-64 w-64 rounded-full bg-indigo-200/40 blur-3xl"></div>
+            </div>
+            <div class="mx-auto grid max-w-6xl items-center gap-10 px-6 py-16 lg:grid-cols-2">
                 <div>
-                    <p class="mb-4 inline-flex items-center rounded-full bg-blue-50 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-blue-600">Multi-tenant siap pakai</p>
-                    <h1 class="text-4xl font-bold leading-tight text-slate-900 lg:text-5xl">Kelola POS, servis, stok, dan laporan dalam satu aplikasi.</h1>
-                    <p class="mt-4 text-lg text-slate-600">Bangun bisnis Anda lebih cepat dengan sistem POS Dealer yang terintegrasi. Pendaftaran otomatis tercatat sebagai tenant, pembayaran diverifikasi admin, dan akses aktif setelah disetujui.</p>
+                    <p class="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-blue-600">
+                        <span class="inline-flex h-2 w-2 rounded-full bg-blue-600"></span>
+                        POS berlangganan siap pakai
+                    </p>
+                    <h1 class="text-4xl font-bold leading-tight text-slate-900 lg:text-5xl">Landing page POS yang rapi, modern, dan siap jual.</h1>
+                    <p class="mt-4 text-lg text-slate-600">Aplikasi POS berlangganan untuk toko & servis tanpa perlu domain atau hosting sendiri. Langsung daftar, pilih paket, dan gunakan subdomain otomatis dari kami.</p>
                     <div class="mt-6 flex flex-wrap gap-4">
                         <a href="#daftar" class="rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow hover:bg-blue-700">Mulai Berlangganan</a>
                         <a href="#fitur" class="rounded-xl border border-slate-200 px-6 py-3 text-sm font-semibold text-slate-700 hover:border-blue-200 hover:text-blue-600">Lihat Fitur</a>
                     </div>
-                    <div class="mt-6 flex flex-wrap gap-6 text-sm text-slate-500">
-                        <div>
-                            <p class="text-lg font-semibold text-slate-900">99.9%</p>
-                            <p>uptime sistem</p>
+                    <div class="mt-6 grid gap-4 text-sm text-slate-500 sm:grid-cols-3">
+                        <div class="rounded-2xl border border-slate-100 bg-white/70 p-4">
+                            <p class="text-lg font-semibold text-slate-900">Tanpa domain</p>
+                            <p>Subdomain otomatis</p>
                         </div>
-                        <div>
-                            <p class="text-lg font-semibold text-slate-900">500+</p>
-                            <p>transaksi harian</p>
+                        <div class="rounded-2xl border border-slate-100 bg-white/70 p-4">
+                            <p class="text-lg font-semibold text-slate-900">Tanpa hosting</p>
+                            <p>Kami kelola server</p>
                         </div>
-                        <div>
-                            <p class="text-lg font-semibold text-slate-900">24/7</p>
-                            <p>monitoring tenant</p>
+                        <div class="rounded-2xl border border-slate-100 bg-white/70 p-4">
+                            <p class="text-lg font-semibold text-slate-900">Setup cepat</p>
+                            <p>Aktif setelah verifikasi</p>
                         </div>
                     </div>
                 </div>
-                <div class="rounded-3xl bg-white p-8 shadow-xl">
+                <div class="rounded-3xl border border-slate-100 bg-white p-8 shadow-xl">
                     <h2 class="text-xl font-semibold text-slate-900">Apa yang Anda dapatkan?</h2>
+                    <p class="mt-2 text-sm text-slate-500">Semua sudah termasuk dalam langganan.</p>
                     <ul class="mt-6 space-y-4 text-sm text-slate-600">
                         <li class="flex items-start gap-3">
                             <span class="mt-1 h-2 w-2 rounded-full bg-blue-600"></span>
-                            Dashboard penjualan, servis, garansi, dan keuangan real-time.
+                            Dashboard POS, servis, stok, dan laporan real-time.
                         </li>
                         <li class="flex items-start gap-3">
                             <span class="mt-1 h-2 w-2 rounded-full bg-blue-600"></span>
-                            Subdomain tenant otomatis untuk tiap pelanggan.
+                            Subdomain otomatis tanpa repot beli domain.
                         </li>
                         <li class="flex items-start gap-3">
                             <span class="mt-1 h-2 w-2 rounded-full bg-blue-600"></span>
-                            Workflow verifikasi pembayaran sebelum akun aktif.
+                            Hosting & maintenance server ditangani tim kami.
                         </li>
                         <li class="flex items-start gap-3">
                             <span class="mt-1 h-2 w-2 rounded-full bg-blue-600"></span>
-                            Notifikasi email otomatis saat tenant aktif.
+                            Aktivasi cepat setelah pembayaran diverifikasi.
                         </li>
                     </ul>
-                    <div class="mt-8 rounded-2xl bg-blue-50 p-4">
-                        <p class="text-sm font-semibold text-blue-700">Tidak perlu instalasi rumit.</p>
-                        <p class="text-sm text-blue-600">Cukup daftar, lakukan pembayaran, dan tenant Anda langsung siap digunakan setelah disetujui admin.</p>
+                    <div class="mt-8 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
+                        <p class="text-sm font-semibold text-blue-700">Cukup fokus pada bisnis.</p>
+                        <p class="text-sm text-blue-600">Tanpa biaya domain dan hosting, semua sudah termasuk dalam paket langganan.</p>
                     </div>
                 </div>
             </div>
@@ -83,32 +91,32 @@
             <div class="mx-auto max-w-6xl px-6">
                 <div class="text-center">
                     <h2 class="text-3xl font-bold text-slate-900">Fitur unggulan untuk operasional harian</h2>
-                    <p class="mt-3 text-slate-600">Semua modul penting dalam satu platform agar bisnis tetap efisien.</p>
+                    <p class="mt-3 text-slate-600">Semua modul penting dalam satu platform, siap digunakan tanpa setup teknis.</p>
                 </div>
                 <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-6">
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
                         <h3 class="text-lg font-semibold">POS & Transaksi</h3>
                         <p class="mt-2 text-sm text-slate-600">Kelola transaksi dengan kasir, metode pembayaran, dan cetak struk.</p>
                     </div>
-                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-6">
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
                         <h3 class="text-lg font-semibold">Manajemen Servis</h3>
                         <p class="mt-2 text-sm text-slate-600">Pantau status servis, estimasi biaya, dan histori pelanggan.</p>
                     </div>
-                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-6">
-                        <h3 class="text-lg font-semibold">Multi-tenant</h3>
-                        <p class="mt-2 text-sm text-slate-600">Setiap klien memiliki database terpisah dan akses aman.</p>
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
+                        <h3 class="text-lg font-semibold">Langganan Tanpa Domain</h3>
+                        <p class="mt-2 text-sm text-slate-600">Subdomain otomatis, siap digunakan tanpa biaya domain tambahan.</p>
                     </div>
-                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-6">
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
                         <h3 class="text-lg font-semibold">Laporan Keuangan</h3>
                         <p class="mt-2 text-sm text-slate-600">Pantau arus kas, laba rugi, dan transaksi harian.</p>
                     </div>
-                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-6">
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
                         <h3 class="text-lg font-semibold">Manajemen Stok</h3>
                         <p class="mt-2 text-sm text-slate-600">Pengaturan produk, kategori, stok masuk/keluar real-time.</p>
                     </div>
-                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-6">
-                        <h3 class="text-lg font-semibold">Notifikasi Klien</h3>
-                        <p class="mt-2 text-sm text-slate-600">Email otomatis untuk informasi aktivasi dan update penting.</p>
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
+                        <h3 class="text-lg font-semibold">Hosting Dikelola</h3>
+                        <p class="mt-2 text-sm text-slate-600">Server, backup, dan update aplikasi ditangani oleh tim kami.</p>
                     </div>
                 </div>
             </div>
@@ -118,11 +126,11 @@
             <div class="mx-auto max-w-6xl px-6">
                 <div class="text-center">
                     <h2 class="text-3xl font-bold text-slate-900">Pilih paket langganan terbaik</h2>
-                    <p class="mt-3 text-slate-600">Harga transparan, sesuai kebutuhan bisnis Anda.</p>
+                    <p class="mt-3 text-slate-600">Harga transparan, sudah termasuk domain & hosting.</p>
                 </div>
                 <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     @foreach ($plans as $plan)
-                        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
                             <h3 class="text-lg font-semibold">{{ $plan->name }}</h3>
                             <p class="mt-2 text-sm text-slate-500">{{ $plan->billing_cycle }}</p>
                             <p class="mt-4 text-3xl font-bold text-slate-900">Rp {{ number_format($plan->price, 0, ',', '.') }}</p>
@@ -145,8 +153,8 @@
             <div class="mx-auto max-w-5xl px-6">
                 <div class="grid gap-10 lg:grid-cols-2">
                     <div>
-                        <h2 class="text-3xl font-bold text-slate-900">Formulir pendaftaran tenant</h2>
-                        <p class="mt-3 text-slate-600">Lengkapi data Anda dan unggah bukti pembayaran. Admin akan memverifikasi sebelum tenant diaktifkan.</p>
+                        <h2 class="text-3xl font-bold text-slate-900">Formulir pendaftaran</h2>
+                        <p class="mt-3 text-slate-600">Lengkapi data Anda dan lakukan pembayaran. Admin memverifikasi dan akun POS langsung aktif.</p>
                         <div class="mt-6 rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-700">
                             <p class="font-semibold">Alur aktivasi</p>
                             <ol class="mt-2 list-decimal space-y-1 pl-4">
@@ -157,7 +165,7 @@
                             </ol>
                         </div>
                     </div>
-                    <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6">
+                    <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
                         @if (session('success'))
                             <div class="mb-4 rounded-xl bg-green-50 p-3 text-sm text-green-700">
                                 {{ session('success') }}
