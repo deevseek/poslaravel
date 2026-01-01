@@ -7,264 +7,317 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-slate-50 text-slate-900">
-    <header class="sticky top-0 z-10 border-b border-slate-100 bg-white/80 backdrop-blur">
-        <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-            <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold">PD</div>
-                <div>
-                    <p class="text-sm font-semibold uppercase tracking-wide text-blue-600">{{ config('app.name', 'POS Dealer') }}</p>
-                    <p class="text-xs text-slate-500">POS berlangganan tanpa domain & hosting</p>
+<body class="bg-slate-950 text-slate-100">
+    <div class="relative overflow-hidden">
+        <div class="pointer-events-none absolute inset-0">
+            <div class="absolute -left-48 top-0 h-96 w-96 rounded-full bg-blue-500/20 blur-[140px]"></div>
+            <div class="absolute right-0 top-32 h-80 w-80 rounded-full bg-cyan-400/20 blur-[120px]"></div>
+            <div class="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-indigo-500/20 blur-[120px]"></div>
+        </div>
+
+        <header class="relative z-10 border-b border-white/10 bg-slate-950/80 backdrop-blur">
+            <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 via-indigo-500 to-cyan-400 text-sm font-bold text-white shadow-lg shadow-blue-500/30">PD</div>
+                    <div>
+                        <p class="text-sm font-semibold uppercase tracking-[0.3em] text-blue-200">{{ config('app.name', 'POS Dealer') }}</p>
+                        <p class="text-xs text-slate-400">POS berlangganan siap pakai untuk bisnis modern</p>
+                    </div>
+                </div>
+                <div class="hidden items-center gap-6 md:flex">
+                    <a href="#fitur" class="text-sm font-medium text-slate-300 hover:text-white">Fitur</a>
+                    <a href="#harga" class="text-sm font-medium text-slate-300 hover:text-white">Harga</a>
+                    <a href="#daftar" class="text-sm font-medium text-slate-300 hover:text-white">Daftar</a>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('login') }}" class="hidden rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-white hover:border-white/40 md:inline-flex">Login</a>
+                    <a href="#daftar" class="rounded-full bg-white px-4 py-2 text-xs font-semibold text-slate-950 shadow-lg shadow-white/20 hover:bg-slate-100">Coba Gratis</a>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <a href="#harga" class="text-sm font-medium text-slate-600 hover:text-blue-600">Paket</a>
-                <a href="#daftar" class="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Daftar</a>
-                <a href="{{ route('login') }}" class="text-sm font-medium text-slate-600 hover:text-blue-600">Login</a>
+        </header>
+
+        <main class="relative z-10">
+            <section class="mx-auto grid max-w-6xl items-center gap-12 px-6 py-16 lg:grid-cols-2">
+                <div>
+                    <p class="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-blue-200">
+                        <span class="inline-flex h-2 w-2 rounded-full bg-cyan-300"></span>
+                        Solusi POS + servis multi-tenant
+                    </p>
+                    <h1 class="text-4xl font-semibold leading-tight text-white lg:text-5xl">Tampil profesional, operasional terkendali, dan bisnis siap bertumbuh.</h1>
+                    <p class="mt-5 text-lg text-slate-300">Platform POS berlangganan dengan subdomain otomatis, modul servis lengkap, serta laporan real-time. Semua sudah termasuk domain, hosting, dan maintenance.</p>
+                    <div class="mt-8 flex flex-wrap gap-4">
+                        <a href="#daftar" class="rounded-xl bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-300 px-6 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-400/30">Mulai Sekarang</a>
+                        <a href="#harga" class="rounded-xl border border-white/20 px-6 py-3 text-sm font-semibold text-white hover:border-white/40">Lihat Paket</a>
+                    </div>
+                    <div class="mt-8 grid gap-4 sm:grid-cols-3">
+                        <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                            <p class="text-xl font-semibold text-white">24/7</p>
+                            <p class="text-xs text-slate-300">Monitoring server</p>
+                        </div>
+                        <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                            <p class="text-xl font-semibold text-white">10 menit</p>
+                            <p class="text-xs text-slate-300">Setup & aktivasi</p>
+                        </div>
+                        <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                            <p class="text-xl font-semibold text-white">99.9%</p>
+                            <p class="text-xs text-slate-300">Uptime infrastruktur</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="rounded-[32px] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-blue-500/20">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.2em] text-blue-200">Dashboard Live</p>
+                            <p class="text-xl font-semibold text-white">Ringkasan operasional</p>
+                        </div>
+                        <span class="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs text-slate-200">Realtime</span>
+                    </div>
+                    <div class="mt-6 grid gap-4">
+                        <div class="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                            <p class="text-xs text-slate-400">Pendapatan bulan ini</p>
+                            <p class="text-2xl font-semibold text-white">Rp 245.000.000</p>
+                            <p class="mt-2 text-xs text-emerald-300">+18% vs bulan lalu</p>
+                        </div>
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div class="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                                <p class="text-xs text-slate-400">Servis aktif</p>
+                                <p class="text-xl font-semibold text-white">128 unit</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                                <p class="text-xs text-slate-400">Stok kritis</p>
+                                <p class="text-xl font-semibold text-white">14 item</p>
+                            </div>
+                        </div>
+                        <div class="rounded-2xl border border-white/10 bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-cyan-400/20 p-4">
+                            <p class="text-sm font-semibold text-white">Semua terpusat dalam satu dashboard responsif.</p>
+                            <p class="mt-2 text-xs text-slate-300">Dari transaksi kasir, servis, hingga laporan keuangan & stok.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <section id="fitur" class="bg-slate-950 py-16">
+        <div class="mx-auto max-w-6xl px-6">
+            <div class="text-center">
+                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-blue-200">Fitur unggulan</p>
+                <h2 class="mt-3 text-3xl font-semibold text-white">Semua modul penting bisnis dalam satu platform.</h2>
+                <p class="mt-3 text-slate-300">Dirancang untuk toko, servis, dan bisnis ritel yang ingin lebih rapi dan efisien.</p>
+            </div>
+            <div class="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+                    <h3 class="text-lg font-semibold text-white">POS & Kasir</h3>
+                    <p class="mt-2 text-sm text-slate-300">Transaksi cepat, multi metode pembayaran, dan cetak struk instan.</p>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+                    <h3 class="text-lg font-semibold text-white">Manajemen Servis</h3>
+                    <p class="mt-2 text-sm text-slate-300">Status servis terpantau dengan estimasi biaya dan notifikasi pelanggan.</p>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+                    <h3 class="text-lg font-semibold text-white">Subdomain Otomatis</h3>
+                    <p class="mt-2 text-sm text-slate-300">Tanpa domain sendiri, bisnis langsung online dengan subdomain aktif.</p>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+                    <h3 class="text-lg font-semibold text-white">Laporan Keuangan</h3>
+                    <p class="mt-2 text-sm text-slate-300">Laba rugi, arus kas, dan laporan pajak siap unduh.</p>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+                    <h3 class="text-lg font-semibold text-white">Stok & Inventori</h3>
+                    <p class="mt-2 text-sm text-slate-300">Pantau stok real-time, multi gudang, dan peringatan restock.</p>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+                    <h3 class="text-lg font-semibold text-white">Hosting Dikelola</h3>
+                    <p class="mt-2 text-sm text-slate-300">Server, backup, dan update aplikasi dikelola tim kami.</p>
+                </div>
             </div>
         </div>
-    </header>
+    </section>
 
-    <main>
-        <section class="relative overflow-hidden">
-            <div class="pointer-events-none absolute inset-0">
-                <div class="absolute -right-16 top-12 h-56 w-56 rounded-full bg-blue-200/40 blur-3xl"></div>
-                <div class="absolute -left-24 bottom-10 h-64 w-64 rounded-full bg-indigo-200/40 blur-3xl"></div>
+    <section class="bg-slate-900 py-16">
+        <div class="mx-auto grid max-w-6xl items-center gap-10 px-6 lg:grid-cols-2">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-200">Kenapa memilih kami</p>
+                <h2 class="mt-3 text-3xl font-semibold text-white">Operasional bisnis lebih rapi dengan alur yang jelas.</h2>
+                <p class="mt-3 text-slate-300">Langganan sudah termasuk setup teknis, pelatihan awal, dan support onboarding. Anda fokus pada penjualan, kami urus teknologinya.</p>
             </div>
-            <div class="mx-auto grid max-w-6xl items-center gap-10 px-6 py-16 lg:grid-cols-2">
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <p class="text-lg font-semibold text-white">Onboarding cepat</p>
+                    <p class="mt-2 text-sm text-slate-300">Tim kami bantu dari aktivasi hingga data awal siap.</p>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <p class="text-lg font-semibold text-white">Support responsif</p>
+                    <p class="mt-2 text-sm text-slate-300">Chat & email support di jam kerja, cepat ditangani.</p>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <p class="text-lg font-semibold text-white">Multi lokasi</p>
+                    <p class="mt-2 text-sm text-slate-300">Kelola beberapa cabang dalam satu dashboard.</p>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <p class="text-lg font-semibold text-white">Keamanan data</p>
+                    <p class="mt-2 text-sm text-slate-300">Enkripsi & backup otomatis setiap hari.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="harga" class="bg-slate-950 py-16">
+        <div class="mx-auto max-w-6xl px-6">
+            <div class="text-center">
+                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-blue-200">Paket berlangganan</p>
+                <h2 class="mt-3 text-3xl font-semibold text-white">Harga transparan, tanpa biaya tersembunyi.</h2>
+                <p class="mt-3 text-slate-300">Semua paket sudah termasuk domain, hosting, dan support.</p>
+            </div>
+            <div class="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                @foreach ($plans as $plan)
+                    <div class="group relative rounded-3xl border border-white/10 bg-white/5 p-6 transition hover:-translate-y-1 hover:border-cyan-400/40 hover:bg-white/10">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-white">{{ $plan->name }}</h3>
+                            <span class="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300">{{ $plan->billing_cycle }}</span>
+                        </div>
+                        <p class="mt-4 text-3xl font-semibold text-white">Rp {{ number_format($plan->price, 0, ',', '.') }}</p>
+                        <ul class="mt-4 space-y-2 text-sm text-slate-300">
+                            @forelse ($plan->features ?? [] as $feature)
+                                <li>• {{ $feature }}</li>
+                            @empty
+                                <li>• Semua fitur utama</li>
+                                <li>• Support onboarding</li>
+                            @endforelse
+                        </ul>
+                        <a href="#daftar" class="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-white/10 transition group-hover:bg-slate-100">Pilih Paket</a>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    <section id="daftar" class="bg-slate-900 py-16">
+        <div class="mx-auto max-w-5xl px-6">
+            <div class="grid gap-10 lg:grid-cols-2">
                 <div>
-                    <p class="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-blue-600">
-                        <span class="inline-flex h-2 w-2 rounded-full bg-blue-600"></span>
-                        POS berlangganan siap pakai
-                    </p>
-                    <h1 class="text-4xl font-bold leading-tight text-slate-900 lg:text-5xl">Landing page POS yang rapi, modern, dan siap jual.</h1>
-                    <p class="mt-4 text-lg text-slate-600">Aplikasi POS berlangganan untuk toko & servis tanpa perlu domain atau hosting sendiri. Langsung daftar, pilih paket, dan gunakan subdomain otomatis dari kami.</p>
-                    <div class="mt-6 flex flex-wrap gap-4">
-                        <a href="#daftar" class="rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow hover:bg-blue-700">Mulai Berlangganan</a>
-                        <a href="#fitur" class="rounded-xl border border-slate-200 px-6 py-3 text-sm font-semibold text-slate-700 hover:border-blue-200 hover:text-blue-600">Lihat Fitur</a>
-                    </div>
-                    <div class="mt-6 grid gap-4 text-sm text-slate-500 sm:grid-cols-3">
-                        <div class="rounded-2xl border border-slate-100 bg-white/70 p-4">
-                            <p class="text-lg font-semibold text-slate-900">Tanpa domain</p>
-                            <p>Subdomain otomatis</p>
-                        </div>
-                        <div class="rounded-2xl border border-slate-100 bg-white/70 p-4">
-                            <p class="text-lg font-semibold text-slate-900">Tanpa hosting</p>
-                            <p>Kami kelola server</p>
-                        </div>
-                        <div class="rounded-2xl border border-slate-100 bg-white/70 p-4">
-                            <p class="text-lg font-semibold text-slate-900">Setup cepat</p>
-                            <p>Aktif setelah verifikasi</p>
-                        </div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-200">Mulai berlangganan</p>
+                    <h2 class="mt-3 text-3xl font-semibold text-white">Formulir pendaftaran yang simpel dan jelas.</h2>
+                    <p class="mt-3 text-slate-300">Lengkapi data, pilih paket, dan lakukan pembayaran. Admin memverifikasi dan akun POS aktif dalam hitungan jam.</p>
+                    <div class="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-slate-200">
+                        <p class="font-semibold text-white">Alur aktivasi</p>
+                        <ol class="mt-2 list-decimal space-y-1 pl-4">
+                            <li>Isi formulir pendaftaran.</li>
+                            <li>Lakukan pembayaran sesuai paket.</li>
+                            <li>Admin memverifikasi di menu tenant.</li>
+                            <li>Email notifikasi aktivasi dikirim ke Anda.</li>
+                        </ol>
                     </div>
                 </div>
-                <div class="rounded-3xl border border-slate-100 bg-white p-8 shadow-xl">
-                    <h2 class="text-xl font-semibold text-slate-900">Apa yang Anda dapatkan?</h2>
-                    <p class="mt-2 text-sm text-slate-500">Semua sudah termasuk dalam langganan.</p>
-                    <ul class="mt-6 space-y-4 text-sm text-slate-600">
-                        <li class="flex items-start gap-3">
-                            <span class="mt-1 h-2 w-2 rounded-full bg-blue-600"></span>
-                            Dashboard POS, servis, stok, dan laporan real-time.
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="mt-1 h-2 w-2 rounded-full bg-blue-600"></span>
-                            Subdomain otomatis tanpa repot beli domain.
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="mt-1 h-2 w-2 rounded-full bg-blue-600"></span>
-                            Hosting & maintenance server ditangani tim kami.
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="mt-1 h-2 w-2 rounded-full bg-blue-600"></span>
-                            Aktivasi cepat setelah pembayaran diverifikasi.
-                        </li>
-                    </ul>
-                    <div class="mt-8 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
-                        <p class="text-sm font-semibold text-blue-700">Cukup fokus pada bisnis.</p>
-                        <p class="text-sm text-blue-600">Tanpa biaya domain dan hosting, semua sudah termasuk dalam paket langganan.</p>
-                    </div>
+                <div class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-blue-500/10">
+                    @if (session('success'))
+                        <div class="mb-4 rounded-xl border border-emerald-400/30 bg-emerald-400/10 p-3 text-sm text-emerald-200">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+                    <form method="POST" action="{{ route('tenant-registrations.store') }}" enctype="multipart/form-data" class="space-y-4">
+                        @csrf
+                        <div>
+                            <label class="text-sm font-semibold text-slate-200">Nama usaha</label>
+                            <input type="text" name="name" value="{{ old('name') }}" class="mt-1 w-full rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm text-white focus:border-cyan-300 focus:outline-none" required>
+                            @error('name')<p class="mt-1 text-xs text-red-300">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
+                            <label class="text-sm font-semibold text-slate-200">Subdomain</label>
+                            <div class="mt-1 flex items-center rounded-xl border border-white/10 bg-slate-950/40">
+                                <input type="text" name="subdomain" value="{{ old('subdomain') }}" class="w-full rounded-xl bg-transparent px-3 py-2 text-sm text-white focus:outline-none" placeholder="nama-bisnis" required>
+                                <span class="px-3 text-xs text-slate-400">.posdealer</span>
+                            </div>
+                            @error('subdomain')<p class="mt-1 text-xs text-red-300">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
+                            <label class="text-sm font-semibold text-slate-200">Paket langganan</label>
+                            <select name="plan_id" class="mt-1 w-full rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm text-white focus:border-cyan-300 focus:outline-none" required>
+                                <option value="">Pilih paket</option>
+                                @foreach ($plans as $plan)
+                                    <option value="{{ $plan->id }}" @selected(old('plan_id') == $plan->id)>
+                                        {{ $plan->name }} - Rp {{ number_format($plan->price, 0, ',', '.') }} / {{ $plan->billing_cycle }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('plan_id')<p class="mt-1 text-xs text-red-300">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <label class="text-sm font-semibold text-slate-200">Nama admin</label>
+                                <input type="text" name="admin_name" value="{{ old('admin_name') }}" class="mt-1 w-full rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm text-white focus:border-cyan-300 focus:outline-none">
+                                @error('admin_name')<p class="mt-1 text-xs text-red-300">{{ $message }}</p>@enderror
+                            </div>
+                            <div>
+                                <label class="text-sm font-semibold text-slate-200">Nomor telepon</label>
+                                <input type="text" name="phone" value="{{ old('phone') }}" class="mt-1 w-full rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm text-white focus:border-cyan-300 focus:outline-none">
+                                @error('phone')<p class="mt-1 text-xs text-red-300">{{ $message }}</p>@enderror
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-sm font-semibold text-slate-200">Email</label>
+                            <input type="email" name="email" value="{{ old('email') }}" class="mt-1 w-full rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm text-white focus:border-cyan-300 focus:outline-none" required>
+                            @error('email')<p class="mt-1 text-xs text-red-300">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <label class="text-sm font-semibold text-slate-200">Password</label>
+                                <input type="password" name="password" class="mt-1 w-full rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm text-white focus:border-cyan-300 focus:outline-none" required>
+                                @error('password')<p class="mt-1 text-xs text-red-300">{{ $message }}</p>@enderror
+                            </div>
+                            <div>
+                                <label class="text-sm font-semibold text-slate-200">Konfirmasi password</label>
+                                <input type="password" name="password_confirmation" class="mt-1 w-full rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm text-white focus:border-cyan-300 focus:outline-none" required>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-sm font-semibold text-slate-200">Metode pembayaran</label>
+                            <select name="payment_method" class="mt-1 w-full rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm text-white focus:border-cyan-300 focus:outline-none" required>
+                                <option value="">Pilih metode</option>
+                                <option value="transfer" @selected(old('payment_method') === 'transfer')>Transfer Bank</option>
+                                <option value="e-wallet" @selected(old('payment_method') === 'e-wallet')>E-Wallet</option>
+                                <option value="cash" @selected(old('payment_method') === 'cash')>Tunai</option>
+                            </select>
+                            @error('payment_method')<p class="mt-1 text-xs text-red-300">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
+                            <label class="text-sm font-semibold text-slate-200">Referensi pembayaran (opsional)</label>
+                            <input type="text" name="payment_reference" value="{{ old('payment_reference') }}" class="mt-1 w-full rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm text-white focus:border-cyan-300 focus:outline-none" placeholder="No. transfer / bukti pembayaran">
+                            @error('payment_reference')<p class="mt-1 text-xs text-red-300">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
+                            <label class="text-sm font-semibold text-slate-200">Upload bukti pembayaran (opsional)</label>
+                            <input type="file" name="payment_proof" class="mt-1 w-full rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm text-slate-200 focus:border-cyan-300 focus:outline-none">
+                            @error('payment_proof')<p class="mt-1 text-xs text-red-300">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <input type="checkbox" name="agreement" value="1" class="mt-1 rounded border-white/20 bg-slate-950/40" @checked(old('agreement')) required>
+                            <label class="text-xs text-slate-300">Saya menyetujui syarat dan ketentuan serta kebijakan pembayaran.</label>
+                        </div>
+                        @error('agreement')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                        <button type="submit" class="w-full rounded-xl bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-300 px-4 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-400/30">Kirim Pendaftaran</button>
+                    </form>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section id="fitur" class="bg-white py-16">
-            <div class="mx-auto max-w-6xl px-6">
-                <div class="text-center">
-                    <h2 class="text-3xl font-bold text-slate-900">Fitur unggulan untuk operasional harian</h2>
-                    <p class="mt-3 text-slate-600">Semua modul penting dalam satu platform, siap digunakan tanpa setup teknis.</p>
-                </div>
-                <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
-                        <h3 class="text-lg font-semibold">POS & Transaksi</h3>
-                        <p class="mt-2 text-sm text-slate-600">Kelola transaksi dengan kasir, metode pembayaran, dan cetak struk.</p>
-                    </div>
-                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
-                        <h3 class="text-lg font-semibold">Manajemen Servis</h3>
-                        <p class="mt-2 text-sm text-slate-600">Pantau status servis, estimasi biaya, dan histori pelanggan.</p>
-                    </div>
-                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
-                        <h3 class="text-lg font-semibold">Langganan Tanpa Domain</h3>
-                        <p class="mt-2 text-sm text-slate-600">Subdomain otomatis, siap digunakan tanpa biaya domain tambahan.</p>
-                    </div>
-                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
-                        <h3 class="text-lg font-semibold">Laporan Keuangan</h3>
-                        <p class="mt-2 text-sm text-slate-600">Pantau arus kas, laba rugi, dan transaksi harian.</p>
-                    </div>
-                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
-                        <h3 class="text-lg font-semibold">Manajemen Stok</h3>
-                        <p class="mt-2 text-sm text-slate-600">Pengaturan produk, kategori, stok masuk/keluar real-time.</p>
-                    </div>
-                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
-                        <h3 class="text-lg font-semibold">Hosting Dikelola</h3>
-                        <p class="mt-2 text-sm text-slate-600">Server, backup, dan update aplikasi ditangani oleh tim kami.</p>
-                    </div>
-                </div>
+    <section class="bg-slate-950 py-16">
+        <div class="mx-auto max-w-6xl px-6">
+            <div class="rounded-3xl border border-white/10 bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-cyan-400/20 p-8 text-center">
+                <h2 class="text-3xl font-semibold text-white">Siap tampil profesional dengan POS yang rapi?</h2>
+                <p class="mt-3 text-slate-200">Daftarkan bisnis Anda sekarang dan dapatkan setup cepat dari tim kami.</p>
+                <a href="#daftar" class="mt-6 inline-flex rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-white/20">Mulai Berlangganan</a>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section id="harga" class="py-16">
-            <div class="mx-auto max-w-6xl px-6">
-                <div class="text-center">
-                    <h2 class="text-3xl font-bold text-slate-900">Pilih paket langganan terbaik</h2>
-                    <p class="mt-3 text-slate-600">Harga transparan, sudah termasuk domain & hosting.</p>
-                </div>
-                <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    @foreach ($plans as $plan)
-                        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-                            <h3 class="text-lg font-semibold">{{ $plan->name }}</h3>
-                            <p class="mt-2 text-sm text-slate-500">{{ $plan->billing_cycle }}</p>
-                            <p class="mt-4 text-3xl font-bold text-slate-900">Rp {{ number_format($plan->price, 0, ',', '.') }}</p>
-                            <ul class="mt-4 space-y-2 text-sm text-slate-600">
-                                @forelse ($plan->features ?? [] as $feature)
-                                    <li>• {{ $feature }}</li>
-                                @empty
-                                    <li>• Semua fitur utama</li>
-                                    <li>• Support onboarding</li>
-                                @endforelse
-                            </ul>
-                            <a href="#daftar" class="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Pilih Paket</a>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-
-        <section id="daftar" class="bg-white py-16">
-            <div class="mx-auto max-w-5xl px-6">
-                <div class="grid gap-10 lg:grid-cols-2">
-                    <div>
-                        <h2 class="text-3xl font-bold text-slate-900">Formulir pendaftaran</h2>
-                        <p class="mt-3 text-slate-600">Lengkapi data Anda dan lakukan pembayaran. Admin memverifikasi dan akun POS langsung aktif.</p>
-                        <div class="mt-6 rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-700">
-                            <p class="font-semibold">Alur aktivasi</p>
-                            <ol class="mt-2 list-decimal space-y-1 pl-4">
-                                <li>Isi formulir pendaftaran.</li>
-                                <li>Lakukan pembayaran sesuai paket.</li>
-                                <li>Admin memverifikasi di menu tenant.</li>
-                                <li>Email notifikasi aktivasi dikirim ke Anda.</li>
-                            </ol>
-                        </div>
-                    </div>
-                    <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
-                        @if (session('success'))
-                            <div class="mb-4 rounded-xl bg-green-50 p-3 text-sm text-green-700">
-                                {{ session('success') }}
-                            </div>
-                        @endif
-                        <form method="POST" action="{{ route('tenant-registrations.store') }}" enctype="multipart/form-data" class="space-y-4">
-                            @csrf
-                            <div>
-                                <label class="text-sm font-semibold text-slate-700">Nama usaha</label>
-                                <input type="text" name="name" value="{{ old('name') }}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" required>
-                                @error('name')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
-                            </div>
-                            <div>
-                                <label class="text-sm font-semibold text-slate-700">Subdomain</label>
-                                <div class="mt-1 flex items-center rounded-xl border border-slate-200 bg-white">
-                                    <input type="text" name="subdomain" value="{{ old('subdomain') }}" class="w-full rounded-xl px-3 py-2 text-sm focus:outline-none" placeholder="nama-bisnis" required>
-                                    <span class="px-3 text-xs text-slate-400">.posdealer</span>
-                                </div>
-                                @error('subdomain')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
-                            </div>
-                            <div>
-                                <label class="text-sm font-semibold text-slate-700">Paket langganan</label>
-                                <select name="plan_id" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" required>
-                                    <option value="">Pilih paket</option>
-                                    @foreach ($plans as $plan)
-                                        <option value="{{ $plan->id }}" @selected(old('plan_id') == $plan->id)>
-                                            {{ $plan->name }} - Rp {{ number_format($plan->price, 0, ',', '.') }} / {{ $plan->billing_cycle }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('plan_id')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
-                            </div>
-                            <div class="grid gap-4 md:grid-cols-2">
-                                <div>
-                                    <label class="text-sm font-semibold text-slate-700">Nama admin</label>
-                                    <input type="text" name="admin_name" value="{{ old('admin_name') }}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                                    @error('admin_name')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
-                                </div>
-                                <div>
-                                    <label class="text-sm font-semibold text-slate-700">Nomor telepon</label>
-                                    <input type="text" name="phone" value="{{ old('phone') }}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                                    @error('phone')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
-                                </div>
-                            </div>
-                            <div>
-                                <label class="text-sm font-semibold text-slate-700">Email</label>
-                                <input type="email" name="email" value="{{ old('email') }}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" required>
-                                @error('email')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
-                            </div>
-                            <div class="grid gap-4 md:grid-cols-2">
-                                <div>
-                                    <label class="text-sm font-semibold text-slate-700">Password</label>
-                                    <input type="password" name="password" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" required>
-                                    @error('password')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
-                                </div>
-                                <div>
-                                    <label class="text-sm font-semibold text-slate-700">Konfirmasi password</label>
-                                    <input type="password" name="password_confirmation" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" required>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="text-sm font-semibold text-slate-700">Metode pembayaran</label>
-                                <select name="payment_method" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" required>
-                                    <option value="">Pilih metode</option>
-                                    <option value="transfer" @selected(old('payment_method') === 'transfer')>Transfer Bank</option>
-                                    <option value="e-wallet" @selected(old('payment_method') === 'e-wallet')>E-Wallet</option>
-                                    <option value="cash" @selected(old('payment_method') === 'cash')>Tunai</option>
-                                </select>
-                                @error('payment_method')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
-                            </div>
-                            <div>
-                                <label class="text-sm font-semibold text-slate-700">Referensi pembayaran (opsional)</label>
-                                <input type="text" name="payment_reference" value="{{ old('payment_reference') }}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" placeholder="No. transfer / bukti pembayaran">
-                                @error('payment_reference')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
-                            </div>
-                            <div>
-                                <label class="text-sm font-semibold text-slate-700">Upload bukti pembayaran (opsional)</label>
-                                <input type="file" name="payment_proof" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                                @error('payment_proof')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
-                            </div>
-                            <div class="flex items-start gap-2">
-                                <input type="checkbox" name="agreement" value="1" class="mt-1" @checked(old('agreement')) required>
-                                <label class="text-xs text-slate-600">Saya menyetujui syarat dan ketentuan serta kebijakan pembayaran.</label>
-                            </div>
-                            @error('agreement')<p class="text-xs text-red-600">{{ $message }}</p>@enderror
-                            <button type="submit" class="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700">Kirim Pendaftaran</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer class="border-t border-slate-200 bg-white">
-        <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-6 py-6 text-sm text-slate-500 md:flex-row">
+    <footer class="border-t border-white/10 bg-slate-950">
+        <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-6 py-6 text-sm text-slate-400 md:flex-row">
             <p>&copy; {{ date('Y') }} {{ config('app.name', 'POS Dealer') }}. Semua hak dilindungi.</p>
             <div class="flex gap-4">
-                <a href="#daftar" class="hover:text-blue-600">Daftar</a>
-                <a href="{{ route('login') }}" class="hover:text-blue-600">Login Admin</a>
+                <a href="#daftar" class="hover:text-white">Daftar</a>
+                <a href="{{ route('login') }}" class="hover:text-white">Login Admin</a>
             </div>
         </div>
     </footer>
