@@ -7,7 +7,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-slate-950 text-slate-100">
+<body class="bg-slate-950 text-slate-100 antialiased">
     <div class="relative overflow-hidden">
         <div class="pointer-events-none absolute inset-0">
             <div class="absolute -left-48 top-0 h-96 w-96 rounded-full bg-blue-500/20 blur-[140px]"></div>
@@ -30,8 +30,8 @@
                     <a href="#daftar" class="text-sm font-medium text-slate-300 hover:text-white">Daftar</a>
                 </div>
                 <div class="flex items-center gap-3">
-                    <a href="{{ route('login') }}" class="hidden rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-white hover:border-white/40 md:inline-flex">Login</a>
-                    <a href="#daftar" class="rounded-full bg-white px-4 py-2 text-xs font-semibold text-slate-950 shadow-lg shadow-white/20 hover:bg-slate-100">Coba Gratis</a>
+                    <a href="{{ route('login') }}" class="hidden rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-white transition hover:border-white/50 hover:bg-white/5 md:inline-flex">Login</a>
+                    <a href="#daftar" class="rounded-full bg-white px-4 py-2 text-xs font-semibold text-slate-950 shadow-lg shadow-white/20 transition hover:-translate-y-0.5 hover:bg-slate-100">Coba Gratis</a>
                 </div>
             </div>
         </header>
@@ -43,28 +43,33 @@
                         <span class="inline-flex h-2 w-2 rounded-full bg-cyan-300"></span>
                         Solusi POS + servis multi-tenant
                     </p>
-                    <h1 class="text-4xl font-semibold leading-tight text-white lg:text-5xl">Tampil profesional, operasional terkendali, dan bisnis siap bertumbuh.</h1>
+                    <h1 class="text-4xl font-semibold leading-tight text-white lg:text-5xl">Landing page yang rapi untuk POS modern: tampil profesional, operasional terkendali, dan bisnis siap bertumbuh.</h1>
                     <p class="mt-5 text-lg text-slate-300">Platform POS berlangganan dengan subdomain otomatis, modul servis lengkap, serta laporan real-time. Semua sudah termasuk domain, hosting, dan maintenance.</p>
                     <div class="mt-8 flex flex-wrap gap-4">
-                        <a href="#daftar" class="rounded-xl bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-300 px-6 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-400/30">Mulai Sekarang</a>
-                        <a href="#harga" class="rounded-xl border border-white/20 px-6 py-3 text-sm font-semibold text-white hover:border-white/40">Lihat Paket</a>
+                        <a href="#daftar" class="rounded-xl bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-300 px-6 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-400/30 transition hover:-translate-y-0.5">Mulai Sekarang</a>
+                        <a href="#harga" class="rounded-xl border border-white/20 px-6 py-3 text-sm font-semibold text-white transition hover:border-white/40 hover:bg-white/5">Lihat Paket</a>
                     </div>
-                    <div class="mt-8 grid gap-4 sm:grid-cols-3">
-                        <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <div class="mt-10 grid gap-4 sm:grid-cols-3">
+                        <div class="rounded-2xl border border-white/10 bg-white/5 p-4 shadow-lg shadow-blue-500/10">
                             <p class="text-xl font-semibold text-white">24/7</p>
                             <p class="text-xs text-slate-300">Monitoring server</p>
                         </div>
-                        <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                        <div class="rounded-2xl border border-white/10 bg-white/5 p-4 shadow-lg shadow-blue-500/10">
                             <p class="text-xl font-semibold text-white">10 menit</p>
                             <p class="text-xs text-slate-300">Setup & aktivasi</p>
                         </div>
-                        <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                        <div class="rounded-2xl border border-white/10 bg-white/5 p-4 shadow-lg shadow-blue-500/10">
                             <p class="text-xl font-semibold text-white">99.9%</p>
                             <p class="text-xs text-slate-300">Uptime infrastruktur</p>
                         </div>
                     </div>
+                    <div class="mt-6 flex flex-wrap items-center gap-3 text-xs text-slate-400">
+                        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1">Audit keamanan berkala</span>
+                        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1">SLA response &lt; 2 jam</span>
+                        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1">Cloud siap scale</span>
+                    </div>
                 </div>
-                <div class="rounded-[32px] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-blue-500/20">
+                <div class="rounded-[32px] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-blue-500/20 backdrop-blur">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-xs uppercase tracking-[0.2em] text-blue-200">Dashboard Live</p>
@@ -106,27 +111,27 @@
                 <p class="mt-3 text-slate-300">Dirancang untuk toko, servis, dan bisnis ritel yang ingin lebih rapi dan efisien.</p>
             </div>
             <div class="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-6 transition hover:-translate-y-1 hover:border-cyan-400/50 hover:bg-white/10">
                     <h3 class="text-lg font-semibold text-white">POS & Kasir</h3>
                     <p class="mt-2 text-sm text-slate-300">Transaksi cepat, multi metode pembayaran, dan cetak struk instan.</p>
                 </div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-6 transition hover:-translate-y-1 hover:border-cyan-400/50 hover:bg-white/10">
                     <h3 class="text-lg font-semibold text-white">Manajemen Servis</h3>
                     <p class="mt-2 text-sm text-slate-300">Status servis terpantau dengan estimasi biaya dan notifikasi pelanggan.</p>
                 </div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-6 transition hover:-translate-y-1 hover:border-cyan-400/50 hover:bg-white/10">
                     <h3 class="text-lg font-semibold text-white">Subdomain Otomatis</h3>
                     <p class="mt-2 text-sm text-slate-300">Tanpa domain sendiri, bisnis langsung online dengan subdomain aktif.</p>
                 </div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-6 transition hover:-translate-y-1 hover:border-cyan-400/50 hover:bg-white/10">
                     <h3 class="text-lg font-semibold text-white">Laporan Keuangan</h3>
                     <p class="mt-2 text-sm text-slate-300">Laba rugi, arus kas, dan laporan pajak siap unduh.</p>
                 </div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-6 transition hover:-translate-y-1 hover:border-cyan-400/50 hover:bg-white/10">
                     <h3 class="text-lg font-semibold text-white">Stok & Inventori</h3>
                     <p class="mt-2 text-sm text-slate-300">Pantau stok real-time, multi gudang, dan peringatan restock.</p>
                 </div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-6 transition hover:-translate-y-1 hover:border-cyan-400/50 hover:bg-white/10">
                     <h3 class="text-lg font-semibold text-white">Hosting Dikelola</h3>
                     <p class="mt-2 text-sm text-slate-300">Server, backup, dan update aplikasi dikelola tim kami.</p>
                 </div>
@@ -142,19 +147,19 @@
                 <p class="mt-3 text-slate-300">Langganan sudah termasuk setup teknis, pelatihan awal, dan support onboarding. Anda fokus pada penjualan, kami urus teknologinya.</p>
             </div>
             <div class="grid gap-4 sm:grid-cols-2">
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-slate-900/40">
                     <p class="text-lg font-semibold text-white">Onboarding cepat</p>
                     <p class="mt-2 text-sm text-slate-300">Tim kami bantu dari aktivasi hingga data awal siap.</p>
                 </div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-slate-900/40">
                     <p class="text-lg font-semibold text-white">Support responsif</p>
                     <p class="mt-2 text-sm text-slate-300">Chat & email support di jam kerja, cepat ditangani.</p>
                 </div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-slate-900/40">
                     <p class="text-lg font-semibold text-white">Multi lokasi</p>
                     <p class="mt-2 text-sm text-slate-300">Kelola beberapa cabang dalam satu dashboard.</p>
                 </div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-slate-900/40">
                     <p class="text-lg font-semibold text-white">Keamanan data</p>
                     <p class="mt-2 text-sm text-slate-300">Enkripsi & backup otomatis setiap hari.</p>
                 </div>
