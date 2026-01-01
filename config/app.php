@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Dealer Management'),
+    'name' => env('APP_NAME', 'Profesional Servis'),
 
     /*
     |--------------------------------------------------------------------------
