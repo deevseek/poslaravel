@@ -11,7 +11,6 @@ use App\Tenancy\Support\TenantManager;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use RuntimeException;
 use Throwable;
@@ -26,7 +25,7 @@ class TenantProvisioningService
     {
         $centralConnection = Config::get('tenancy.central_connection', 'mysql');
         $subdomain = Str::slug($payload['subdomain']);
-        $databaseName = $this->makeDatabaseName($subdomain);
+        $databaseName = $this->makeDatabaseName($subdomain, $centralConnection);
 
         $this->createTenantDatabase($databaseName, $centralConnection);
         $this->runMigrations($databaseName);
@@ -84,10 +83,12 @@ class TenantProvisioningService
 
         $ownerRoleId = Role::on($tenantConnection)->where('slug', 'owner')->value('id');
 
+        $password = $payload['password_hash'] ?? $payload['password'] ?? null;
+
         $user = User::on($tenantConnection)->create([
             'name' => $payload['admin_name'] ?? $payload['name'],
             'email' => $payload['email'],
-            'password' => Hash::make($payload['password']),
+            'password' => $password,
         ]);
 
         $user->forceFill(['email_verified_at' => now()])->save();
@@ -122,9 +123,19 @@ class TenantProvisioningService
         ]);
     }
 
-    protected function makeDatabaseName(string $subdomain): string
+    protected function makeDatabaseName(string $subdomain, string $centralConnection): string
     {
         $prefix = Config::get('tenancy.tenant_database_prefix', 'tenant_');
+        $centralDatabase = Config::get("database.connections.{$centralConnection}.database");
+        $centralPrefix = null;
+
+        if (is_string($centralDatabase) && str_contains($centralDatabase, '_')) {
+            $centralPrefix = Str::before($centralDatabase, '_') . '_';
+        }
+
+        if ($centralPrefix && ! Str::startsWith($prefix, $centralPrefix)) {
+            $prefix = $centralPrefix . $prefix;
+        }
 
         return $prefix . $subdomain;
     }
