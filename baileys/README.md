@@ -8,9 +8,14 @@ Folder ini berisi contoh sederhana penggunaan Baileys untuk koneksi WhatsApp.
    ```bash
    npm install
    ```
-2. Jalankan:
+2. Jalankan dari root project:
    ```bash
    node baileys/index.js
+   ```
+   Atau masuk ke folder `baileys` lalu jalankan:
+   ```bash
+   cd baileys
+   node index.js
    ```
 3. Scan QR yang muncul di terminal.
 4. Aplikasi Laravel mengirim pesan ke endpoint gateway `POST /send`.
