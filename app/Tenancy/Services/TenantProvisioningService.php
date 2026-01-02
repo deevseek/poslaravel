@@ -25,11 +25,14 @@ class TenantProvisioningService
     public function provision(array $payload): Tenant
     {
         $centralConnection = Config::get('tenancy.central_connection', 'mysql');
+        $subdomain = Str::slug($payload['subdomain']);
+        $databaseName = $this->makeDatabaseName($subdomain);
 
-        return DB::connection($centralConnection)->transaction(function () use ($payload, $centralConnection) {
-            $subdomain = Str::slug($payload['subdomain']);
-            $databaseName = $this->makeDatabaseName($subdomain);
+        $this->createTenantDatabase($databaseName, $centralConnection);
+        $this->runMigrations($databaseName);
+        $this->seedTenant($databaseName, $payload, $centralConnection);
 
+        return DB::connection($centralConnection)->transaction(function () use ($payload, $databaseName, $subdomain) {
             $tenant = Tenant::create([
                 'name' => $payload['name'],
                 'subdomain' => $subdomain,
@@ -38,9 +41,6 @@ class TenantProvisioningService
                 'plan_id' => $payload['plan_id'] ?? null,
             ]);
 
-            $this->createTenantDatabase($databaseName, $centralConnection);
-            $this->runMigrations($databaseName);
-            $this->seedTenant($databaseName, $payload);
             $this->attachSubscription($tenant, $payload['plan_id'] ?? null);
 
             return $tenant;
@@ -68,7 +68,7 @@ class TenantProvisioningService
         ]);
     }
 
-    protected function seedTenant(string $databaseName, array $payload): void
+    protected function seedTenant(string $databaseName, array $payload, string $centralConnection): void
     {
         $manager = $this->tenantManager;
         $manager->switchToTenantConnection(new Tenant(['database_name' => $databaseName]));
@@ -95,6 +95,10 @@ class TenantProvisioningService
         if ($ownerRoleId) {
             $user->roles()->sync([$ownerRoleId]);
         }
+
+        Config::set('database.default', $centralConnection);
+        DB::purge($centralConnection);
+        DB::reconnect($centralConnection);
     }
 
     protected function attachSubscription(Tenant $tenant, ?int $planId): void
