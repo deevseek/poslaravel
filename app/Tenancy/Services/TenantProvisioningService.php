@@ -11,7 +11,6 @@ use App\Tenancy\Support\TenantManager;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use RuntimeException;
 use Throwable;
@@ -84,10 +83,12 @@ class TenantProvisioningService
 
         $ownerRoleId = Role::on($tenantConnection)->where('slug', 'owner')->value('id');
 
+        $password = $payload['password_hash'] ?? $payload['password'] ?? null;
+
         $user = User::on($tenantConnection)->create([
             'name' => $payload['admin_name'] ?? $payload['name'],
             'email' => $payload['email'],
-            'password' => Hash::make($payload['password']),
+            'password' => $password,
         ]);
 
         $user->forceFill(['email_verified_at' => now()])->save();

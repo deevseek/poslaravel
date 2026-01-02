@@ -9,7 +9,9 @@ use App\Tenancy\Models\TenantRegistration;
 use App\Tenancy\Services\TenantProvisioningService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -74,7 +76,7 @@ class TenantRegistrationController extends Controller
             'payment_reference' => $validated['payment_reference'] ?? null,
             'payment_amount' => $plan->price,
             'payment_proof_path' => $paymentProofPath,
-            'password_encrypted' => Crypt::encryptString($validated['password']),
+            'password_encrypted' => Hash::make($validated['password']),
         ]);
 
         return back()->with('success', 'Pendaftaran Anda sudah kami terima. Tim kami akan memverifikasi pembayaran dan mengaktifkan tenant Anda.');
@@ -105,8 +107,12 @@ class TenantRegistrationController extends Controller
             'plan_id' => $tenantRegistration->plan_id,
             'admin_name' => $tenantRegistration->admin_name,
             'email' => $tenantRegistration->email,
-            'password' => Crypt::decryptString($tenantRegistration->password_encrypted),
         ];
+        try {
+            $payload['password'] = Crypt::decryptString($tenantRegistration->password_encrypted);
+        } catch (DecryptException) {
+            $payload['password_hash'] = $tenantRegistration->password_encrypted;
+        }
 
         try {
             $service->provision($payload);
