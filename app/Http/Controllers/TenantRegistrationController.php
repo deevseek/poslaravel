@@ -76,7 +76,7 @@ class TenantRegistrationController extends Controller
             'payment_reference' => $validated['payment_reference'] ?? null,
             'payment_amount' => $plan->price,
             'payment_proof_path' => $paymentProofPath,
-            'password_encrypted' => Hash::make($validated['password']),
+            'password_encrypted' => Crypt::encryptString($validated['password']),
         ]);
 
         return back()->with('success', 'Pendaftaran Anda sudah kami terima. Tim kami akan memverifikasi pembayaran dan mengaktifkan tenant Anda.');
@@ -111,7 +111,13 @@ class TenantRegistrationController extends Controller
         try {
             $payload['password'] = Crypt::decryptString($tenantRegistration->password_encrypted);
         } catch (DecryptException) {
-            $payload['password_hash'] = $tenantRegistration->password_encrypted;
+            $info = Hash::info($tenantRegistration->password_encrypted);
+
+            if (($info['algo'] ?? 0) !== 0) {
+                $payload['password_hash'] = $tenantRegistration->password_encrypted;
+            } else {
+                $payload['password'] = $tenantRegistration->password_encrypted;
+            }
         }
 
         try {

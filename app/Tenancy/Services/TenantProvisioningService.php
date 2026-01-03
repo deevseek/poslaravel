@@ -83,13 +83,15 @@ class TenantProvisioningService
 
         $ownerRoleId = Role::on($tenantConnection)->where('slug', 'owner')->value('id');
 
-        $password = $payload['password_hash'] ?? $payload['password'] ?? null;
-
         $user = User::on($tenantConnection)->create([
             'name' => $payload['admin_name'] ?? $payload['name'],
             'email' => $payload['email'],
-            'password' => $password,
+            'password' => $payload['password'] ?? null,
         ]);
+
+        if (! empty($payload['password_hash'])) {
+            $user->forceFill(['password' => $payload['password_hash']])->save();
+        }
 
         $user->forceFill(['email_verified_at' => now()])->save();
 
