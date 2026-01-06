@@ -115,6 +115,7 @@ class TenantRegistrationController extends Controller
 
             if (($info['algo'] ?? 0) !== 0) {
                 $payload['password_hash'] = $tenantRegistration->password_encrypted;
+                $payload['password'] = $tenantRegistration->password_encrypted;
             } else {
                 $payload['password'] = $tenantRegistration->password_encrypted;
             }
