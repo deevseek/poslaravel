@@ -23,8 +23,8 @@ class TenantManager
 
     public function resolve(Request $request): ?Tenant
     {
-        $host = $request->getHost();
-        $baseDomains = Config::get('tenancy.central_domains', []);
+        $host = $this->normalizeHost($request->getHost());
+        $baseDomains = $this->normalizeDomains(Config::get('tenancy.central_domains', []));
 
         if ($this->isCentralHost($host, $baseDomains)) {
             return null;
@@ -41,7 +41,8 @@ class TenantManager
 
     public function isCentralHost(string $host, ?array $baseDomains = null): bool
     {
-        $baseDomains ??= Config::get('tenancy.central_domains', []);
+        $host = $this->normalizeHost($host);
+        $baseDomains = $this->normalizeDomains($baseDomains ?? Config::get('tenancy.central_domains', []));
 
         if (in_array($host, $baseDomains, true)) {
             return true;
@@ -115,5 +116,35 @@ class TenantManager
         }
 
         return null;
+    }
+
+    protected function normalizeDomains(array $baseDomains): array
+    {
+        return array_values(array_filter(array_map(function ($domain) {
+            if (! is_string($domain)) {
+                return null;
+            }
+
+            $host = $this->normalizeHost($domain);
+
+            return $host !== '' ? $host : null;
+        }, $baseDomains)));
+    }
+
+    protected function normalizeHost(string $host): string
+    {
+        $host = trim($host);
+
+        if ($host === '') {
+            return '';
+        }
+
+        if (! Str::startsWith($host, ['http://', 'https://'])) {
+            $host = 'http://' . $host;
+        }
+
+        $normalized = parse_url($host, PHP_URL_HOST);
+
+        return strtolower($normalized ?: $host);
     }
 }
