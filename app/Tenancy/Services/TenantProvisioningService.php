@@ -83,10 +83,12 @@ class TenantProvisioningService
 
         $ownerRoleId = Role::on($tenantConnection)->where('slug', 'owner')->value('id');
 
+        $password = $payload['password'] ?? $payload['password_hash'] ?? Str::password(32);
+
         $user = User::on($tenantConnection)->create([
             'name' => $payload['admin_name'] ?? $payload['name'],
             'email' => $payload['email'],
-            'password' => $payload['password'] ?? null,
+            'password' => $password,
         ]);
 
         if (! empty($payload['password_hash'])) {
