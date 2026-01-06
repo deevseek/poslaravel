@@ -32,11 +32,19 @@ class TenantManager
 
         $subdomain = $this->extractSubdomain($host, $baseDomains);
 
-        if (! $subdomain) {
-            return null;
+        $query = Tenant::query();
+
+        if ($subdomain) {
+            $query->where('subdomain', $subdomain);
         }
 
-        return $this->tenant = Tenant::query()->where('subdomain', $subdomain)->first();
+        return $this->tenant = $query
+            ->when(! $subdomain, function ($builder) use ($host) {
+                $builder->where('subdomain', $host);
+            }, function ($builder) use ($host) {
+                $builder->orWhere('subdomain', $host);
+            })
+            ->first();
     }
 
     public function isCentralHost(string $host, ?array $baseDomains = null): bool
