@@ -106,23 +106,29 @@ class SubscriptionPlanController extends Controller
 
     private function normalizeFeatures(array $features, array $availableFeatures): array
     {
-        $featureMap = collect($availableFeatures)
-            ->mapWithKeys(fn (array $feature) => [$feature['value'] => $feature['label']]);
+        $featureValues = collect($availableFeatures)->pluck('value');
 
         return collect($features)
-            ->map(fn (string $feature) => $featureMap->get($feature))
-            ->filter()
+            ->filter(fn (string $feature) => $featureValues->contains($feature))
+            ->unique()
             ->values()
             ->all();
     }
 
     private function resolveSelectedFeatures(array $storedFeatures, array $availableFeatures): array
     {
-        $featureMap = collect($availableFeatures)
+        $availableValues = collect($availableFeatures)->pluck('value');
+        $labelToValueMap = collect($availableFeatures)
             ->mapWithKeys(fn (array $feature) => [$feature['label'] => $feature['value']]);
 
         return collect($storedFeatures)
-            ->map(fn (string $feature) => $featureMap->get($feature))
+            ->map(function (string $feature) use ($availableValues, $labelToValueMap) {
+                if ($availableValues->contains($feature)) {
+                    return $feature;
+                }
+
+                return $labelToValueMap->get($feature);
+            })
             ->filter()
             ->values()
             ->all();

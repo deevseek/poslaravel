@@ -44,9 +44,9 @@
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $plan->billing_cycle }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">
-                            @if (! empty($plan->features))
+                            @if (! empty($plan->feature_labels))
                                 <ul class="list-disc space-y-1 pl-4 text-xs text-gray-600">
-                                    @foreach ($plan->features as $feature)
+                                    @foreach ($plan->feature_labels as $feature)
                                         <li>{{ $feature }}</li>
                                     @endforeach
                                 </ul>
