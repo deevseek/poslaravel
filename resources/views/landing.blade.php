@@ -183,7 +183,7 @@
                         </div>
                         <p class="mt-4 text-3xl font-semibold text-white">Rp {{ number_format($plan->price, 0, ',', '.') }}</p>
                         <ul class="mt-4 space-y-2 text-sm text-slate-300">
-                            @forelse ($plan->features ?? [] as $feature)
+                            @forelse ($plan->feature_labels ?? [] as $feature)
                                 <li>• {{ $feature }}</li>
                             @empty
                                 <li>• Semua fitur utama</li>
