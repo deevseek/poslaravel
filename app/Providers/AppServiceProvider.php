@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Support\SubscriptionFeatureGate;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
@@ -31,9 +32,39 @@ class AppServiceProvider extends ServiceProvider
                 return false;
             }
 
+            $featureGate = app(SubscriptionFeatureGate::class);
+            $permissionList = collect(is_array($permissions) ? $permissions : [$permissions])
+                ->flatMap(function (string $permission) {
+                    if (str_contains($permission, '|')) {
+                        return explode('|', $permission);
+                    }
+
+                    return [$permission];
+                })
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+
+            $allowedPermissions = $featureGate->filterPermissionsForTenant($permissionList);
+
+            if (is_array($allowedPermissions)) {
+                if ($requireAll && array_diff($permissionList, $allowedPermissions) !== []) {
+                    return false;
+                }
+
+                if (! $requireAll) {
+                    $permissionList = array_values(array_intersect($permissionList, $allowedPermissions));
+
+                    if ($permissionList === []) {
+                        return false;
+                    }
+                }
+            }
+
             return $requireAll
-                ? $user->hasPermission($permissions)
-                : $user->hasAnyPermission($permissions);
+                ? $user->hasPermission($permissionList)
+                : $user->hasAnyPermission($permissionList);
         });
     }
 }
