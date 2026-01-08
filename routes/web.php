@@ -25,6 +25,7 @@ use App\Http\Controllers\UserController;
 
 Route::get('/', [TenantRegistrationController::class, 'landing'])->name('landing');
 Route::post('tenant-registrations', [TenantRegistrationController::class, 'store'])
+    ->middleware('central.domain')
     ->name('tenant-registrations.store');
 
 Route::get('service-progress/{service}', [ServiceController::class, 'progress'])
@@ -144,23 +145,20 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:whatsapp.log_view')
         ->name('wa.logs');
 
-    Route::resource('tenants', TenantController::class)
-        ->only(['index', 'create', 'store', 'edit', 'update'])
-        ->middleware('permission:tenant.manage');
+    Route::middleware(['central.domain', 'permission:tenant.manage'])->group(function () {
+        Route::resource('tenants', TenantController::class)
+            ->only(['index', 'create', 'store', 'edit', 'update']);
 
-    Route::get('tenant-registrations', [TenantRegistrationController::class, 'index'])
-        ->middleware('permission:tenant.manage')
-        ->name('tenant-registrations.index');
-    Route::post('tenant-registrations/{tenantRegistration}/approve', [TenantRegistrationController::class, 'approve'])
-        ->middleware('permission:tenant.manage')
-        ->name('tenant-registrations.approve');
-    Route::post('tenant-registrations/{tenantRegistration}/reject', [TenantRegistrationController::class, 'reject'])
-        ->middleware('permission:tenant.manage')
-        ->name('tenant-registrations.reject');
+        Route::get('tenant-registrations', [TenantRegistrationController::class, 'index'])
+            ->name('tenant-registrations.index');
+        Route::post('tenant-registrations/{tenantRegistration}/approve', [TenantRegistrationController::class, 'approve'])
+            ->name('tenant-registrations.approve');
+        Route::post('tenant-registrations/{tenantRegistration}/reject', [TenantRegistrationController::class, 'reject'])
+            ->name('tenant-registrations.reject');
 
-    Route::resource('subscription-plans', SubscriptionPlanController::class)
-        ->except(['show'])
-        ->middleware('permission:tenant.manage');
+        Route::resource('subscription-plans', SubscriptionPlanController::class)
+            ->except(['show']);
+    });
 
     Route::resource('roles', RoleController::class)
         ->middleware('permission:role.manage');
