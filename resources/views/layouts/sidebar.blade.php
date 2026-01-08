@@ -122,27 +122,29 @@
                     </li>
                 @endpermission
 
-                @permission('tenant.manage')
-                    <li class="nav-header">Tenant</li>
-                    <li class="nav-item">
-                        <a href="{{ route('tenants.index') }}" class="nav-link {{ request()->routeIs('tenants.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-building"></i>
-                            <p>Daftar Tenant</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('tenant-registrations.index') }}" class="nav-link {{ request()->routeIs('tenant-registrations.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-file-signature"></i>
-                            <p>Pendaftaran Tenant</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('subscription-plans.index') }}" class="nav-link {{ request()->routeIs('subscription-plans.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-box"></i>
-                            <p>Manajemen Paket</p>
-                        </a>
-                    </li>
-                @endpermission
+                @if($isCentralDomain)
+                    @permission('tenant.manage')
+                        <li class="nav-header">Tenant</li>
+                        <li class="nav-item">
+                            <a href="{{ route('tenants.index') }}" class="nav-link {{ request()->routeIs('tenants.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-building"></i>
+                                <p>Daftar Tenant</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('tenant-registrations.index') }}" class="nav-link {{ request()->routeIs('tenant-registrations.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-file-signature"></i>
+                                <p>Pendaftaran Tenant</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('subscription-plans.index') }}" class="nav-link {{ request()->routeIs('subscription-plans.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-box"></i>
+                                <p>Manajemen Paket</p>
+                            </a>
+                        </li>
+                    @endpermission
+                @endif
 
                 @permission(['warranty.view', 'warranty.claim'])
                     <li class="nav-header">Garansi</li>

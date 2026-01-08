@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Support\SubscriptionFeatureGate;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -24,6 +25,10 @@ class AppServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom([
             database_path('migrations/central'),
         ]);
+
+        $isCentralDomain = request()->getHost() === 'profesionalservis.my.id';
+
+        View::share('isCentralDomain', $isCentralDomain);
 
         Blade::if('permission', function ($permissions, bool $requireAll = false) {
             $user = auth()->user();
