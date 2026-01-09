@@ -15,7 +15,7 @@
         </div>
 
         <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-            <form action="{{ route('settings.update') }}" method="POST" class="space-y-5">
+            <form action="{{ route('settings.update') }}" method="POST" class="space-y-5" enctype="multipart/form-data">
                 @csrf
 
                 @if ($tab === 'whatsapp')
@@ -117,11 +117,20 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700" for="{{ App\Models\Setting::STORE_LOGO_PATH }}">Path Logo Toko</label>
-                        <input type="text" id="{{ App\Models\Setting::STORE_LOGO_PATH }}"
+                        <label class="block text-sm font-medium text-gray-700" for="{{ App\Models\Setting::STORE_LOGO_PATH }}">Logo Toko</label>
+                        <input type="file" id="{{ App\Models\Setting::STORE_LOGO_PATH }}"
                             name="{{ App\Models\Setting::STORE_LOGO_PATH }}"
-                            value="{{ old(App\Models\Setting::STORE_LOGO_PATH, $settings[App\Models\Setting::STORE_LOGO_PATH] ?? '') }}"
-                            class="mt-2 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            accept="image/*"
+                            class="mt-2 w-full rounded-lg border-gray-300 bg-white shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        @if (!empty($settings[App\Models\Setting::STORE_LOGO_PATH]))
+                            <div class="mt-3 flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                                <img src="{{ asset($settings[App\Models\Setting::STORE_LOGO_PATH]) }}" alt="Logo toko" class="h-12 w-12 rounded object-cover">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-700">Logo saat ini</p>
+                                    <p class="text-xs text-gray-500">{{ $settings[App\Models\Setting::STORE_LOGO_PATH] }}</p>
+                                </div>
+                            </div>
+                        @endif
                         @error(App\Models\Setting::STORE_LOGO_PATH)
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror

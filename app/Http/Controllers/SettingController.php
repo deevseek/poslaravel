@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class SettingController extends Controller
@@ -44,6 +45,16 @@ class SettingController extends Controller
             Setting::WHATSAPP_GATEWAY_URL,
         ])->pluck('value', 'key');
 
+        $logoPath = $current[Setting::STORE_LOGO_PATH] ?? '';
+        if ($request->hasFile(Setting::STORE_LOGO_PATH)) {
+            $request->validate([
+                Setting::STORE_LOGO_PATH => ['image', 'max:2048'],
+            ]);
+
+            $path = $request->file(Setting::STORE_LOGO_PATH)->store('store-logos', 'public');
+            $logoPath = Storage::url($path);
+        }
+
         $payload = [
             Setting::STORE_NAME => $request->input(Setting::STORE_NAME, $current[Setting::STORE_NAME] ?? ''),
             Setting::STORE_ADDRESS => $request->input(Setting::STORE_ADDRESS, $current[Setting::STORE_ADDRESS] ?? ''),
@@ -51,7 +62,7 @@ class SettingController extends Controller
             Setting::STORE_HOURS => $request->input(Setting::STORE_HOURS, $current[Setting::STORE_HOURS] ?? ''),
             Setting::TRANSACTION_PREFIX => $request->input(Setting::TRANSACTION_PREFIX, $current[Setting::TRANSACTION_PREFIX] ?? ''),
             Setting::TRANSACTION_PADDING => $request->input(Setting::TRANSACTION_PADDING, $current[Setting::TRANSACTION_PADDING] ?? 4),
-            Setting::STORE_LOGO_PATH => $request->input(Setting::STORE_LOGO_PATH, $current[Setting::STORE_LOGO_PATH] ?? ''),
+            Setting::STORE_LOGO_PATH => $logoPath,
             Setting::WHATSAPP_ENABLED => $request->boolean(Setting::WHATSAPP_ENABLED, filter_var($current[Setting::WHATSAPP_ENABLED] ?? false, FILTER_VALIDATE_BOOLEAN)),
             Setting::WHATSAPP_GATEWAY_URL => $request->input(Setting::WHATSAPP_GATEWAY_URL, $current[Setting::WHATSAPP_GATEWAY_URL] ?? null),
         ];
