@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Support\SubscriptionFeatureGate;
+use App\Tenancy\Support\TenantManager;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
@@ -20,18 +21,27 @@ class AuthServiceProvider extends ServiceProvider
             ->values();
 
         Gate::before(function ($user, string $ability) use ($permissionAbilities) {
-            if (! $user || ! $permissionAbilities->contains($ability)) {
+            $tenantManager = app(TenantManager::class);
+            $request = app('request');
+
+            if ($tenantManager->isCentralHost($request->getHost())) {
                 return null;
             }
 
-            $featureGate = app(SubscriptionFeatureGate::class);
-            $allowedPermissions = $featureGate->filterPermissionsForTenant([$ability]);
+            $tenant = $tenantManager->current() ?? $tenantManager->resolve($request);
 
-            if (is_array($allowedPermissions) && ! in_array($ability, $allowedPermissions, true)) {
+            if (! $tenant || ! $user) {
                 return false;
             }
 
-            return $user->hasPermission($ability);
+            if (! $permissionAbilities->contains($ability)) {
+                return false;
+            }
+
+            $featureGate = app(SubscriptionFeatureGate::class);
+            $allowedPermissions = $featureGate->filterPermissionsForTenant([$ability]) ?? [];
+
+            return in_array($ability, $allowedPermissions, true);
         });
     }
 }
