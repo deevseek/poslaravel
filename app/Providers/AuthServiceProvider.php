@@ -35,8 +35,9 @@ class AuthServiceProvider extends ServiceProvider
             }
 
             if (! $permissionAbilities->contains($ability)) {
-                return false;
+            return null; // biarkan Laravel handle policy/ability lain
             }
+
 
             $featureGate = app(SubscriptionFeatureGate::class);
             $allowedPermissions = $featureGate->filterPermissionsForTenant([$ability]) ?? [];
