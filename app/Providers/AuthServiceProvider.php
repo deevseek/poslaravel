@@ -44,3 +44,5 @@ class AuthServiceProvider extends ServiceProvider
 
     return in_array($ability, $allowedPermissions, true);
 });
+}
+}
