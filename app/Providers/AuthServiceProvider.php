@@ -22,30 +22,28 @@ class AuthServiceProvider extends ServiceProvider
 
         Gate::before(function ($user, string $ability) use ($permissionAbilities) {
 
-    // Tidak login → biarkan Laravel
-    if (! $user) {
-        return null;
+            // Tidak login → biarkan Laravel
+            if (! $user) {
+                return null;
+            }
+
+            // Ambil tenant AKTIF
+            $tenant = app(TenantManager::class)->current();
+
+            // CENTRAL DOMAIN → BEBAS
+            if (! $tenant) {
+                return null;
+            }
+
+            // Ability bukan bagian subscription → biarkan Laravel lanjut
+            if (! $permissionAbilities->contains($ability)) {
+                return null;
+            }
+
+            $allowedPermissions = app(SubscriptionFeatureGate::class)
+                ->filterPermissionsForTenant([$ability]) ?? [];
+
+            return in_array($ability, $allowedPermissions, true);
+        });
     }
-
-    // Ambil tenant AKTIF
-    $tenant = app(TenantManager::class)->current();
-
-    // === CENTRAL DOMAIN ===
-    // Jika TIDAK ADA tenant → ini pusat → BEBAS
-    if (! $tenant) {
-        return null;
-    }
-
-    // === DI BAWAH INI PASTI TENANT ===
-
-    // Ability bukan bagian subscription → biarkan Laravel lanjut
-    if (! $permissionAbilities->contains($ability)) {
-        return null;
-    }
-
-    $allowedPermissions = app(SubscriptionFeatureGate::class)
-        ->filterPermissionsForTenant([$ability]) ?? [];
-
-    return in_array($ability, $allowedPermissions, true);
-});
-
+}
