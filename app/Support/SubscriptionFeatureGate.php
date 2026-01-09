@@ -30,7 +30,7 @@ class SubscriptionFeatureGate
             ?? [];
 
         if ($planFeatures === []) {
-            return null;
+            return [];
         }
 
         $featurePermissions = collect(config('modules.subscription_feature_permissions', []));
