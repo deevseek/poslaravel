@@ -25,26 +25,28 @@ class AuthServiceProvider extends ServiceProvider
                 return null;
             }
 
+            $hasPermission = $user->hasPermission($ability);
+
             // === CENTRAL DOMAIN ===
             // User pusat → BEBAS
             if ($user->hasPermission('tenant.manage')) {
-                return null;
+                return true;
             }
 
             // === TENANT ===
-            // Ability bukan bagian subscription → biarkan Laravel lanjut
+            // Ability bukan bagian subscription → cek permission biasa
             if (! $permissionAbilities->contains($ability)) {
-                return null;
+                return $hasPermission;
             }
 
             $allowedPermissions = app(SubscriptionFeatureGate::class)
                 ->filterPermissionsForTenant([$ability]);
 
             if ($allowedPermissions === null) {
-                return null;
+                return $hasPermission;
             }
 
-            return in_array($ability, $allowedPermissions, true);
+            return $hasPermission && in_array($ability, $allowedPermissions, true);
         });
     }
 }
