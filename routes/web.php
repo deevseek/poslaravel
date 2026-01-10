@@ -53,8 +53,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::controller(CategoryController::class)->group(function () {
         Route::get('categories', 'index')->name('categories.index')->middleware('can:inventory.view');
-        Route::get('categories/create', 'create')->name('categories.create')->middleware('can:inventory.update');
-        Route::post('categories', 'store')->name('categories.store')->middleware('can:inventory.update');
+        Route::get('categories/create', 'create')->name('categories.create')->middleware('can:inventory.create');
+        Route::post('categories', 'store')->name('categories.store')->middleware('can:inventory.create');
         Route::get('categories/{category}', 'show')->name('categories.show')->middleware('can:inventory.view');
         Route::get('categories/{category}/edit', 'edit')->name('categories.edit')->middleware('can:inventory.update');
         Route::put('categories/{category}', 'update')->name('categories.update')->middleware('can:inventory.update');
