@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Support\SubscriptionFeatureGate;
 use App\Support\SubscriptionFeatureService;
+use App\Tenancy\Support\TenantManager;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -27,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
             database_path('migrations/central'),
         ]);
 
-        $isCentralDomain = request()->getHost() === 'profesionalservis.my.id';
+        $isCentralDomain = app(TenantManager::class)->isCentralHost(request()->getHost());
 
         View::share('isCentralDomain', $isCentralDomain);
 
