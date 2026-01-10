@@ -29,10 +29,6 @@ class SubscriptionFeatureGate
             ?? $tenant->plan?->features
             ?? [];
 
-        if ($planFeatures === []) {
-            return null;
-        }
-
         $featurePermissions = collect(config('modules.subscription_feature_permissions', []));
 
         return collect($planFeatures)
