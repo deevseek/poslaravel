@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Support\SubscriptionFeatureGate;
+use App\Support\SubscriptionFeatureService;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -70,6 +71,10 @@ class AppServiceProvider extends ServiceProvider
             return $requireAll
                 ? $user->hasPermission($permissionList)
                 : $user->hasAnyPermission($permissionList);
+        });
+
+        Blade::if('feature', function (string $feature) {
+            return app(SubscriptionFeatureService::class)->hasFeature($feature);
         });
     }
 }

@@ -7,51 +7,51 @@
     <div class="sidebar">
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                @can('dashboard.view')
+                @feature('dashboard')
                     <li class="nav-item">
                         <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-chart-line"></i>
                             <p>Dashboard</p>
                         </a>
                     </li>
-                @endcan
+                @endfeature
 
-                @can('pos.access')
+                @feature('pos')
                     <li class="nav-item">
                         <a href="{{ route('pos.index') }}" class="nav-link {{ request()->routeIs('pos.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-receipt"></i>
                             <p>Point of Sales</p>
                         </a>
                     </li>
-                @endcan
+                @endfeature
 
-                @can('service.access')
+                @feature('service')
                     <li class="nav-item">
                         <a href="{{ route('services.index') }}" class="nav-link {{ request()->routeIs('services.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-tools"></i>
                             <p>Servis</p>
                         </a>
                     </li>
-                @endcan
+                @endfeature
 
-                @can('customer.manage')
+                @feature('customers')
                     <li class="nav-item">
                         <a href="{{ route('customers.index') }}" class="nav-link {{ request()->routeIs('customers.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-user"></i>
                             <p>Customers</p>
                         </a>
                     </li>
-                @endcan
-                @can('supplier.manage')
+                @endfeature
+                @feature('suppliers')
                     <li class="nav-item">
                         <a href="{{ route('suppliers.index') }}" class="nav-link {{ request()->routeIs('suppliers.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-truck"></i>
                             <p>Suppliers</p>
                         </a>
                     </li>
-                @endcan
+                @endfeature
 
-                @can('inventory.view')
+                @feature('product')
                     <li class="nav-item">
                         <a href="{{ route('categories.index') }}" class="nav-link {{ request()->routeIs('categories.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-tags"></i>
@@ -64,66 +64,67 @@
                             <p>Produk</p>
                         </a>
                     </li>
-                @endcan
+                @endfeature
 
-                @canany(['purchase.view', 'purchase.create'])
+                @feature('purchase')
                     <li class="nav-item">
                         <a href="{{ route('purchases.index') }}" class="nav-link {{ request()->routeIs('purchases.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-shopping-cart"></i>
                             <p>Pembelian</p>
                         </a>
                     </li>
-                @endcanany
+                @endfeature
 
-                @can('inventory.view')
+                @feature('stock')
                     <li class="nav-item">
                         <a href="{{ route('stock-movements.index') }}" class="nav-link {{ request()->routeIs('stock-movements.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-dolly"></i>
                             <p>Pergerakan Stok</p>
                         </a>
                     </li>
-                @endcan
+                @endfeature
 
-                @can('finance.view')
+                @feature('finance')
                     <li class="nav-item">
                         <a href="{{ route('finances.index') }}" class="nav-link {{ request()->routeIs('finances.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-coins"></i>
                             <p>Keuangan</p>
                         </a>
                     </li>
-                @endcan
+                @endfeature
 
-                @canany(['user.manage', 'role.manage'])
+                @if(app(\App\Support\SubscriptionFeatureService::class)->hasFeature('users')
+                    || app(\App\Support\SubscriptionFeatureService::class)->hasFeature('roles'))
                     <li class="nav-header">Pengguna</li>
-                    @can('user.manage')
+                    @feature('users')
                         <li class="nav-item">
                             <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-users"></i>
                                 <p>Users</p>
                             </a>
                         </li>
-                    @endcan
-                    @can('role.manage')
+                    @endfeature
+                    @feature('roles')
                         <li class="nav-item">
                             <a href="{{ route('roles.index') }}" class="nav-link {{ request()->routeIs('roles.*') ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-user-shield"></i>
                                 <p>Roles & Permissions</p>
                             </a>
                         </li>
-                    @endcan
-                @endcanany
+                    @endfeature
+                @endif
 
-                @can('settings.view')
+                @feature('settings')
                     <li class="nav-item">
                         <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-cog"></i>
                             <p>Pengaturan</p>
                         </a>
                     </li>
-                @endcan
+                @endfeature
 
                 @if($isCentralDomain)
-                    @can('tenant.manage')
+                    @feature('tenants')
                         <li class="nav-header">Tenant</li>
                         <li class="nav-item">
                             <a href="{{ route('tenants.index') }}" class="nav-link {{ request()->routeIs('tenants.*') ? 'active' : '' }}">
@@ -143,62 +144,52 @@
                                 <p>Manajemen Paket</p>
                             </a>
                         </li>
-                    @endcan
+                    @endfeature
                 @endif
 
-                @canany(['warranty.view', 'warranty.claim'])
+                @feature('warranty')
                     <li class="nav-header">Garansi</li>
-                    @can('warranty.view')
-                        <li class="nav-item">
-                            <a href="{{ route('warranties.index') }}" class="nav-link {{ request()->routeIs('warranties.index') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-shield-alt"></i>
-                                <p>Daftar Garansi</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('warranties.reminder') }}" class="nav-link {{ request()->routeIs('warranties.reminder') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-bell"></i>
-                                <p>Reminder Garansi</p>
-                            </a>
-                        </li>
-                    @endcan
-                    @can('warranty.claim')
-                        <li class="nav-item">
-                            <a href="{{ route('warranties.create') }}" class="nav-link {{ request()->routeIs('warranties.create') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-clipboard-check"></i>
-                                <p>Klaim Garansi</p>
-                            </a>
-                        </li>
-                    @endcan
-                @endcanany
+                    <li class="nav-item">
+                        <a href="{{ route('warranties.index') }}" class="nav-link {{ request()->routeIs('warranties.index') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-shield-alt"></i>
+                            <p>Daftar Garansi</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('warranties.reminder') }}" class="nav-link {{ request()->routeIs('warranties.reminder') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-bell"></i>
+                            <p>Reminder Garansi</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('warranties.create') }}" class="nav-link {{ request()->routeIs('warranties.create') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-clipboard-check"></i>
+                            <p>Klaim Garansi</p>
+                        </a>
+                    </li>
+                @endfeature
 
-                @canany(['whatsapp.broadcast', 'whatsapp.template_manage', 'whatsapp.log_view'])
+                @feature('whatsapp')
                     <li class="nav-header">WhatsApp</li>
-                    @can('whatsapp.broadcast')
-                        <li class="nav-item">
-                            <a href="{{ route('wa.broadcast') }}" class="nav-link {{ request()->routeIs('wa.broadcast') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-bullhorn"></i>
-                                <p>Broadcast</p>
-                            </a>
-                        </li>
-                    @endcan
-                    @can('whatsapp.template_manage')
-                        <li class="nav-item">
-                            <a href="{{ route('wa-templates.index') }}" class="nav-link {{ request()->routeIs('wa-templates.*') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-puzzle-piece"></i>
-                                <p>Template Pesan</p>
-                            </a>
-                        </li>
-                    @endcan
-                    @can('whatsapp.log_view')
-                        <li class="nav-item">
-                            <a href="{{ route('wa.logs') }}" class="nav-link {{ request()->routeIs('wa.logs') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-file-alt"></i>
-                                <p>Log Pengiriman</p>
-                            </a>
-                        </li>
-                    @endcan
-                @endcanany
+                    <li class="nav-item">
+                        <a href="{{ route('wa.broadcast') }}" class="nav-link {{ request()->routeIs('wa.broadcast') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-bullhorn"></i>
+                            <p>Broadcast</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('wa-templates.index') }}" class="nav-link {{ request()->routeIs('wa-templates.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-puzzle-piece"></i>
+                            <p>Template Pesan</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('wa.logs') }}" class="nav-link {{ request()->routeIs('wa.logs') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-file-alt"></i>
+                            <p>Log Pengiriman</p>
+                        </a>
+                    </li>
+                @endfeature
             </ul>
         </nav>
     </div>
