@@ -125,6 +125,8 @@
         const attendanceForm = document.getElementById('attendance-form');
         const csrfToken = attendanceForm.querySelector('input[name="_token"]').value;
         let autoSubmitInProgress = false;
+        let autoScanInterval = null;
+        let autoScanInFlight = false;
 
         if (navigator.mediaDevices?.getUserMedia) {
             navigator.mediaDevices
@@ -134,7 +136,8 @@
                     return videoElement.play();
                 })
                 .then(() => {
-                    statusElement.textContent = 'Arahkan wajah ke kamera untuk memulai pemindaian.';
+                    statusElement.textContent = 'Arahkan wajah ke kamera. Sistem akan memindai otomatis.';
+                    startAutoScan();
                 })
                 .catch(() => {
                     statusElement.textContent = 'Tidak dapat mengakses kamera. Pastikan izin kamera sudah diaktifkan.';
@@ -176,10 +179,11 @@
         };
 
         const handleIdentification = async (snapshot) => {
-            if (!snapshot || autoSubmitInProgress) {
+            if (!snapshot || autoSubmitInProgress || autoScanInFlight) {
                 return;
             }
 
+            autoScanInFlight = true;
             detectedStatusElement.textContent = 'Memverifikasi wajah...';
 
             try {
@@ -226,6 +230,7 @@
 
                 if (data.already_attended) {
                     detectedStatusElement.textContent = 'Absensi untuk karyawan ini sudah tercatat hari ini.';
+                    stopAutoScan();
                     return;
                 }
 
@@ -235,6 +240,8 @@
             } catch (error) {
                 resetDetectedEmployee();
                 detectedStatusElement.textContent = 'Gagal memverifikasi wajah. Silakan coba lagi.';
+            } finally {
+                autoScanInFlight = false;
             }
         };
 
@@ -244,6 +251,28 @@
                 detectedStatusElement.textContent = 'Silakan lakukan scan wajah terlebih dahulu sebelum menyimpan absensi.';
             }
         });
+
+        const startAutoScan = () => {
+            if (autoScanInterval) {
+                return;
+            }
+
+            autoScanInterval = setInterval(async () => {
+                if (autoSubmitInProgress || autoScanInFlight) {
+                    return;
+                }
+
+                const snapshot = await captureSnapshot();
+                await handleIdentification(snapshot);
+            }, 4000);
+        };
+
+        const stopAutoScan = () => {
+            if (autoScanInterval) {
+                clearInterval(autoScanInterval);
+                autoScanInterval = null;
+            }
+        };
 
         captureButton.addEventListener('click', async () => {
             resetDetectedEmployee();
