@@ -12,13 +12,16 @@ return new class extends Migration
 
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('type');
-            $table->decimal('confidence', 5, 4);
-            $table->timestamp('captured_at');
-            $table->string('ip_address', 45)->nullable();
-            $table->text('device_info')->nullable();
-            $table->timestamp('created_at')->useCurrent();
+            $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
+            $table->date('attendance_date');
+            $table->time('check_in_time');
+            $table->time('check_out_time')->nullable();
+            $table->string('method')->default('face_recognition');
+            $table->string('status')->default('Hadir');
+            $table->text('note')->nullable();
+            $table->timestamps();
+
+            $table->unique(['employee_id', 'attendance_date']);
         });
     }
 
