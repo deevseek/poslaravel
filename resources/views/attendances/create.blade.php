@@ -2,7 +2,7 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-2xl font-semibold text-gray-900">Catat Absensi</h1>
-            <p class="text-gray-600">Rekam kehadiran pegawai dengan mendekatkan mata ke kamera/webcam untuk pemindaian retina.</p>
+            <p class="text-gray-600">Rekam kehadiran pegawai dengan menghadap kamera/webcam untuk proses face recognition.</p>
         </div>
         <a href="{{ route('attendances.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Kembali ke daftar</a>
     </div>
@@ -19,7 +19,7 @@
                         <option value="">Pilih karyawan</option>
                         @foreach ($employees as $employee)
                             <option value="{{ $employee->id }}" {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
-                                {{ $employee->name }} {{ $employee->position ? ' - ' . $employee->position : '' }} {{ $employee->retina_registered_at ? '' : '(Retina belum terdaftar)' }}
+                                {{ $employee->name }} {{ $employee->position ? ' - ' . $employee->position : '' }} {{ $employee->face_recognition_registered_at ? '' : '(Wajah belum terdaftar)' }}
                             </option>
                         @endforeach
                     </select>
@@ -59,29 +59,29 @@
             <div>
                 <label class="block text-sm font-semibold text-gray-700">Metode Absensi</label>
                 <div class="mt-1 flex items-center gap-3 rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-700">
-                    <span class="text-lg">👁️</span>
+                    <span class="text-lg">🙂</span>
                     <div>
-                        <p class="font-semibold">Scan Retina via Webcam</p>
-                        <p class="text-xs text-blue-600">Pegawai mendekatkan mata ke kamera/webcam, lalu sistem memverifikasi identitas melalui pola retina.</p>
-                        <p class="text-xs text-blue-600">Pastikan retina karyawan sudah terdaftar pada profil karyawan sebelum melakukan absensi.</p>
+                        <p class="font-semibold">Face Recognition via Webcam</p>
+                        <p class="text-xs text-blue-600">Pegawai menghadap kamera/webcam, lalu sistem memverifikasi identitas melalui pengenalan wajah.</p>
+                        <p class="text-xs text-blue-600">Pastikan wajah karyawan sudah terdaftar pada profil karyawan sebelum melakukan absensi.</p>
                     </div>
                 </div>
                 <div class="mt-4">
                     <div class="overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                        <video id="retina-webcam" class="h-56 w-full object-cover" autoplay playsinline muted></video>
+                        <video id="face-recognition-webcam" class="h-56 w-full object-cover" autoplay playsinline muted></video>
                     </div>
-                    <p id="retina-webcam-status" class="mt-2 text-xs text-gray-500">
+                    <p id="face-recognition-webcam-status" class="mt-2 text-xs text-gray-500">
                         Izinkan akses kamera agar pratinjau webcam tampil.
                     </p>
                 </div>
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-gray-700" for="retina_scan_code">Kode Scan Retina</label>
-                <input type="text" id="retina_scan_code" name="retina_scan_code" value="{{ old('retina_scan_code') }}" required
+                <label class="block text-sm font-semibold text-gray-700" for="face_recognition_code">Kode Face Recognition</label>
+                <input type="text" id="face_recognition_code" name="face_recognition_code" value="{{ old('face_recognition_code') }}" required
                     class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                <p class="mt-1 text-xs text-gray-500">Kode ini harus sesuai dengan retina yang sudah didaftarkan agar absensi tidak bisa dipalsukan.</p>
-                @error('retina_scan_code')
+                <p class="mt-1 text-xs text-gray-500">Kode ini harus sesuai dengan data wajah yang sudah didaftarkan agar absensi tidak bisa dipalsukan.</p>
+                @error('face_recognition_code')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
@@ -103,8 +103,8 @@
     </form>
 
     <script>
-        const videoElement = document.getElementById('retina-webcam');
-        const statusElement = document.getElementById('retina-webcam-status');
+        const videoElement = document.getElementById('face-recognition-webcam');
+        const statusElement = document.getElementById('face-recognition-webcam-status');
 
         if (navigator.mediaDevices?.getUserMedia) {
             navigator.mediaDevices
@@ -114,7 +114,7 @@
                     return videoElement.play();
                 })
                 .then(() => {
-                    statusElement.textContent = 'Arahkan mata ke kamera untuk memulai pemindaian.';
+                    statusElement.textContent = 'Arahkan wajah ke kamera untuk memulai pemindaian.';
                 })
                 .catch(() => {
                     statusElement.textContent = 'Tidak dapat mengakses kamera. Pastikan izin kamera sudah diaktifkan.';

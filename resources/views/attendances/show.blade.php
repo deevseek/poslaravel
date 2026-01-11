@@ -2,7 +2,7 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-2xl font-semibold text-gray-900">Detail Absensi</h1>
-            <p class="text-gray-600">Rekap absensi pegawai berbasis scan retina melalui kamera/webcam.</p>
+            <p class="text-gray-600">Rekap absensi pegawai berbasis face recognition melalui kamera/webcam.</p>
         </div>
         <a href="{{ route('attendances.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Kembali ke daftar</a>
     </div>
@@ -14,7 +14,10 @@
                 <p class="text-lg font-semibold text-gray-900">{{ $attendance->employee?->name ?? '-' }}</p>
                 <p class="text-sm text-gray-600">{{ $attendance->employee?->position ?? 'Posisi belum diisi' }}</p>
             </div>
-            <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">Scan Retina</span>
+            @php
+                $methodLabel = $attendance->method === 'face_recognition' ? 'Face Recognition' : 'Scan Retina';
+            @endphp
+            <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">{{ $methodLabel }}</span>
         </div>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-3">

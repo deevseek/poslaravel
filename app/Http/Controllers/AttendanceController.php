@@ -44,22 +44,22 @@ class AttendanceController extends Controller
             'check_in_time' => ['required', 'date_format:H:i'],
             'check_out_time' => ['nullable', 'date_format:H:i', 'after_or_equal:check_in_time'],
             'note' => ['nullable', 'string', 'max:500'],
-            'retina_scan_code' => ['required', 'string', 'max:255'],
+            'face_recognition_code' => ['required', 'string', 'max:255'],
         ], [
             'employee_id.unique' => 'Absensi untuk karyawan dan tanggal tersebut sudah ada.',
         ]);
 
         $employee = Employee::findOrFail($validated['employee_id']);
 
-        if (! $employee->retina_signature || ! $employee->retina_registered_at) {
+        if (! $employee->face_recognition_signature || ! $employee->face_recognition_registered_at) {
             return back()
-                ->withErrors(['employee_id' => 'Retina karyawan belum terdaftar. Silakan daftar terlebih dahulu di profil karyawan.'])
+                ->withErrors(['employee_id' => 'Pengenalan wajah karyawan belum terdaftar. Silakan daftar terlebih dahulu di profil karyawan.'])
                 ->withInput();
         }
 
-        if (! Hash::check($validated['retina_scan_code'], $employee->retina_signature)) {
+        if (! Hash::check($validated['face_recognition_code'], $employee->face_recognition_signature)) {
             return back()
-                ->withErrors(['retina_scan_code' => 'Scan retina tidak cocok dengan data terdaftar.'])
+                ->withErrors(['face_recognition_code' => 'Pengenalan wajah tidak cocok dengan data terdaftar.'])
                 ->withInput();
         }
 
@@ -71,12 +71,12 @@ class AttendanceController extends Controller
             'attendance_date' => $validated['attendance_date'],
             'check_in_time' => $validated['check_in_time'],
             'check_out_time' => $validated['check_out_time'] ?? null,
-            'method' => 'retina_scan',
+            'method' => 'face_recognition',
             'status' => $status,
             'note' => $validated['note'] ?? null,
         ]);
 
-        return redirect()->route('attendances.index')->with('success', 'Absensi berhasil dicatat dengan metode scan retina via webcam.');
+        return redirect()->route('attendances.index')->with('success', 'Absensi berhasil dicatat dengan metode face recognition via webcam.');
     }
 
     public function show(Attendance $attendance): View

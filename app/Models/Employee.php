@@ -19,16 +19,16 @@ class Employee extends Model
         'join_date',
         'base_salary',
         'is_active',
-        'retina_signature',
-        'retina_registered_at',
-        'retina_scan_path',
+        'face_recognition_signature',
+        'face_recognition_registered_at',
+        'face_recognition_scan_path',
     ];
 
     protected $casts = [
         'join_date' => 'date',
         'base_salary' => 'decimal:2',
         'is_active' => 'boolean',
-        'retina_registered_at' => 'datetime',
+        'face_recognition_registered_at' => 'datetime',
     ];
 
     public function payrolls(): HasMany

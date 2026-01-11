@@ -17,7 +17,7 @@ return new class extends Migration
             $table->date('attendance_date');
             $table->time('check_in_time');
             $table->time('check_out_time')->nullable();
-            $table->string('method')->default('retina_scan');
+            $table->string('method')->default('face_recognition');
             $table->string('status')->default('Hadir');
             $table->text('note')->nullable();
             $table->timestamps();

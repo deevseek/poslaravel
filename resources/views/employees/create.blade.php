@@ -82,35 +82,35 @@
             </div>
 
             <div class="rounded-lg border border-blue-100 bg-blue-50 p-4">
-                <p class="text-sm font-semibold text-blue-700">Pendaftaran Retina</p>
-                <p class="mt-1 text-xs text-blue-600">Masukkan kode retina dan rekam pemindaian retina lewat kamera agar absensi hanya bisa dilakukan oleh pemilik retina.</p>
+                <p class="text-sm font-semibold text-blue-700">Pendaftaran Face Recognition</p>
+                <p class="mt-1 text-xs text-blue-600">Masukkan kode wajah dan rekam pemindaian wajah lewat kamera agar absensi hanya bisa dilakukan oleh pemilik wajah.</p>
                 <div class="mt-3 space-y-3">
-                    <label class="block text-sm font-semibold text-gray-700" for="retina_scan_code">Kode Retina (opsional)</label>
-                    <input type="text" id="retina_scan_code" name="retina_scan_code" value="{{ old('retina_scan_code') }}"
+                    <label class="block text-sm font-semibold text-gray-700" for="face_recognition_code">Kode Wajah (opsional)</label>
+                    <input type="text" id="face_recognition_code" name="face_recognition_code" value="{{ old('face_recognition_code') }}"
                         class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                    @error('retina_scan_code')
+                    @error('face_recognition_code')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                     <div class="space-y-3">
                         <div class="overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                            <video id="retina-webcam" class="h-56 w-full object-cover" autoplay playsinline muted></video>
+                            <video id="face-recognition-webcam" class="h-56 w-full object-cover" autoplay playsinline muted></video>
                         </div>
-                        <p id="retina-webcam-status" class="text-xs text-gray-500">Izinkan akses kamera untuk memulai pemindaian retina.</p>
+                        <p id="face-recognition-webcam-status" class="text-xs text-gray-500">Izinkan akses kamera untuk memulai pemindaian wajah.</p>
                         <div class="flex flex-wrap items-center gap-3">
-                            <button type="button" id="retina-capture"
+                            <button type="button" id="face-recognition-capture"
                                 class="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white shadow hover:bg-blue-700">
-                                Rekam Retina
+                                Rekam Wajah
                             </button>
-                            <span class="text-xs text-gray-500">Pastikan mata terlihat jelas di kamera sebelum merekam.</span>
+                            <span class="text-xs text-gray-500">Pastikan wajah terlihat jelas di kamera sebelum merekam.</span>
                         </div>
-                        <input type="hidden" id="retina_scan_snapshot" name="retina_scan_snapshot" value="{{ old('retina_scan_snapshot') }}">
-                        <canvas id="retina-canvas" class="hidden"></canvas>
+                        <input type="hidden" id="face_recognition_snapshot" name="face_recognition_snapshot" value="{{ old('face_recognition_snapshot') }}">
+                        <canvas id="face-recognition-canvas" class="hidden"></canvas>
                         <div>
-                            <p class="text-xs font-semibold text-gray-700">Hasil Scan Retina</p>
-                            <img id="retina-scan-preview" src="{{ old('retina_scan_snapshot') }}" alt="Pratinjau scan retina"
+                            <p class="text-xs font-semibold text-gray-700">Hasil Scan Wajah</p>
+                            <img id="face-recognition-preview" src="{{ old('face_recognition_snapshot') }}" alt="Pratinjau scan wajah"
                                 class="mt-2 hidden h-24 w-24 rounded-lg border border-gray-200 object-cover">
                         </div>
-                        @error('retina_scan_snapshot')
+                        @error('face_recognition_snapshot')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
@@ -125,12 +125,12 @@
     </form>
 
     <script>
-        const videoElement = document.getElementById('retina-webcam');
-        const statusElement = document.getElementById('retina-webcam-status');
-        const captureButton = document.getElementById('retina-capture');
-        const snapshotInput = document.getElementById('retina_scan_snapshot');
-        const previewImage = document.getElementById('retina-scan-preview');
-        const canvasElement = document.getElementById('retina-canvas');
+        const videoElement = document.getElementById('face-recognition-webcam');
+        const statusElement = document.getElementById('face-recognition-webcam-status');
+        const captureButton = document.getElementById('face-recognition-capture');
+        const snapshotInput = document.getElementById('face_recognition_snapshot');
+        const previewImage = document.getElementById('face-recognition-preview');
+        const canvasElement = document.getElementById('face-recognition-canvas');
 
         const updatePreview = (dataUrl) => {
             previewImage.src = dataUrl;
@@ -149,7 +149,7 @@
                     return videoElement.play();
                 })
                 .then(() => {
-                    statusElement.textContent = 'Arahkan mata ke kamera lalu klik tombol rekam untuk menyimpan retina.';
+                    statusElement.textContent = 'Arahkan wajah ke kamera lalu klik tombol rekam untuk menyimpan data wajah.';
                 })
                 .catch(() => {
                     statusElement.textContent = 'Tidak dapat mengakses kamera. Pastikan izin kamera sudah diaktifkan.';
@@ -172,7 +172,7 @@
             const dataUrl = canvasElement.toDataURL('image/png');
             snapshotInput.value = dataUrl;
             updatePreview(dataUrl);
-            statusElement.textContent = 'Scan retina berhasil direkam dan siap disimpan.';
+            statusElement.textContent = 'Scan wajah berhasil direkam dan siap disimpan.';
         });
     </script>
 </x-app-layout>
