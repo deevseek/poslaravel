@@ -138,16 +138,14 @@
                 return false;
             }
 
-            if (! videoElement.videoWidth || ! videoElement.videoHeight) {
-                return false;
-            }
-
-            canvasElement.width = videoElement.videoWidth;
-            canvasElement.height = videoElement.videoHeight;
+            const width = videoElement.videoWidth || 640;
+            const height = videoElement.videoHeight || 480;
+            canvasElement.width = width;
+            canvasElement.height = height;
             const context = canvasElement.getContext('2d');
-            context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+            context.drawImage(videoElement, 0, 0, width, height);
 
-            const dataUrl = canvasElement.toDataURL('image/png');
+            const dataUrl = canvasElement.toDataURL('image/jpeg', 0.9);
             snapshotInput.value = dataUrl;
             updatePreview(dataUrl);
             statusElement.textContent = 'Scan wajah berhasil direkam dan siap disimpan.';
