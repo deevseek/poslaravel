@@ -42,6 +42,7 @@
                             <td class="px-6 py-4 text-sm text-gray-600">
                                 <div class="flex items-center justify-end gap-2">
                                     <a href="{{ route('payrolls.show', $payroll) }}" class="rounded-lg border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50">Detail</a>
+                                    <a href="{{ route('payrolls.edit', $payroll) }}" class="rounded-lg border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50">Edit</a>
                                     <form action="{{ route('payrolls.destroy', $payroll) }}" method="POST" onsubmit="return confirm('Hapus data payroll ini?')">
                                         @csrf
                                         @method('DELETE')

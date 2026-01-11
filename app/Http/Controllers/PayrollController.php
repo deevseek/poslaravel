@@ -78,6 +78,65 @@ class PayrollController extends Controller
         return view('payrolls.show', compact('payroll'));
     }
 
+    public function edit(Payroll $payroll): View
+    {
+        $employees = Employee::where('is_active', true)
+            ->orWhere('id', $payroll->employee_id)
+            ->orderBy('name')
+            ->get();
+
+        return view('payrolls.edit', compact('payroll', 'employees'));
+    }
+
+    public function update(Request $request, Payroll $payroll): RedirectResponse
+    {
+        $validated = $request->validate([
+            'employee_id' => ['required', 'exists:employees,id'],
+            'period_start' => ['required', 'date'],
+            'period_end' => ['required', 'date', 'after_or_equal:period_start'],
+            'pay_date' => ['required', 'date'],
+            'base_salary' => ['required', 'numeric', 'min:0'],
+            'allowance' => ['nullable', 'numeric', 'min:0'],
+            'deduction' => ['nullable', 'numeric', 'min:0'],
+            'note' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $validated['allowance'] = $validated['allowance'] ?? 0;
+        $validated['deduction'] = $validated['deduction'] ?? 0;
+        $validated['total'] = $validated['base_salary'] + $validated['allowance'] - $validated['deduction'];
+
+        $payroll->update($validated);
+
+        $payroll->load('employee');
+        $employee = $payroll->employee;
+        $finance = Finance::where('reference_type', 'payroll')
+            ->where('reference_id', $payroll->id)
+            ->first();
+
+        $session = CashSession::active()->latest('opened_at')->first();
+        $financeData = [
+            'cash_session_id' => $finance?->cash_session_id ?? $session?->id,
+            'type' => 'expense',
+            'category' => 'Payroll',
+            'nominal' => $payroll->total,
+            'note' => $validated['note']
+                ? $validated['note']
+                : 'Pembayaran gaji ' . ($employee?->name ?? 'Karyawan') . ' (' . $payroll->period_start->format('d M Y') . ' - ' . $payroll->period_end->format('d M Y') . ')',
+            'recorded_at' => $payroll->pay_date,
+            'source' => 'payroll',
+            'reference_id' => $payroll->id,
+            'reference_type' => 'payroll',
+        ];
+
+        if ($finance) {
+            $finance->update($financeData);
+        } else {
+            Finance::create($financeData + ['created_by' => auth()->id()]);
+        }
+
+        return redirect()->route('payrolls.show', $payroll)->with('success', 'Payroll berhasil diperbarui.');
+    }
+
     public function destroy(Payroll $payroll): RedirectResponse
     {
         Finance::where('reference_type', 'payroll')
