@@ -137,6 +137,28 @@
             previewImage.classList.remove('hidden');
         };
 
+        const captureSnapshot = () => {
+            if (! videoElement.srcObject) {
+                statusElement.textContent = 'Kamera belum aktif. Pastikan izin kamera sudah diberikan.';
+                return false;
+            }
+
+            if (! videoElement.videoWidth || ! videoElement.videoHeight) {
+                return false;
+            }
+
+            canvasElement.width = videoElement.videoWidth;
+            canvasElement.height = videoElement.videoHeight;
+            const context = canvasElement.getContext('2d');
+            context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+            const dataUrl = canvasElement.toDataURL('image/png');
+            snapshotInput.value = dataUrl;
+            updatePreview(dataUrl);
+            statusElement.textContent = 'Scan wajah berhasil direkam dan siap disimpan.';
+            return true;
+        };
+
         if (snapshotInput.value) {
             updatePreview(snapshotInput.value);
         }
@@ -149,7 +171,14 @@
                     return videoElement.play();
                 })
                 .then(() => {
-                    statusElement.textContent = 'Arahkan wajah ke kamera lalu klik tombol rekam untuk menyimpan data wajah.';
+                    statusElement.textContent = 'Arahkan wajah ke kamera. Sistem akan merekam otomatis, atau klik tombol rekam bila diperlukan.';
+                    if (! snapshotInput.value) {
+                        setTimeout(() => {
+                            if (! captureSnapshot()) {
+                                statusElement.textContent = 'Kamera aktif. Pastikan wajah terlihat jelas, lalu klik tombol rekam untuk menyimpan data wajah.';
+                            }
+                        }, 1000);
+                    }
                 })
                 .catch(() => {
                     statusElement.textContent = 'Tidak dapat mengakses kamera. Pastikan izin kamera sudah diaktifkan.';
@@ -159,20 +188,9 @@
         }
 
         captureButton.addEventListener('click', () => {
-            if (! videoElement.srcObject) {
-                statusElement.textContent = 'Kamera belum aktif. Pastikan izin kamera sudah diberikan.';
-                return;
+            if (! captureSnapshot()) {
+                statusElement.textContent = 'Kamera aktif. Pastikan wajah terlihat jelas, lalu klik tombol rekam kembali.';
             }
-
-            canvasElement.width = videoElement.videoWidth;
-            canvasElement.height = videoElement.videoHeight;
-            const context = canvasElement.getContext('2d');
-            context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
-
-            const dataUrl = canvasElement.toDataURL('image/png');
-            snapshotInput.value = dataUrl;
-            updatePreview(dataUrl);
-            statusElement.textContent = 'Scan wajah berhasil direkam dan siap disimpan.';
         });
     </script>
 </x-app-layout>
