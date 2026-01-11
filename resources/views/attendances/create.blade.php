@@ -11,6 +11,25 @@
         @csrf
 
         <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700">Jenis Absensi</label>
+                <div class="mt-2 flex flex-wrap gap-4 text-sm text-gray-700">
+                    <label class="inline-flex items-center gap-2">
+                        <input type="radio" name="attendance_type" value="checkin" class="text-blue-600"
+                            {{ old('attendance_type', 'checkin') === 'checkin' ? 'checked' : '' }}>
+                        Check-in
+                    </label>
+                    <label class="inline-flex items-center gap-2">
+                        <input type="radio" name="attendance_type" value="checkout" class="text-blue-600"
+                            {{ old('attendance_type') === 'checkout' ? 'checked' : '' }}>
+                        Check-out
+                    </label>
+                </div>
+                <p class="mt-1 text-xs text-gray-500">Pilih check-out jika ingin mencatat jam pulang dari absensi yang sudah ada.</p>
+                @error('attendance_type')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700" for="employee_id">Karyawan</label>
@@ -45,7 +64,7 @@
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700" for="check_in_time">Jam Check-in</label>
-                    <input type="time" id="check_in_time" name="check_in_time" value="{{ old('check_in_time', $workStart ?? now()->format('H:i')) }}" required
+                    <input type="time" id="check_in_time" name="check_in_time" value="{{ old('check_in_time', $workStart ?? now()->format('H:i')) }}"
                         class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
                     @error('check_in_time')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -142,10 +161,34 @@
         const detectedNameElement = document.getElementById('detected-employee-name');
         const detectedStatusElement = document.getElementById('detected-employee-status');
         const attendanceForm = document.getElementById('attendance-form');
+        const attendanceTypeInputs = document.querySelectorAll('input[name="attendance_type"]');
+        const checkInInput = document.getElementById('check_in_time');
+        const checkOutInput = document.getElementById('check_out_time');
         const csrfToken = attendanceForm.querySelector('input[name="_token"]').value;
         let autoSubmitInProgress = false;
         let autoScanInterval = null;
         let autoScanInFlight = false;
+
+        const getAttendanceType = () => {
+            return document.querySelector('input[name="attendance_type"]:checked')?.value || 'checkin';
+        };
+
+        const updateAttendanceTypeState = () => {
+            const attendanceType = getAttendanceType();
+            if (attendanceType === 'checkout') {
+                checkInInput.required = false;
+                checkInInput.disabled = true;
+                checkInInput.classList.add('bg-gray-100');
+                checkOutInput.required = true;
+            } else {
+                checkInInput.disabled = false;
+                checkInInput.required = true;
+                checkInInput.classList.remove('bg-gray-100');
+                checkOutInput.required = false;
+            }
+        };
+
+        updateAttendanceTypeState();
 
         if (navigator.mediaDevices?.getUserMedia) {
             navigator.mediaDevices
@@ -247,10 +290,24 @@
                 employeeSelect.value = data.employee.id;
                 detectedNameElement.textContent = employeeLabel;
 
-                if (data.already_attended) {
+                const attendanceType = getAttendanceType();
+                if (attendanceType === 'checkin' && data.already_attended) {
                     detectedStatusElement.textContent = 'Absensi untuk karyawan ini sudah tercatat hari ini.';
                     stopAutoScan();
                     return;
+                }
+
+                if (attendanceType === 'checkout') {
+                    if (!data.already_attended) {
+                        detectedStatusElement.textContent = 'Belum ada absensi check-in untuk karyawan ini hari ini.';
+                        return;
+                    }
+
+                    if (data.has_checked_out) {
+                        detectedStatusElement.textContent = 'Checkout untuk karyawan ini sudah tercatat hari ini.';
+                        stopAutoScan();
+                        return;
+                    }
                 }
 
                 detectedStatusElement.textContent = 'Wajah terdeteksi. Absensi akan disimpan otomatis...';
@@ -297,6 +354,13 @@
             resetDetectedEmployee();
             const snapshot = await captureSnapshot();
             await handleIdentification(snapshot);
+        });
+
+        attendanceTypeInputs.forEach((input) => {
+            input.addEventListener('change', () => {
+                updateAttendanceTypeState();
+                resetDetectedEmployee();
+            });
         });
     </script>
 </x-app-layout>
