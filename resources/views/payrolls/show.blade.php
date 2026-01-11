@@ -7,6 +7,7 @@
         <div class="flex items-center gap-3">
             @permission('payroll.manage')
                 <a href="{{ route('payrolls.edit', $payroll) }}" class="rounded-lg border border-blue-200 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50">Edit Payroll</a>
+                <a href="{{ route('payrolls.slip', $payroll) }}" class="rounded-lg border border-emerald-200 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">Cetak Slip Gaji</a>
                 <form action="{{ route('payrolls.destroy', $payroll) }}" method="POST" onsubmit="return confirm('Hapus data payroll ini?')">
                     @csrf
                     @method('DELETE')
