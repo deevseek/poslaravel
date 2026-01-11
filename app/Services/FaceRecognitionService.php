@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use Mpociot\FaceAuth\Facades\FaceAuth;
+use Freearhey\LaravelFaceDetection\Facades\FaceDetection;
 
 class FaceRecognitionService
 {
@@ -70,13 +70,13 @@ class FaceRecognitionService
 
     private function detectFaces(string $imagePath): array
     {
-        if (! class_exists(FaceAuth::class)) {
+        if (! class_exists(FaceDetection::class)) {
             return [];
         }
 
-        foreach (['detect', 'detectFaces', 'detectFace', 'faces', 'faceDetect'] as $method) {
-            if (is_callable([FaceAuth::class, $method])) {
-                $faces = FaceAuth::$method($imagePath);
+        foreach (['detect', 'detectFaces'] as $method) {
+            if (is_callable([FaceDetection::class, $method])) {
+                $faces = FaceDetection::$method($imagePath);
 
                 if (is_array($faces)) {
                     return $faces;
@@ -93,12 +93,12 @@ class FaceRecognitionService
 
     private function supportsImageComparison(): bool
     {
-        if (! class_exists(FaceAuth::class)) {
+        if (! class_exists(FaceDetection::class)) {
             return false;
         }
 
-        foreach (['compare', 'match', 'verify', 'compareFaces', 'identify', 'recognize'] as $method) {
-            if (is_callable([FaceAuth::class, $method])) {
+        foreach (['compare', 'match', 'verify', 'compareFaces'] as $method) {
+            if (is_callable([FaceDetection::class, $method])) {
                 return true;
             }
         }
@@ -108,9 +108,9 @@ class FaceRecognitionService
 
     private function compareByImage(string $referencePath, string $candidatePath): bool
     {
-        foreach (['compare', 'match', 'verify', 'compareFaces', 'identify', 'recognize'] as $method) {
-            if (is_callable([FaceAuth::class, $method])) {
-                return (bool) FaceAuth::$method($referencePath, $candidatePath);
+        foreach (['compare', 'match', 'verify', 'compareFaces'] as $method) {
+            if (is_callable([FaceDetection::class, $method])) {
+                return (bool) FaceDetection::$method($referencePath, $candidatePath);
             }
         }
 

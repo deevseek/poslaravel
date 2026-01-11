@@ -92,7 +92,7 @@
                     @endif
                 </div>
                 <p class="mt-1 text-xs text-blue-600">Perbarui pemindaian ulang melalui kamera. Centang reset untuk menghapus data wajah lama.</p>
-                <p class="mt-2 text-xs text-blue-600">Modul laravel-face-auth memastikan wajah terlihat jelas sebelum data disimpan.</p>
+                <p class="mt-2 text-xs text-blue-600">Modul laravel-face-detection memastikan wajah terlihat jelas sebelum data disimpan.</p>
                 <div class="mt-3 grid gap-3 md:grid-cols-2">
                     <div class="space-y-3 md:col-span-2">
                         <div class="overflow-hidden rounded-lg border border-gray-200 bg-gray-50">

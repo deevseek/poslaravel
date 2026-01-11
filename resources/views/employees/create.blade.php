@@ -85,7 +85,7 @@
                 <p class="text-sm font-semibold text-blue-700">Pendaftaran Face Recognition</p>
                 <p class="mt-1 text-xs text-blue-600">Rekam pemindaian wajah lewat kamera agar absensi hanya bisa dilakukan oleh pemilik wajah.</p>
                 <div class="mt-3 space-y-3">
-                    <p class="text-sm text-gray-600">Modul laravel-face-auth akan memastikan wajah terekam dengan jelas.</p>
+                    <p class="text-sm text-gray-600">Modul laravel-face-detection akan memastikan wajah terekam dengan jelas.</p>
                     <div class="space-y-3">
                         <div class="overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
                             <video id="face-recognition-webcam" class="h-56 w-full object-cover" autoplay playsinline muted></video>
