@@ -60,7 +60,7 @@ class AttendanceController extends Controller
             'note' => $validated['note'] ?? null,
         ]);
 
-        return redirect()->route('attendances.index')->with('success', 'Absensi berhasil dicatat dengan metode scan retina.');
+        return redirect()->route('attendances.index')->with('success', 'Absensi berhasil dicatat dengan metode scan retina via webcam.');
     }
 
     public function show(Attendance $attendance): View

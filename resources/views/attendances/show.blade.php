@@ -2,7 +2,7 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-2xl font-semibold text-gray-900">Detail Absensi</h1>
-            <p class="text-gray-600">Rekap absensi pegawai berbasis scan retina.</p>
+            <p class="text-gray-600">Rekap absensi pegawai berbasis scan retina melalui kamera/webcam.</p>
         </div>
         <a href="{{ route('attendances.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Kembali ke daftar</a>
     </div>
