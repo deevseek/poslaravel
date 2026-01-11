@@ -7,6 +7,7 @@ use App\Models\Employee;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -43,9 +44,24 @@ class AttendanceController extends Controller
             'check_in_time' => ['required', 'date_format:H:i'],
             'check_out_time' => ['nullable', 'date_format:H:i', 'after_or_equal:check_in_time'],
             'note' => ['nullable', 'string', 'max:500'],
+            'retina_scan_code' => ['required', 'string', 'max:255'],
         ], [
             'employee_id.unique' => 'Absensi untuk karyawan dan tanggal tersebut sudah ada.',
         ]);
+
+        $employee = Employee::findOrFail($validated['employee_id']);
+
+        if (! $employee->retina_signature || ! $employee->retina_registered_at) {
+            return back()
+                ->withErrors(['employee_id' => 'Retina karyawan belum terdaftar. Silakan daftar terlebih dahulu di profil karyawan.'])
+                ->withInput();
+        }
+
+        if (! Hash::check($validated['retina_scan_code'], $employee->retina_signature)) {
+            return back()
+                ->withErrors(['retina_scan_code' => 'Scan retina tidak cocok dengan data terdaftar.'])
+                ->withInput();
+        }
 
         $checkIn = Carbon::createFromFormat('H:i', $validated['check_in_time']);
         $status = $checkIn->greaterThan(Carbon::createFromFormat('H:i', '09:00')) ? 'Terlambat' : 'Hadir';

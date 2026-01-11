@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Employee;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class EmployeeController extends Controller
@@ -32,9 +33,17 @@ class EmployeeController extends Controller
             'join_date' => ['nullable', 'date'],
             'base_salary' => ['nullable', 'numeric', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
+            'retina_scan_code' => ['nullable', 'string', 'max:255'],
         ]);
 
         $validated['is_active'] = (bool) ($validated['is_active'] ?? true);
+
+        if (! empty($validated['retina_scan_code'])) {
+            $validated['retina_signature'] = Hash::make($validated['retina_scan_code']);
+            $validated['retina_registered_at'] = now();
+        }
+
+        unset($validated['retina_scan_code']);
 
         Employee::create($validated);
 
@@ -64,9 +73,21 @@ class EmployeeController extends Controller
             'join_date' => ['nullable', 'date'],
             'base_salary' => ['nullable', 'numeric', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
+            'retina_scan_code' => ['nullable', 'string', 'max:255'],
+            'reset_retina' => ['nullable', 'boolean'],
         ]);
 
         $validated['is_active'] = (bool) ($validated['is_active'] ?? false);
+
+        if (! empty($validated['reset_retina'])) {
+            $validated['retina_signature'] = null;
+            $validated['retina_registered_at'] = null;
+        } elseif (! empty($validated['retina_scan_code'])) {
+            $validated['retina_signature'] = Hash::make($validated['retina_scan_code']);
+            $validated['retina_registered_at'] = now();
+        }
+
+        unset($validated['retina_scan_code'], $validated['reset_retina']);
 
         $employee->update($validated);
 
