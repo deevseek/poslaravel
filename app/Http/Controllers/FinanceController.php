@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\CashSession;
 use App\Models\Finance;
 use App\Models\Product;
-use App\Models\PurchaseItem;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -83,20 +82,9 @@ class FinanceController extends Controller
 
         $activeSession = CashSession::active()->latest('opened_at')->first();
         $recentSessions = CashSession::orderByDesc('opened_at')->take(5)->get();
-        $latestPurchasePrices = PurchaseItem::query()
-            ->select('product_id', 'price')
-            ->whereIn('id', function ($query) {
-                $query->selectRaw('MAX(id)')
-                    ->from('purchase_items')
-                    ->groupBy('product_id');
-            });
-
         $productAssetValue = Product::query()
-            ->leftJoinSub($latestPurchasePrices, 'latest_purchase_prices', function ($join) {
-                $join->on('products.id', '=', 'latest_purchase_prices.product_id');
-            })
             ->selectRaw(
-                'COALESCE(SUM(COALESCE(latest_purchase_prices.price, products.cost_price, 0) * COALESCE(products.stock, 0)), 0) as total_asset_value'
+                'COALESCE(SUM(COALESCE(products.stock, 0) * COALESCE(products.avg_cost, 0)), 0) as total_asset_value'
             )
             ->value('total_asset_value');
 
