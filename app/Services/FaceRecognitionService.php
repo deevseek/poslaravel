@@ -77,18 +77,50 @@ class FaceRecognitionService
         foreach (['detect', 'detectFaces'] as $method) {
             if (is_callable([FaceDetection::class, $method])) {
                 $faces = FaceDetection::$method($imagePath);
-
-                if (is_array($faces)) {
-                    return $faces;
-                }
-
-                if (is_object($faces) && method_exists($faces, 'toArray')) {
-                    return $faces->toArray();
+                $normalized = $this->normalizeFaces($faces);
+                if ($normalized !== null) {
+                    return $normalized;
                 }
             }
         }
 
         return [];
+    }
+
+    private function normalizeFaces(mixed $faces): ?array
+    {
+        if (is_string($faces)) {
+            $decoded = json_decode($faces, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return $this->normalizeFaces($decoded);
+            }
+        }
+
+        if (is_object($faces)) {
+            if (method_exists($faces, 'toArray')) {
+                return $this->normalizeFaces($faces->toArray());
+            }
+
+            if ($faces instanceof \JsonSerializable) {
+                return $this->normalizeFaces($faces->jsonSerialize());
+            }
+        }
+
+        if (! is_array($faces)) {
+            return null;
+        }
+
+        if (array_is_list($faces)) {
+            return $faces;
+        }
+
+        foreach (['faces', 'detections', 'results', 'data'] as $key) {
+            if (array_key_exists($key, $faces) && is_array($faces[$key])) {
+                return $faces[$key];
+            }
+        }
+
+        return $faces;
     }
 
     private function supportsImageComparison(): bool
