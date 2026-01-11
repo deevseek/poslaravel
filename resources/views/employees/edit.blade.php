@@ -7,7 +7,7 @@
         <a href="{{ route('employees.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Kembali ke daftar</a>
     </div>
 
-    <form action="{{ route('employees.update', $employee) }}" method="POST" class="space-y-6">
+    <form action="{{ route('employees.update', $employee) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
         @csrf
         @method('PUT')
 
@@ -91,7 +91,7 @@
                         <span class="rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-600">Belum terdaftar</span>
                     @endif
                 </div>
-                <p class="mt-1 text-xs text-blue-600">Perbarui kode retina jika ada perekaman ulang. Centang reset untuk menghapus data retina lama.</p>
+                <p class="mt-1 text-xs text-blue-600">Perbarui kode atau upload scan retina jika ada perekaman ulang. Centang reset untuk menghapus data retina lama.</p>
                 <div class="mt-3 grid gap-3 md:grid-cols-2">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700" for="retina_scan_code">Kode Retina Baru (opsional)</label>
@@ -101,9 +101,24 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700" for="retina_scan_image">Upload Scan Retina Baru (opsional)</label>
+                        <input type="file" id="retina_scan_image" name="retina_scan_image" accept="image/*"
+                            class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
+                        @error('retina_scan_image')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                        @if ($employee->retina_scan_path)
+                            <p class="mt-2 text-xs text-gray-500">Scan saat ini tersimpan. Unggah file baru untuk mengganti.</p>
+                        @endif
+                    </div>
+                    <div class="flex items-center gap-2 md:col-span-2">
                         <input type="checkbox" id="reset_retina" name="reset_retina" value="1" class="h-4 w-4 rounded border-gray-300 text-blue-600" {{ old('reset_retina') ? 'checked' : '' }}>
                         <label class="text-sm font-semibold text-gray-700" for="reset_retina">Reset data retina</label>
+                    </div>
+                    <div class="flex items-center gap-2 md:col-span-2">
+                        <input type="checkbox" id="remove_retina_scan" name="remove_retina_scan" value="1" class="h-4 w-4 rounded border-gray-300 text-blue-600" {{ old('remove_retina_scan') ? 'checked' : '' }}>
+                        <label class="text-sm font-semibold text-gray-700" for="remove_retina_scan">Hapus file scan retina</label>
                     </div>
                 </div>
             </div>
