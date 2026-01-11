@@ -12,6 +12,13 @@
                     <span>Sinkronkan Tabel Tenant</span>
                 </button>
             </form>
+            <form action="{{ route('tenants.sync-roles') }}" method="POST" onsubmit="return confirm('Jalankan sinkronisasi role untuk semua tenant?')">
+                @csrf
+                <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-emerald-200 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">
+                    🧩
+                    <span>Sinkronkan Role Tenant</span>
+                </button>
+            </form>
             <a href="{{ route('tenants.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">
                 ➕
                 <span>Tambah Tenant</span>

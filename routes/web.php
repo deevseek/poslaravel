@@ -166,6 +166,8 @@ Route::middleware(['auth'])->group(function () {
             ->only(['index', 'create', 'store', 'edit', 'update']);
         Route::post('tenants/sync-migrations', [TenantController::class, 'syncMigrations'])
             ->name('tenants.sync-migrations');
+        Route::post('tenants/sync-roles', [TenantController::class, 'syncRoles'])
+            ->name('tenants.sync-roles');
 
         Route::get('tenant-registrations', [TenantRegistrationController::class, 'index'])
             ->name('tenant-registrations.index');
