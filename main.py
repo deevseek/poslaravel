@@ -1,144 +1,80 @@
 import logging
 import os
-from io import BytesIO
+import time
+from typing import Optional
 
+import cv2
 import numpy as np
 from deepface import DeepFace
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from PIL import Image
 
-APP_MAX_WIDTH = 800
-ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png"}
-ALLOWED_FORMATS = {"JPEG", "PNG"}
-DEFAULT_MAX_FILE_SIZE = 5 * 1024 * 1024
-DEFAULT_THRESHOLD = 0.8
 DEFAULT_MODEL_NAME = "Facenet512"
 DEFAULT_DETECTOR = "opencv"
+DEFAULT_THRESHOLD = 0.8
 
-STORAGE_DIR = os.path.join("storage", "faces")
+EMBEDDING_STORAGE_DIR = os.path.join("storage", "faces")
 
 app = FastAPI()
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 logger = logging.getLogger("face_recognition_service")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://127.0.0.1:8000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-class FaceDetectionError(Exception):
-    def __init__(self, error: str, faces_detected: int):
-        super().__init__(error)
-        self.error = error
-        self.faces_detected = faces_detected
 
-
-def _get_env_float(name: str, default: float) -> float:
-    value = os.getenv(name)
+def _get_threshold() -> float:
+    value = os.getenv("FACE_MATCH_THRESHOLD")
     if value is None:
-        return default
+        return DEFAULT_THRESHOLD
     try:
-        return float(value)
+        threshold = float(value)
     except ValueError:
-        return default
+        return DEFAULT_THRESHOLD
+    if threshold <= 0 or threshold > 1:
+        return DEFAULT_THRESHOLD
+    return threshold
 
 
-def _get_env_int(name: str, default: int) -> int:
-    value = os.getenv(name)
-    if value is None:
-        return default
-    try:
-        return int(value)
-    except ValueError:
-        return default
-
-
-def _resize_image(image: Image.Image, max_width: int) -> Image.Image:
-    if image.width <= max_width:
-        return image
-    ratio = max_width / float(image.width)
-    new_height = int(image.height * ratio)
-    return image.resize((max_width, new_height), Image.LANCZOS)
-
-
-def _load_image(upload: UploadFile) -> Image.Image:
-    if upload.content_type not in ALLOWED_CONTENT_TYPES:
-        raise HTTPException(status_code=400, detail="invalid image")
-
-    max_size = _get_env_int("MAX_FILE_SIZE_BYTES", DEFAULT_MAX_FILE_SIZE)
+def _read_image(upload: UploadFile) -> np.ndarray:
     data = upload.file.read()
-    if len(data) > max_size:
-        raise HTTPException(status_code=400, detail="invalid image")
-
-    try:
-        image = Image.open(BytesIO(data))
-        if image.format not in ALLOWED_FORMATS:
-            raise HTTPException(status_code=400, detail="invalid image")
-        image = image.convert("RGB")
-    except HTTPException:
-        raise
-    except Exception as exc:
-        raise HTTPException(status_code=400, detail="invalid image") from exc
-
-    resized = _resize_image(image, APP_MAX_WIDTH)
-    logger.info("Image resolution: %sx%s", resized.width, resized.height)
-    return resized
+    img_array = np.frombuffer(data, np.uint8)
+    bgr = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+    if bgr is None:
+        raise ValueError("invalid image")
+    rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+    return rgb
 
 
-def _detect_faces(image: Image.Image) -> list[dict]:
-    img_array = np.array(image)
+def _detect_faces(image_rgb: np.ndarray) -> list[dict]:
     faces = DeepFace.extract_faces(
-        img_path=img_array,
+        img_path=image_rgb,
         detector_backend=DEFAULT_DETECTOR,
         enforce_detection=False,
         align=True,
     )
-    logger.info(
-        "Detector: %s | Faces detected: %s",
-        DEFAULT_DETECTOR,
-        len(faces),
-    )
     return faces
 
 
-def _extract_single_face(image: Image.Image) -> tuple[np.ndarray, int]:
-    faces = _detect_faces(image)
-    faces_detected = len(faces)
-
-    if faces_detected == 0:
-        raise FaceDetectionError("no_face_detected", 0)
-    if faces_detected > 1:
-        raise FaceDetectionError("multiple_faces_detected", faces_detected)
-
-    try:
-        face = DeepFace.detectFace(
-            img_path=np.array(image),
-            detector_backend=DEFAULT_DETECTOR,
-            enforce_detection=True,
-            align=True,
-        )
-    except Exception as exc:
-        raise FaceDetectionError("no_face_detected", 0) from exc
-
-    if face is None:
-        raise FaceDetectionError("no_face_detected", 0)
-
-    return face, faces_detected
-
-
-def _embedding_from_face(face: np.ndarray) -> np.ndarray:
+def _embedding_from_face(face_rgb: np.ndarray) -> np.ndarray:
     model_name = os.getenv("FACE_MODEL_NAME", DEFAULT_MODEL_NAME)
-    embedding_objs = DeepFace.represent(
-        img_path=face,
+    embeddings = DeepFace.represent(
+        img_path=face_rgb,
         model_name=model_name,
         detector_backend="skip",
-        enforce_detection=True,
+        enforce_detection=False,
     )
-
-    if not embedding_objs:
-        raise HTTPException(status_code=500, detail="internal error")
-
-    embedding = embedding_objs[0].get("embedding")
+    if not embeddings:
+        raise ValueError("embedding failed")
+    embedding = embeddings[0].get("embedding")
     if embedding is None:
-        raise HTTPException(status_code=500, detail="internal error")
-
+        raise ValueError("embedding failed")
     return np.array(embedding, dtype=np.float32)
 
 
@@ -149,106 +85,152 @@ def _cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
     return float(np.dot(a, b) / denom)
 
 
-def _get_threshold() -> float:
-    threshold = _get_env_float("FACE_MATCH_THRESHOLD", DEFAULT_THRESHOLD)
-    if threshold <= 0 or threshold > 1:
-        return DEFAULT_THRESHOLD
-    return threshold
+def _embedding_path(employee_id: str) -> str:
+    return os.path.join(EMBEDDING_STORAGE_DIR, f"{employee_id}.npy")
 
 
-def _ensure_storage_dir() -> None:
-    os.makedirs(STORAGE_DIR, exist_ok=True)
+def _load_embedding(employee_id: str) -> Optional[np.ndarray]:
+    path = _embedding_path(employee_id)
+    if not os.path.exists(path):
+        return None
+    return np.load(path)
 
 
-def _embedding_path(user_id: str) -> str:
-    return os.path.join(STORAGE_DIR, f"{user_id}.npy")
+def _success_response(matched: bool, confidence: Optional[float], faces_detected: int) -> dict:
+    payload = {"matched": matched, "faces_detected": faces_detected}
+    if confidence is not None:
+        payload["confidence"] = confidence
+    return payload
 
 
-def _error_response(error: str, faces_detected: int) -> JSONResponse:
-    return JSONResponse(
-        status_code=422,
-        content={"matched": False, "faces_detected": faces_detected, "error": error},
-    )
+def _error_response(
+    error: str,
+    faces_detected: Optional[int],
+    detail: Optional[str] = None,
+    status_code: int = 422,
+) -> JSONResponse:
+    payload = {"matched": False, "faces_detected": faces_detected, "error": error}
+    if detail:
+        payload["detail"] = detail
+    return JSONResponse(status_code=status_code, content=payload)
 
 
-def _load_embeddings() -> list[tuple[str, np.ndarray]]:
-    if not os.path.isdir(STORAGE_DIR):
-        return []
-
-    embeddings: list[tuple[str, np.ndarray]] = []
-    for filename in os.listdir(STORAGE_DIR):
-        if not filename.endswith(".npy"):
-            continue
-        user_id = os.path.splitext(filename)[0]
-        path = os.path.join(STORAGE_DIR, filename)
-        try:
-            embeddings.append((user_id, np.load(path)))
-        except Exception:
-            logger.warning("Failed to load embedding for user %s", user_id)
-
-    return embeddings
-
-
-@app.post("/register-face")
-def register_face(user_id: str = Form(...), image: UploadFile = File(...)):
-    try:
-        pil_image = _load_image(image)
-        face, faces_detected = _extract_single_face(pil_image)
-        embedding = _embedding_from_face(face)
-
-        _ensure_storage_dir()
-        np.save(_embedding_path(user_id), embedding)
-
-        return {"status": "registered", "user_id": user_id, "faces_detected": faces_detected}
-    except FaceDetectionError as exc:
-        return _error_response(exc.error, exc.faces_detected)
-    except HTTPException:
-        raise
-    except Exception:
-        raise HTTPException(status_code=500, detail="internal error")
+@app.get("/health")
+def health():
+    return {"ok": True}
 
 
 @app.post("/verify-face")
-def verify_face(user_id: str = Form(...), image: UploadFile = File(...)):
-    embedding_path = _embedding_path(user_id)
-    if not os.path.exists(embedding_path):
-        return JSONResponse(
-            status_code=404,
-            content={"matched": False, "faces_detected": 0, "error": "face_not_registered"},
-        )
+def verify_face(
+    image: Optional[UploadFile] = File(None),
+    file: Optional[UploadFile] = File(None),
+    employee_id: Optional[str] = Form(None),
+):
+    started_at = time.perf_counter()
+    upload = image or file
+    if upload is None:
+        return _error_response("internal_error", None, "image is required")
+
+    logger.info("verify-face request received")
+    logger.info("upload filename=%s content_type=%s", upload.filename, upload.content_type)
 
     try:
-        pil_image = _load_image(image)
-        face, faces_detected = _extract_single_face(pil_image)
-        embedding = _embedding_from_face(face)
-        stored_embedding = np.load(embedding_path)
+        image_rgb = _read_image(upload)
+        faces = _detect_faces(image_rgb)
+        faces_detected = len(faces)
+        logger.info("faces_detected=%s", faces_detected)
+
+        if faces_detected == 0:
+            return _error_response("no_face_detected", 0)
+
+        face_rgb = faces[0].get("face") if faces else None
+        if face_rgb is None:
+            return _error_response("no_face_detected", 0)
+
+        embedding = _embedding_from_face(face_rgb)
+        stored_embedding = None
+        if employee_id:
+            stored_embedding = _load_embedding(employee_id)
+
+        if stored_embedding is None:
+            confidence = 0.0
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "matched": False,
+                    "faces_detected": faces_detected,
+                    "confidence": confidence,
+                    "error": "not_matched",
+                },
+            )
 
         similarity = _cosine_similarity(embedding, stored_embedding)
         confidence = float(np.clip(similarity, 0.0, 1.0))
         matched = confidence >= _get_threshold()
 
-        return {
-            "matched": matched,
-            "confidence": confidence,
-            "faces_detected": faces_detected,
-        }
-    except FaceDetectionError as exc:
-        return _error_response(exc.error, exc.faces_detected)
-    except HTTPException:
-        raise
-    except Exception:
-        raise HTTPException(status_code=500, detail="internal error")
+        if not matched:
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "matched": False,
+                    "faces_detected": faces_detected,
+                    "confidence": confidence,
+                    "error": "not_matched",
+                },
+            )
+
+        return _success_response(True, confidence, faces_detected)
+    except Exception as exc:
+        logger.exception("verify-face failed")
+        return _error_response("internal_error", None, str(exc), status_code=500)
+    finally:
+        elapsed_ms = (time.perf_counter() - started_at) * 1000
+        logger.info("verify-face processing_ms=%.2f", elapsed_ms)
+
+
+@app.post("/register-face")
+def register_face(user_id: str = Form(...), image: UploadFile = File(...)):
+    try:
+        image_rgb = _read_image(image)
+        faces = _detect_faces(image_rgb)
+        faces_detected = len(faces)
+        logger.info("register-face faces_detected=%s", faces_detected)
+
+        if faces_detected == 0:
+            return _error_response("no_face_detected", 0)
+
+        face_rgb = faces[0].get("face")
+        if face_rgb is None:
+            return _error_response("no_face_detected", 0)
+
+        embedding = _embedding_from_face(face_rgb)
+        os.makedirs(EMBEDDING_STORAGE_DIR, exist_ok=True)
+        np.save(_embedding_path(user_id), embedding)
+
+        return {"status": "registered", "user_id": user_id, "faces_detected": faces_detected}
+    except Exception as exc:
+        logger.exception("register-face failed")
+        return _error_response("internal_error", None, str(exc), status_code=500)
 
 
 @app.post("/identify-face")
 def identify_face(image: UploadFile = File(...)):
     try:
-        pil_image = _load_image(image)
-        face, faces_detected = _extract_single_face(pil_image)
-        embedding = _embedding_from_face(face)
+        image_rgb = _read_image(image)
+        faces = _detect_faces(image_rgb)
+        faces_detected = len(faces)
+        logger.info("identify-face faces_detected=%s", faces_detected)
 
-        embeddings = _load_embeddings()
-        if not embeddings:
+        if faces_detected == 0:
+            return _error_response("no_face_detected", 0)
+
+        face_rgb = faces[0].get("face")
+        if face_rgb is None:
+            return _error_response("no_face_detected", 0)
+
+        embedding = _embedding_from_face(face_rgb)
+
+        if not os.path.isdir(EMBEDDING_STORAGE_DIR):
             return JSONResponse(
                 status_code=404,
                 content={
@@ -260,7 +242,15 @@ def identify_face(image: UploadFile = File(...)):
 
         best_user_id = None
         best_similarity = 0.0
-        for user_id, stored_embedding in embeddings:
+        for filename in os.listdir(EMBEDDING_STORAGE_DIR):
+            if not filename.endswith(".npy"):
+                continue
+            user_id = os.path.splitext(filename)[0]
+            try:
+                stored_embedding = np.load(os.path.join(EMBEDDING_STORAGE_DIR, filename))
+            except Exception:
+                continue
+
             similarity = _cosine_similarity(embedding, stored_embedding)
             if similarity > best_similarity:
                 best_similarity = similarity
@@ -286,9 +276,6 @@ def identify_face(image: UploadFile = File(...)):
             "confidence": confidence,
             "user_id": best_user_id,
         }
-    except FaceDetectionError as exc:
-        return _error_response(exc.error, exc.faces_detected)
-    except HTTPException:
-        raise
-    except Exception:
-        raise HTTPException(status_code=500, detail="internal error")
+    except Exception as exc:
+        logger.exception("identify-face failed")
+        return _error_response("internal_error", None, str(exc), status_code=500)
