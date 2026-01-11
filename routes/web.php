@@ -114,6 +114,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('employees', EmployeeController::class)
         ->middleware(['feature:hrd', 'can:hrd.manage']);
+    Route::post('attendances/identify', [AttendanceController::class, 'identify'])
+        ->middleware(['feature:hrd', 'can:hrd.manage'])
+        ->name('attendances.identify');
     Route::resource('attendances', AttendanceController::class)
         ->only(['index', 'create', 'store', 'show'])
         ->middleware(['feature:hrd', 'can:hrd.manage']);
