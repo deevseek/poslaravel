@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class EmployeeController extends Controller
@@ -35,13 +36,19 @@ class EmployeeController extends Controller
             'base_salary' => ['nullable', 'numeric', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
             'retina_scan_code' => ['nullable', 'string', 'max:255'],
-            'retina_scan_image' => ['nullable', 'image', 'max:4096'],
+            'retina_scan_snapshot' => ['nullable', 'string', 'regex:/^data:image\\/(png|jpeg|jpg|webp);base64,/'],
         ]);
 
         $validated['is_active'] = (bool) ($validated['is_active'] ?? true);
 
-        if ($request->hasFile('retina_scan_image')) {
-            $validated['retina_scan_path'] = $request->file('retina_scan_image')->store('retina-scans', 'public');
+        if (! empty($validated['retina_scan_snapshot'])) {
+            $retinaScanPath = $this->storeRetinaSnapshot($validated['retina_scan_snapshot']);
+            if ($retinaScanPath) {
+                $validated['retina_scan_path'] = $retinaScanPath;
+                if (empty($validated['retina_scan_code'])) {
+                    $validated['retina_registered_at'] = now();
+                }
+            }
         }
 
         if (! empty($validated['retina_scan_code'])) {
@@ -49,7 +56,7 @@ class EmployeeController extends Controller
             $validated['retina_registered_at'] = now();
         }
 
-        unset($validated['retina_scan_code'], $validated['retina_scan_image']);
+        unset($validated['retina_scan_code'], $validated['retina_scan_snapshot']);
 
         Employee::create($validated);
 
@@ -80,7 +87,7 @@ class EmployeeController extends Controller
             'base_salary' => ['nullable', 'numeric', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
             'retina_scan_code' => ['nullable', 'string', 'max:255'],
-            'retina_scan_image' => ['nullable', 'image', 'max:4096'],
+            'retina_scan_snapshot' => ['nullable', 'string', 'regex:/^data:image\\/(png|jpeg|jpg|webp);base64,/'],
             'reset_retina' => ['nullable', 'boolean'],
             'remove_retina_scan' => ['nullable', 'boolean'],
         ]);
@@ -104,15 +111,21 @@ class EmployeeController extends Controller
             $validated['retina_registered_at'] = now();
         }
 
-        if ($request->hasFile('retina_scan_image')) {
+        if (! empty($validated['retina_scan_snapshot'])) {
             if ($employee->retina_scan_path) {
                 Storage::disk('public')->delete($employee->retina_scan_path);
             }
 
-            $validated['retina_scan_path'] = $request->file('retina_scan_image')->store('retina-scans', 'public');
+            $retinaScanPath = $this->storeRetinaSnapshot($validated['retina_scan_snapshot']);
+            if ($retinaScanPath) {
+                $validated['retina_scan_path'] = $retinaScanPath;
+                if (empty($validated['retina_scan_code']) && empty($validated['retina_registered_at']) && ! $employee->retina_registered_at) {
+                    $validated['retina_registered_at'] = now();
+                }
+            }
         }
 
-        unset($validated['retina_scan_code'], $validated['retina_scan_image'], $validated['reset_retina'], $validated['remove_retina_scan']);
+        unset($validated['retina_scan_code'], $validated['retina_scan_snapshot'], $validated['reset_retina'], $validated['remove_retina_scan']);
 
         $employee->update($validated);
 
@@ -124,5 +137,31 @@ class EmployeeController extends Controller
         $employee->delete();
 
         return redirect()->route('employees.index')->with('success', 'Data karyawan berhasil dihapus.');
+    }
+
+    private function storeRetinaSnapshot(string $snapshot): ?string
+    {
+        if (! preg_match('/^data:image\\/(png|jpeg|jpg|webp);base64,/', $snapshot)) {
+            return null;
+        }
+
+        $extension = match (true) {
+            str_contains($snapshot, 'image/jpeg') => 'jpg',
+            str_contains($snapshot, 'image/jpg') => 'jpg',
+            str_contains($snapshot, 'image/webp') => 'webp',
+            default => 'png',
+        };
+
+        $encodedImage = substr($snapshot, strpos($snapshot, ',') + 1);
+        $decodedImage = base64_decode($encodedImage, true);
+
+        if ($decodedImage === false) {
+            return null;
+        }
+
+        $filename = 'retina-scans/' . Str::uuid() . '.' . $extension;
+        Storage::disk('public')->put($filename, $decodedImage);
+
+        return $filename;
     }
 }

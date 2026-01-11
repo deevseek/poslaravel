@@ -7,7 +7,7 @@
         <a href="{{ route('employees.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Kembali ke daftar</a>
     </div>
 
-    <form action="{{ route('employees.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+    <form action="{{ route('employees.store') }}" method="POST" class="space-y-6">
         @csrf
 
         <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm space-y-4">
@@ -83,7 +83,7 @@
 
             <div class="rounded-lg border border-blue-100 bg-blue-50 p-4">
                 <p class="text-sm font-semibold text-blue-700">Pendaftaran Retina</p>
-                <p class="mt-1 text-xs text-blue-600">Masukkan kode retina dan unggah hasil scan retina agar absensi hanya bisa dilakukan oleh pemilik retina.</p>
+                <p class="mt-1 text-xs text-blue-600">Masukkan kode retina dan rekam pemindaian retina lewat kamera agar absensi hanya bisa dilakukan oleh pemilik retina.</p>
                 <div class="mt-3 space-y-3">
                     <label class="block text-sm font-semibold text-gray-700" for="retina_scan_code">Kode Retina (opsional)</label>
                     <input type="text" id="retina_scan_code" name="retina_scan_code" value="{{ old('retina_scan_code') }}"
@@ -91,11 +91,26 @@
                     @error('retina_scan_code')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700" for="retina_scan_image">Upload Scan Retina (opsional)</label>
-                        <input type="file" id="retina_scan_image" name="retina_scan_image" accept="image/*"
-                            class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                        @error('retina_scan_image')
+                    <div class="space-y-3">
+                        <div class="overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+                            <video id="retina-webcam" class="h-56 w-full object-cover" autoplay playsinline muted></video>
+                        </div>
+                        <p id="retina-webcam-status" class="text-xs text-gray-500">Izinkan akses kamera untuk memulai pemindaian retina.</p>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <button type="button" id="retina-capture"
+                                class="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white shadow hover:bg-blue-700">
+                                Rekam Retina
+                            </button>
+                            <span class="text-xs text-gray-500">Pastikan mata terlihat jelas di kamera sebelum merekam.</span>
+                        </div>
+                        <input type="hidden" id="retina_scan_snapshot" name="retina_scan_snapshot" value="{{ old('retina_scan_snapshot') }}">
+                        <canvas id="retina-canvas" class="hidden"></canvas>
+                        <div>
+                            <p class="text-xs font-semibold text-gray-700">Hasil Scan Retina</p>
+                            <img id="retina-scan-preview" src="{{ old('retina_scan_snapshot') }}" alt="Pratinjau scan retina"
+                                class="mt-2 hidden h-24 w-24 rounded-lg border border-gray-200 object-cover">
+                        </div>
+                        @error('retina_scan_snapshot')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
@@ -108,4 +123,56 @@
             <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">Simpan</button>
         </div>
     </form>
+
+    <script>
+        const videoElement = document.getElementById('retina-webcam');
+        const statusElement = document.getElementById('retina-webcam-status');
+        const captureButton = document.getElementById('retina-capture');
+        const snapshotInput = document.getElementById('retina_scan_snapshot');
+        const previewImage = document.getElementById('retina-scan-preview');
+        const canvasElement = document.getElementById('retina-canvas');
+
+        const updatePreview = (dataUrl) => {
+            previewImage.src = dataUrl;
+            previewImage.classList.remove('hidden');
+        };
+
+        if (snapshotInput.value) {
+            updatePreview(snapshotInput.value);
+        }
+
+        if (navigator.mediaDevices?.getUserMedia) {
+            navigator.mediaDevices
+                .getUserMedia({ video: { facingMode: 'user' } })
+                .then((stream) => {
+                    videoElement.srcObject = stream;
+                    return videoElement.play();
+                })
+                .then(() => {
+                    statusElement.textContent = 'Arahkan mata ke kamera lalu klik tombol rekam untuk menyimpan retina.';
+                })
+                .catch(() => {
+                    statusElement.textContent = 'Tidak dapat mengakses kamera. Pastikan izin kamera sudah diaktifkan.';
+                });
+        } else {
+            statusElement.textContent = 'Perangkat ini tidak mendukung akses kamera melalui browser.';
+        }
+
+        captureButton.addEventListener('click', () => {
+            if (! videoElement.srcObject) {
+                statusElement.textContent = 'Kamera belum aktif. Pastikan izin kamera sudah diberikan.';
+                return;
+            }
+
+            canvasElement.width = videoElement.videoWidth;
+            canvasElement.height = videoElement.videoHeight;
+            const context = canvasElement.getContext('2d');
+            context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+            const dataUrl = canvasElement.toDataURL('image/png');
+            snapshotInput.value = dataUrl;
+            updatePreview(dataUrl);
+            statusElement.textContent = 'Scan retina berhasil direkam dan siap disimpan.';
+        });
+    </script>
 </x-app-layout>
