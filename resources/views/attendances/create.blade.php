@@ -73,7 +73,7 @@
                 </div>
                 <div class="mt-4">
                     <div class="overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                        <video id="face-recognition-webcam" class="h-56 w-full object-cover" autoplay playsinline muted></video>
+                        <video id="face-recognition-webcam" class="w-full h-auto max-h-[60vh] object-contain" autoplay playsinline muted></video>
                     </div>
                     <p id="face-recognition-webcam-status" class="mt-2 text-xs text-gray-500">
                         Izinkan akses kamera agar pratinjau webcam tampil.
