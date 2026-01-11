@@ -84,64 +84,64 @@
 
             <div class="rounded-lg border border-blue-100 bg-blue-50 p-4">
                 <div class="flex flex-wrap items-center justify-between gap-2">
-                    <p class="text-sm font-semibold text-blue-700">Pendaftaran Retina</p>
-                    @if ($employee->retina_registered_at)
-                        <span class="rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-700">Terdaftar {{ $employee->retina_registered_at->format('d M Y H:i') }}</span>
+                    <p class="text-sm font-semibold text-blue-700">Pendaftaran Face Recognition</p>
+                    @if ($employee->face_recognition_registered_at)
+                        <span class="rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-700">Terdaftar {{ $employee->face_recognition_registered_at->format('d M Y H:i') }}</span>
                     @else
                         <span class="rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-600">Belum terdaftar</span>
                     @endif
                 </div>
-                <p class="mt-1 text-xs text-blue-600">Perbarui kode atau lakukan pemindaian ulang melalui kamera. Centang reset untuk menghapus data retina lama.</p>
+                <p class="mt-1 text-xs text-blue-600">Perbarui kode atau lakukan pemindaian ulang melalui kamera. Centang reset untuk menghapus data wajah lama.</p>
                 <div class="mt-3 grid gap-3 md:grid-cols-2">
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700" for="retina_scan_code">Kode Retina Baru (opsional)</label>
-                        <input type="text" id="retina_scan_code" name="retina_scan_code" value="{{ old('retina_scan_code') }}"
+                        <label class="block text-sm font-semibold text-gray-700" for="face_recognition_code">Kode Wajah Baru (opsional)</label>
+                        <input type="text" id="face_recognition_code" name="face_recognition_code" value="{{ old('face_recognition_code') }}"
                             class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                        @error('retina_scan_code')
+                        @error('face_recognition_code')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
                     <div class="space-y-3 md:col-span-2">
                         <div class="overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                            <video id="retina-webcam" class="h-56 w-full object-cover" autoplay playsinline muted></video>
+                            <video id="face-recognition-webcam" class="h-56 w-full object-cover" autoplay playsinline muted></video>
                         </div>
-                        <p id="retina-webcam-status" class="text-xs text-gray-500">Izinkan akses kamera untuk memulai pemindaian retina.</p>
+                        <p id="face-recognition-webcam-status" class="text-xs text-gray-500">Izinkan akses kamera untuk memulai pemindaian wajah.</p>
                         <div class="flex flex-wrap items-center gap-3">
-                            <button type="button" id="retina-capture"
+                            <button type="button" id="face-recognition-capture"
                                 class="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white shadow hover:bg-blue-700">
-                                Rekam Retina
+                                Rekam Wajah
                             </button>
-                            <span class="text-xs text-gray-500">Rekam ulang jika pola retina berubah.</span>
+                            <span class="text-xs text-gray-500">Rekam ulang jika data wajah berubah.</span>
                         </div>
-                        <input type="hidden" id="retina_scan_snapshot" name="retina_scan_snapshot" value="{{ old('retina_scan_snapshot') }}">
-                        <canvas id="retina-canvas" class="hidden"></canvas>
+                        <input type="hidden" id="face_recognition_snapshot" name="face_recognition_snapshot" value="{{ old('face_recognition_snapshot') }}">
+                        <canvas id="face-recognition-canvas" class="hidden"></canvas>
                         <div class="grid gap-3 sm:grid-cols-2">
                             <div>
                                 <p class="text-xs font-semibold text-gray-700">Scan Terbaru</p>
-                                <img id="retina-scan-preview" src="{{ old('retina_scan_snapshot') }}" alt="Pratinjau scan retina"
+                                <img id="face-recognition-preview" src="{{ old('face_recognition_snapshot') }}" alt="Pratinjau scan wajah"
                                     class="mt-2 hidden h-24 w-24 rounded-lg border border-gray-200 object-cover">
                             </div>
                             <div>
                                 <p class="text-xs font-semibold text-gray-700">Scan Saat Ini</p>
-                                @if ($employee->retina_scan_path)
-                                    <img src="{{ Storage::url($employee->retina_scan_path) }}" alt="Scan retina {{ $employee->name }}"
+                                @if ($employee->face_recognition_scan_path)
+                                    <img src="{{ Storage::url($employee->face_recognition_scan_path) }}" alt="Scan wajah {{ $employee->name }}"
                                         class="mt-2 h-24 w-24 rounded-lg border border-gray-200 object-cover">
                                 @else
-                                    <p class="mt-2 text-xs text-gray-500">Belum ada scan retina tersimpan.</p>
+                                    <p class="mt-2 text-xs text-gray-500">Belum ada scan wajah tersimpan.</p>
                                 @endif
                             </div>
                         </div>
-                        @error('retina_scan_snapshot')
+                        @error('face_recognition_snapshot')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
                     <div class="flex items-center gap-2 md:col-span-2">
-                        <input type="checkbox" id="reset_retina" name="reset_retina" value="1" class="h-4 w-4 rounded border-gray-300 text-blue-600" {{ old('reset_retina') ? 'checked' : '' }}>
-                        <label class="text-sm font-semibold text-gray-700" for="reset_retina">Reset data retina</label>
+                        <input type="checkbox" id="reset_face_recognition" name="reset_face_recognition" value="1" class="h-4 w-4 rounded border-gray-300 text-blue-600" {{ old('reset_face_recognition') ? 'checked' : '' }}>
+                        <label class="text-sm font-semibold text-gray-700" for="reset_face_recognition">Reset data wajah</label>
                     </div>
                     <div class="flex items-center gap-2 md:col-span-2">
-                        <input type="checkbox" id="remove_retina_scan" name="remove_retina_scan" value="1" class="h-4 w-4 rounded border-gray-300 text-blue-600" {{ old('remove_retina_scan') ? 'checked' : '' }}>
-                        <label class="text-sm font-semibold text-gray-700" for="remove_retina_scan">Hapus scan retina tersimpan</label>
+                        <input type="checkbox" id="remove_face_recognition_scan" name="remove_face_recognition_scan" value="1" class="h-4 w-4 rounded border-gray-300 text-blue-600" {{ old('remove_face_recognition_scan') ? 'checked' : '' }}>
+                        <label class="text-sm font-semibold text-gray-700" for="remove_face_recognition_scan">Hapus scan wajah tersimpan</label>
                     </div>
                 </div>
             </div>
@@ -154,12 +154,12 @@
     </form>
 
     <script>
-        const videoElement = document.getElementById('retina-webcam');
-        const statusElement = document.getElementById('retina-webcam-status');
-        const captureButton = document.getElementById('retina-capture');
-        const snapshotInput = document.getElementById('retina_scan_snapshot');
-        const previewImage = document.getElementById('retina-scan-preview');
-        const canvasElement = document.getElementById('retina-canvas');
+        const videoElement = document.getElementById('face-recognition-webcam');
+        const statusElement = document.getElementById('face-recognition-webcam-status');
+        const captureButton = document.getElementById('face-recognition-capture');
+        const snapshotInput = document.getElementById('face_recognition_snapshot');
+        const previewImage = document.getElementById('face-recognition-preview');
+        const canvasElement = document.getElementById('face-recognition-canvas');
 
         const updatePreview = (dataUrl) => {
             previewImage.src = dataUrl;
@@ -178,7 +178,7 @@
                     return videoElement.play();
                 })
                 .then(() => {
-                    statusElement.textContent = 'Arahkan mata ke kamera lalu klik tombol rekam untuk menyimpan retina.';
+                    statusElement.textContent = 'Arahkan wajah ke kamera lalu klik tombol rekam untuk menyimpan data wajah.';
                 })
                 .catch(() => {
                     statusElement.textContent = 'Tidak dapat mengakses kamera. Pastikan izin kamera sudah diaktifkan.';
@@ -201,7 +201,7 @@
             const dataUrl = canvasElement.toDataURL('image/png');
             snapshotInput.value = dataUrl;
             updatePreview(dataUrl);
-            statusElement.textContent = 'Scan retina berhasil direkam dan siap disimpan.';
+            statusElement.textContent = 'Scan wajah berhasil direkam dan siap disimpan.';
         });
     </script>
 </x-app-layout>

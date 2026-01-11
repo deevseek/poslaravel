@@ -2,7 +2,7 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-2xl font-semibold text-gray-900">Absensi Pegawai</h1>
-            <p class="text-gray-600">Pantau kehadiran harian dengan metode scan retina melalui kamera/webcam.</p>
+            <p class="text-gray-600">Pantau kehadiran harian dengan metode face recognition melalui kamera/webcam.</p>
         </div>
         @permission('hrd.manage')
             <a href="{{ route('attendances.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">
@@ -39,7 +39,10 @@
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $attendance->check_in_time }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $attendance->check_out_time ?? '-' }}</td>
                         <td class="px-6 py-4 text-sm">
-                            <span class="rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700">Scan Retina</span>
+                            @php
+                                $methodLabel = $attendance->method === 'face_recognition' ? 'Face Recognition' : 'Scan Retina';
+                            @endphp
+                            <span class="rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700">{{ $methodLabel }}</span>
                         </td>
                         <td class="px-6 py-4 text-sm">
                             @if ($attendance->status === 'Terlambat')

@@ -35,28 +35,28 @@ class EmployeeController extends Controller
             'join_date' => ['nullable', 'date'],
             'base_salary' => ['nullable', 'numeric', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
-            'retina_scan_code' => ['nullable', 'string', 'max:255'],
-            'retina_scan_snapshot' => ['nullable', 'string', 'regex:/^data:image\\/(png|jpeg|jpg|webp);base64,/'],
+            'face_recognition_code' => ['nullable', 'string', 'max:255'],
+            'face_recognition_snapshot' => ['nullable', 'string', 'regex:/^data:image\\/(png|jpeg|jpg|webp);base64,/'],
         ]);
 
         $validated['is_active'] = (bool) ($validated['is_active'] ?? true);
 
-        if (! empty($validated['retina_scan_snapshot'])) {
-            $retinaScanPath = $this->storeRetinaSnapshot($validated['retina_scan_snapshot']);
-            if ($retinaScanPath) {
-                $validated['retina_scan_path'] = $retinaScanPath;
-                if (empty($validated['retina_scan_code'])) {
-                    $validated['retina_registered_at'] = now();
+        if (! empty($validated['face_recognition_snapshot'])) {
+            $faceRecognitionPath = $this->storeFaceRecognitionSnapshot($validated['face_recognition_snapshot']);
+            if ($faceRecognitionPath) {
+                $validated['face_recognition_scan_path'] = $faceRecognitionPath;
+                if (empty($validated['face_recognition_code'])) {
+                    $validated['face_recognition_registered_at'] = now();
                 }
             }
         }
 
-        if (! empty($validated['retina_scan_code'])) {
-            $validated['retina_signature'] = Hash::make($validated['retina_scan_code']);
-            $validated['retina_registered_at'] = now();
+        if (! empty($validated['face_recognition_code'])) {
+            $validated['face_recognition_signature'] = Hash::make($validated['face_recognition_code']);
+            $validated['face_recognition_registered_at'] = now();
         }
 
-        unset($validated['retina_scan_code'], $validated['retina_scan_snapshot']);
+        unset($validated['face_recognition_code'], $validated['face_recognition_snapshot']);
 
         Employee::create($validated);
 
@@ -86,46 +86,46 @@ class EmployeeController extends Controller
             'join_date' => ['nullable', 'date'],
             'base_salary' => ['nullable', 'numeric', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
-            'retina_scan_code' => ['nullable', 'string', 'max:255'],
-            'retina_scan_snapshot' => ['nullable', 'string', 'regex:/^data:image\\/(png|jpeg|jpg|webp);base64,/'],
-            'reset_retina' => ['nullable', 'boolean'],
-            'remove_retina_scan' => ['nullable', 'boolean'],
+            'face_recognition_code' => ['nullable', 'string', 'max:255'],
+            'face_recognition_snapshot' => ['nullable', 'string', 'regex:/^data:image\\/(png|jpeg|jpg|webp);base64,/'],
+            'reset_face_recognition' => ['nullable', 'boolean'],
+            'remove_face_recognition_scan' => ['nullable', 'boolean'],
         ]);
 
         $validated['is_active'] = (bool) ($validated['is_active'] ?? false);
-        $resetRetina = ! empty($validated['reset_retina']);
-        $removeRetinaScan = ! empty($validated['remove_retina_scan']);
+        $resetFaceRecognition = ! empty($validated['reset_face_recognition']);
+        $removeFaceRecognitionScan = ! empty($validated['remove_face_recognition_scan']);
 
-        if ($resetRetina || $removeRetinaScan) {
-            if ($employee->retina_scan_path) {
-                Storage::disk('public')->delete($employee->retina_scan_path);
+        if ($resetFaceRecognition || $removeFaceRecognitionScan) {
+            if ($employee->face_recognition_scan_path) {
+                Storage::disk('public')->delete($employee->face_recognition_scan_path);
             }
-            $validated['retina_scan_path'] = null;
+            $validated['face_recognition_scan_path'] = null;
         }
 
-        if ($resetRetina) {
-            $validated['retina_signature'] = null;
-            $validated['retina_registered_at'] = null;
-        } elseif (! empty($validated['retina_scan_code'])) {
-            $validated['retina_signature'] = Hash::make($validated['retina_scan_code']);
-            $validated['retina_registered_at'] = now();
+        if ($resetFaceRecognition) {
+            $validated['face_recognition_signature'] = null;
+            $validated['face_recognition_registered_at'] = null;
+        } elseif (! empty($validated['face_recognition_code'])) {
+            $validated['face_recognition_signature'] = Hash::make($validated['face_recognition_code']);
+            $validated['face_recognition_registered_at'] = now();
         }
 
-        if (! empty($validated['retina_scan_snapshot'])) {
-            if ($employee->retina_scan_path) {
-                Storage::disk('public')->delete($employee->retina_scan_path);
+        if (! empty($validated['face_recognition_snapshot'])) {
+            if ($employee->face_recognition_scan_path) {
+                Storage::disk('public')->delete($employee->face_recognition_scan_path);
             }
 
-            $retinaScanPath = $this->storeRetinaSnapshot($validated['retina_scan_snapshot']);
-            if ($retinaScanPath) {
-                $validated['retina_scan_path'] = $retinaScanPath;
-                if (empty($validated['retina_scan_code']) && empty($validated['retina_registered_at']) && ! $employee->retina_registered_at) {
-                    $validated['retina_registered_at'] = now();
+            $faceRecognitionPath = $this->storeFaceRecognitionSnapshot($validated['face_recognition_snapshot']);
+            if ($faceRecognitionPath) {
+                $validated['face_recognition_scan_path'] = $faceRecognitionPath;
+                if (empty($validated['face_recognition_code']) && empty($validated['face_recognition_registered_at']) && ! $employee->face_recognition_registered_at) {
+                    $validated['face_recognition_registered_at'] = now();
                 }
             }
         }
 
-        unset($validated['retina_scan_code'], $validated['retina_scan_snapshot'], $validated['reset_retina'], $validated['remove_retina_scan']);
+        unset($validated['face_recognition_code'], $validated['face_recognition_snapshot'], $validated['reset_face_recognition'], $validated['remove_face_recognition_scan']);
 
         $employee->update($validated);
 
@@ -139,7 +139,7 @@ class EmployeeController extends Controller
         return redirect()->route('employees.index')->with('success', 'Data karyawan berhasil dihapus.');
     }
 
-    private function storeRetinaSnapshot(string $snapshot): ?string
+    private function storeFaceRecognitionSnapshot(string $snapshot): ?string
     {
         if (! preg_match('/^data:image\\/(png|jpeg|jpg|webp);base64,/', $snapshot)) {
             return null;
@@ -159,7 +159,7 @@ class EmployeeController extends Controller
             return null;
         }
 
-        $filename = 'retina-scans/' . Str::uuid() . '.' . $extension;
+        $filename = 'face-recognition-scans/' . Str::uuid() . '.' . $extension;
         Storage::disk('public')->put($filename, $decodedImage);
 
         return $filename;

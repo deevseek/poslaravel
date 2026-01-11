@@ -62,17 +62,17 @@
                 @endif
             </div>
             <div>
-                <p class="text-sm text-gray-500">Retina</p>
-                @if ($employee->retina_registered_at)
+                <p class="text-sm text-gray-500">Face Recognition</p>
+                @if ($employee->face_recognition_registered_at)
                     <p class="text-sm font-semibold text-gray-900">Terdaftar</p>
-                    <p class="text-xs text-gray-600">{{ $employee->retina_registered_at->format('d M Y H:i') }}</p>
+                    <p class="text-xs text-gray-600">{{ $employee->face_recognition_registered_at->format('d M Y H:i') }}</p>
                 @else
                     <p class="text-sm text-gray-600">Belum terdaftar</p>
                 @endif
-                @if ($employee->retina_scan_path)
+                @if ($employee->face_recognition_scan_path)
                     <div class="mt-2">
-                        <p class="text-xs text-gray-500">Scan retina tersimpan</p>
-                        <img src="{{ Storage::url($employee->retina_scan_path) }}" alt="Scan retina {{ $employee->name }}" class="mt-1 h-24 w-24 rounded-lg border border-gray-200 object-cover">
+                        <p class="text-xs text-gray-500">Scan wajah tersimpan</p>
+                        <img src="{{ Storage::url($employee->face_recognition_scan_path) }}" alt="Scan wajah {{ $employee->name }}" class="mt-1 h-24 w-24 rounded-lg border border-gray-200 object-cover">
                     </div>
                 @endif
             </div>
