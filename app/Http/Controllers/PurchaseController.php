@@ -75,13 +75,15 @@ class PurchaseController extends Controller
                     'subtotal' => $item['subtotal'],
                 ]);
 
-                $currentStock = $product->stock;
-                $existingCostPrice = $product->cost_price ?? 0;
+                $currentStock = (int) $product->stock;
+                $existingAvgCost = (float) ($product->avg_cost ?? 0);
                 $newStockTotal = $currentStock + $purchaseItem->quantity;
-
-                $product->cost_price = $newStockTotal > 0
-                    ? (($currentStock * $existingCostPrice) + ($purchaseItem->quantity * $purchaseItem->price)) / $newStockTotal
+                $newAvgCost = $newStockTotal > 0
+                    ? (($currentStock * $existingAvgCost) + ($purchaseItem->quantity * $purchaseItem->price)) / $newStockTotal
                     : $purchaseItem->price;
+
+                $product->avg_cost = round($newAvgCost, 2);
+                $product->cost_price = $product->avg_cost;
 
                 if (
                     $product->pricing_mode === Product::PRICING_MODE_PERCENTAGE &&

@@ -15,6 +15,7 @@ class Product extends Model
         'name',
         'sku',
         'cost_price',
+        'avg_cost',
         'price',
         'pricing_mode',
         'margin_percentage',
@@ -26,6 +27,7 @@ class Product extends Model
     protected $casts = [
         'price' => 'decimal:2',
         'cost_price' => 'decimal:2',
+        'avg_cost' => 'decimal:2',
         'margin_percentage' => 'decimal:2',
         'stock' => 'integer',
         'warranty_days' => 'integer',
