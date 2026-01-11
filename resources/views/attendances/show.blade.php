@@ -37,8 +37,8 @@
 
         <div class="flex items-center gap-3">
             <span class="text-sm font-semibold text-gray-600">Status:</span>
-            @if ($attendance->status === 'Terlambat')
-                <span class="rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700">Terlambat</span>
+            @if (in_array($attendance->status, ['Terlambat', 'Pulang cepat'], true))
+                <span class="rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700">{{ $attendance->status }}</span>
             @else
                 <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">{{ $attendance->status }}</span>
             @endif

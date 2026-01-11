@@ -45,8 +45,8 @@
                             <span class="rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700">{{ $methodLabel }}</span>
                         </td>
                         <td class="px-6 py-4 text-sm">
-                            @if ($attendance->status === 'Terlambat')
-                                <span class="rounded-full bg-orange-100 px-2 py-1 text-xs font-semibold text-orange-700">Terlambat</span>
+                            @if (in_array($attendance->status, ['Terlambat', 'Pulang cepat'], true))
+                                <span class="rounded-full bg-orange-100 px-2 py-1 text-xs font-semibold text-orange-700">{{ $attendance->status }}</span>
                             @else
                                 <span class="rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-700">{{ $attendance->status }}</span>
                             @endif

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\Employee;
+use App\Models\Setting;
 use App\Exceptions\FaceApiBadResponseException;
 use App\Exceptions\FaceApiUnavailableException;
 use App\Services\FaceRecognitionService;
@@ -34,7 +35,10 @@ class AttendanceController extends Controller
     {
         $employees = Employee::where('is_active', true)->orderBy('name')->get();
 
-        return view('attendances.create', compact('employees'));
+        $workStart = Setting::getValue(Setting::HRD_WORK_START, '09:00');
+        $workEnd = Setting::getValue(Setting::HRD_WORK_END, '17:00');
+
+        return view('attendances.create', compact('employees', 'workStart', 'workEnd'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -112,7 +116,19 @@ class AttendanceController extends Controller
         }
 
         $checkIn = Carbon::createFromFormat('H:i', $validated['check_in_time']);
-        $status = $checkIn->greaterThan(Carbon::createFromFormat('H:i', '09:00')) ? 'Terlambat' : 'Hadir';
+        $workStart = Setting::getValue(Setting::HRD_WORK_START, '09:00');
+        $workEnd = Setting::getValue(Setting::HRD_WORK_END, '17:00');
+        $workStartTime = Carbon::createFromFormat('H:i', $workStart);
+        $workEndTime = Carbon::createFromFormat('H:i', $workEnd);
+
+        if ($checkIn->greaterThan($workStartTime)) {
+            $status = 'Terlambat';
+        } elseif (! empty($validated['check_out_time'])) {
+            $checkOut = Carbon::createFromFormat('H:i', $validated['check_out_time']);
+            $status = $checkOut->lessThan($workEndTime) ? 'Pulang cepat' : 'Hadir';
+        } else {
+            $status = 'Hadir';
+        }
 
         Attendance::create([
             'employee_id' => $employee->id,
