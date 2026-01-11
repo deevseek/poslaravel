@@ -2,7 +2,7 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-2xl font-semibold text-gray-900">Catat Absensi</h1>
-            <p class="text-gray-600">Rekam kehadiran pegawai dengan menghadap kamera/webcam untuk proses face recognition berbasis laravel-face-detection.</p>
+            <p class="text-gray-600">Rekam kehadiran pegawai dengan menghadap kamera/webcam untuk proses face recognition.</p>
         </div>
         <a href="{{ route('attendances.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Kembali ke daftar</a>
     </div>
@@ -71,40 +71,57 @@
                         <p class="text-xs text-blue-600">Pastikan wajah karyawan sudah terdaftar pada profil karyawan sebelum melakukan absensi.</p>
                     </div>
                 </div>
-                <div class="mt-4">
-                    <div class="overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                        <video id="face-recognition-webcam" class="w-full h-auto max-h-[60vh] object-contain" autoplay playsinline muted></video>
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                <!-- KIRI: KAMERA -->
+                <div class="flex justify-center">
+                    <div class="relative overflow-hidden rounded-lg border border-gray-200 bg-black w-[260px] h-[180px]">
+                        <video
+                            id="face-recognition-webcam"
+                            class="h-full w-full object-cover"
+                            autoplay
+                            playsinline
+                            muted>
+                        </video>
                     </div>
-                    <p id="face-recognition-webcam-status" class="mt-2 text-xs text-gray-500">
+                </div>
+
+                <!-- KANAN: STATUS & KONTROL -->
+                <div class="space-y-3">
+                    <p id="face-recognition-webcam-status" class="text-xs text-gray-500">
                         Izinkan akses kamera agar pratinjau webcam tampil.
                     </p>
-                    <div class="mt-3 flex flex-wrap items-center gap-3">
-                        <button type="button" id="face-recognition-capture" class="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-100">
+
+                    <div class="flex items-center gap-3">
+                        <button
+                            type="button"
+                            id="face-recognition-capture"
+                            class="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-100">
                             Scan Wajah
                         </button>
-                        <span class="text-xs text-gray-500">Klik tombol scan untuk mengambil foto terbaru.</span>
+                        <span class="text-xs text-gray-500">Klik untuk mengambil foto terbaru</span>
                     </div>
-                    <input type="hidden" id="face_recognition_snapshot" name="face_recognition_snapshot" value="{{ old('face_recognition_snapshot') }}">
+
+                    <!-- WAJIB ADA: snapshot hidden input -->
+                    <input type="hidden" id="face_recognition_snapshot" name="face_recognition_snapshot"
+                        value="{{ old('face_recognition_snapshot') }}">
+
+                    <!-- WAJIB ADA: canvas hidden -->
                     <canvas id="face-recognition-canvas" class="hidden"></canvas>
-                    <div class="mt-3">
-                        <img id="face-recognition-preview" src="{{ old('face_recognition_snapshot') }}" alt="Pratinjau scan wajah"
+
+                    <div>
+                        <img
+                            id="face-recognition-preview"
+                            src="{{ old('face_recognition_snapshot') }}"
+                            alt="Pratinjau scan wajah"
                             class="{{ old('face_recognition_snapshot') ? '' : 'hidden' }} h-24 w-24 rounded-lg border border-gray-200 object-cover">
                     </div>
+
                     @error('face_recognition_snapshot')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        <p class="text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
             </div>
 
-            <div>
-                <label class="block text-sm font-semibold text-gray-700" for="note">Catatan (opsional)</label>
-                <textarea id="note" name="note" rows="3"
-                    class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">{{ old('note') }}</textarea>
-                @error('note')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-        </div>
 
         <div class="flex justify-end gap-3">
             <a href="{{ route('attendances.index') }}" class="rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">Batal</a>
