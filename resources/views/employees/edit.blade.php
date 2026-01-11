@@ -91,16 +91,9 @@
                         <span class="rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-600">Belum terdaftar</span>
                     @endif
                 </div>
-                <p class="mt-1 text-xs text-blue-600">Perbarui kode atau lakukan pemindaian ulang melalui kamera. Centang reset untuk menghapus data wajah lama.</p>
+                <p class="mt-1 text-xs text-blue-600">Perbarui pemindaian ulang melalui kamera. Centang reset untuk menghapus data wajah lama.</p>
+                <p class="mt-2 text-xs text-blue-600">Modul laravel-face-detection memastikan wajah terlihat jelas sebelum data disimpan.</p>
                 <div class="mt-3 grid gap-3 md:grid-cols-2">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700" for="face_recognition_code">Kode Wajah Baru (opsional)</label>
-                        <input type="text" id="face_recognition_code" name="face_recognition_code" value="{{ old('face_recognition_code') }}"
-                            class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                        @error('face_recognition_code')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
                     <div class="space-y-3 md:col-span-2">
                         <div class="overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
                             <video id="face-recognition-webcam" class="h-56 w-full object-cover" autoplay playsinline muted></video>
@@ -119,7 +112,7 @@
                             <div>
                                 <p class="text-xs font-semibold text-gray-700">Scan Terbaru</p>
                                 <img id="face-recognition-preview" src="{{ old('face_recognition_snapshot') }}" alt="Pratinjau scan wajah"
-                                    class="mt-2 hidden h-24 w-24 rounded-lg border border-gray-200 object-cover">
+                                    class="mt-2 {{ old('face_recognition_snapshot') ? '' : 'hidden' }} h-24 w-24 rounded-lg border border-gray-200 object-cover">
                             </div>
                             <div>
                                 <p class="text-xs font-semibold text-gray-700">Scan Saat Ini</p>

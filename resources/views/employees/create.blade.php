@@ -83,14 +83,9 @@
 
             <div class="rounded-lg border border-blue-100 bg-blue-50 p-4">
                 <p class="text-sm font-semibold text-blue-700">Pendaftaran Face Recognition</p>
-                <p class="mt-1 text-xs text-blue-600">Masukkan kode wajah dan rekam pemindaian wajah lewat kamera agar absensi hanya bisa dilakukan oleh pemilik wajah.</p>
+                <p class="mt-1 text-xs text-blue-600">Rekam pemindaian wajah lewat kamera agar absensi hanya bisa dilakukan oleh pemilik wajah.</p>
                 <div class="mt-3 space-y-3">
-                    <label class="block text-sm font-semibold text-gray-700" for="face_recognition_code">Kode Wajah (opsional)</label>
-                    <input type="text" id="face_recognition_code" name="face_recognition_code" value="{{ old('face_recognition_code') }}"
-                        class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                    @error('face_recognition_code')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+                    <p class="text-sm text-gray-600">Modul laravel-face-detection akan memastikan wajah terekam dengan jelas.</p>
                     <div class="space-y-3">
                         <div class="overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
                             <video id="face-recognition-webcam" class="h-56 w-full object-cover" autoplay playsinline muted></video>
@@ -108,7 +103,7 @@
                         <div>
                             <p class="text-xs font-semibold text-gray-700">Hasil Scan Wajah</p>
                             <img id="face-recognition-preview" src="{{ old('face_recognition_snapshot') }}" alt="Pratinjau scan wajah"
-                                class="mt-2 hidden h-24 w-24 rounded-lg border border-gray-200 object-cover">
+                                class="mt-2 {{ old('face_recognition_snapshot') ? '' : 'hidden' }} h-24 w-24 rounded-lg border border-gray-200 object-cover">
                         </div>
                         @error('face_recognition_snapshot')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

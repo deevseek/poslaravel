@@ -3,15 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use App\Services\FaceRecognitionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class EmployeeController extends Controller
 {
+    public function __construct(private readonly FaceRecognitionService $faceRecognition)
+    {
+    }
+
     public function index(): View
     {
         $employees = Employee::orderBy('name')->paginate(10);
@@ -35,7 +39,6 @@ class EmployeeController extends Controller
             'join_date' => ['nullable', 'date'],
             'base_salary' => ['nullable', 'numeric', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
-            'face_recognition_code' => ['nullable', 'string', 'max:255'],
             'face_recognition_snapshot' => ['nullable', 'string', 'regex:/^data:image\\/(png|jpeg|jpg|webp);base64,/'],
         ]);
 
@@ -44,19 +47,24 @@ class EmployeeController extends Controller
         if (! empty($validated['face_recognition_snapshot'])) {
             $faceRecognitionPath = $this->storeFaceRecognitionSnapshot($validated['face_recognition_snapshot']);
             if ($faceRecognitionPath) {
-                $validated['face_recognition_scan_path'] = $faceRecognitionPath;
-                if (empty($validated['face_recognition_code'])) {
-                    $validated['face_recognition_registered_at'] = now();
+                $snapshotPath = Storage::disk('public')->path($faceRecognitionPath);
+                if (! $this->faceRecognition->hasFace($snapshotPath)) {
+                    Storage::disk('public')->delete($faceRecognitionPath);
+
+                    return back()
+                        ->withErrors(['face_recognition_snapshot' => 'Wajah tidak terdeteksi pada foto. Silakan ulangi pemindaian.'])
+                        ->withInput();
                 }
+
+                $signature = $this->faceRecognition->extractSignature($snapshotPath);
+
+                $validated['face_recognition_scan_path'] = $faceRecognitionPath;
+                $validated['face_recognition_signature'] = $signature ? json_encode($signature) : null;
+                $validated['face_recognition_registered_at'] = now();
             }
         }
 
-        if (! empty($validated['face_recognition_code'])) {
-            $validated['face_recognition_signature'] = Hash::make($validated['face_recognition_code']);
-            $validated['face_recognition_registered_at'] = now();
-        }
-
-        unset($validated['face_recognition_code'], $validated['face_recognition_snapshot']);
+        unset($validated['face_recognition_snapshot']);
 
         Employee::create($validated);
 
@@ -86,7 +94,6 @@ class EmployeeController extends Controller
             'join_date' => ['nullable', 'date'],
             'base_salary' => ['nullable', 'numeric', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
-            'face_recognition_code' => ['nullable', 'string', 'max:255'],
             'face_recognition_snapshot' => ['nullable', 'string', 'regex:/^data:image\\/(png|jpeg|jpg|webp);base64,/'],
             'reset_face_recognition' => ['nullable', 'boolean'],
             'remove_face_recognition_scan' => ['nullable', 'boolean'],
@@ -101,14 +108,13 @@ class EmployeeController extends Controller
                 Storage::disk('public')->delete($employee->face_recognition_scan_path);
             }
             $validated['face_recognition_scan_path'] = null;
+            $validated['face_recognition_signature'] = null;
+            $validated['face_recognition_registered_at'] = null;
         }
 
         if ($resetFaceRecognition) {
             $validated['face_recognition_signature'] = null;
             $validated['face_recognition_registered_at'] = null;
-        } elseif (! empty($validated['face_recognition_code'])) {
-            $validated['face_recognition_signature'] = Hash::make($validated['face_recognition_code']);
-            $validated['face_recognition_registered_at'] = now();
         }
 
         if (! empty($validated['face_recognition_snapshot'])) {
@@ -118,14 +124,24 @@ class EmployeeController extends Controller
 
             $faceRecognitionPath = $this->storeFaceRecognitionSnapshot($validated['face_recognition_snapshot']);
             if ($faceRecognitionPath) {
-                $validated['face_recognition_scan_path'] = $faceRecognitionPath;
-                if (empty($validated['face_recognition_code']) && empty($validated['face_recognition_registered_at']) && ! $employee->face_recognition_registered_at) {
-                    $validated['face_recognition_registered_at'] = now();
+                $snapshotPath = Storage::disk('public')->path($faceRecognitionPath);
+                if (! $this->faceRecognition->hasFace($snapshotPath)) {
+                    Storage::disk('public')->delete($faceRecognitionPath);
+
+                    return back()
+                        ->withErrors(['face_recognition_snapshot' => 'Wajah tidak terdeteksi pada foto. Silakan ulangi pemindaian.'])
+                        ->withInput();
                 }
+
+                $signature = $this->faceRecognition->extractSignature($snapshotPath);
+
+                $validated['face_recognition_scan_path'] = $faceRecognitionPath;
+                $validated['face_recognition_signature'] = $signature ? json_encode($signature) : null;
+                $validated['face_recognition_registered_at'] = now();
             }
         }
 
-        unset($validated['face_recognition_code'], $validated['face_recognition_snapshot'], $validated['reset_face_recognition'], $validated['remove_face_recognition_scan']);
+        unset($validated['face_recognition_snapshot'], $validated['reset_face_recognition'], $validated['remove_face_recognition_scan']);
 
         $employee->update($validated);
 
