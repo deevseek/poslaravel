@@ -1,5 +1,7 @@
+import logging
 import os
 from io import BytesIO
+
 import numpy as np
 from deepface import DeepFace
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
@@ -11,10 +13,13 @@ ALLOWED_FORMATS = {"JPEG", "PNG"}
 DEFAULT_MAX_FILE_SIZE = 5 * 1024 * 1024
 DEFAULT_THRESHOLD = 0.8
 DEFAULT_MODEL_NAME = "Facenet512"
+DEFAULT_DETECTOR = "opencv"
 
 STORAGE_DIR = os.path.join("storage", "faces")
 
 app = FastAPI()
+logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
+logger = logging.getLogger("face_recognition_service")
 
 
 def _get_env_float(name: str, default: float) -> float:
@@ -64,26 +69,84 @@ def _load_image(upload: UploadFile) -> Image.Image:
     except Exception as exc:
         raise HTTPException(status_code=400, detail="invalid image") from exc
 
-    return _resize_image(image, APP_MAX_WIDTH)
+    resized = _resize_image(image, APP_MAX_WIDTH)
+    logger.info("Image resolution: %sx%s", resized.width, resized.height)
+    return resized
 
 
-def _extract_single_face(image: Image.Image) -> np.ndarray:
+def _detect_faces(image: Image.Image, *, enforce_detection: bool) -> list[dict]:
     img_array = np.array(image)
     faces = DeepFace.extract_faces(
         img_path=img_array,
-        detector_backend="retinaface",
-        enforce_detection=False,
+        detector_backend=DEFAULT_DETECTOR,
+        enforce_detection=enforce_detection,
         align=True,
     )
+    logger.info(
+        "Detector: %s | Faces detected: %s",
+        DEFAULT_DETECTOR,
+        len(faces),
+    )
+    return faces
+
+
+def _extract_single_face(image: Image.Image) -> np.ndarray:
+    faces = _detect_faces(image, enforce_detection=False)
 
     if not faces:
-        raise HTTPException(status_code=422, detail="face not detected")
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "face_not_detected",
+                "reason": "Wajah tidak terdeteksi pada foto. Silakan ulangi pemindaian.",
+            },
+        )
     if len(faces) > 1:
-        raise HTTPException(status_code=422, detail="multiple faces detected")
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "multiple_faces_detected",
+                "reason": "Terdapat lebih dari satu wajah pada foto. Silakan ulangi pemindaian.",
+            },
+        )
+
+    try:
+        faces = _detect_faces(image, enforce_detection=True)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "face_not_detected",
+                "reason": "Wajah tidak terdeteksi pada foto. Silakan ulangi pemindaian.",
+            },
+        ) from exc
+
+    if not faces:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "face_not_detected",
+                "reason": "Wajah tidak terdeteksi pada foto. Silakan ulangi pemindaian.",
+            },
+        )
+    if len(faces) > 1:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "multiple_faces_detected",
+                "reason": "Terdapat lebih dari satu wajah pada foto. Silakan ulangi pemindaian.",
+            },
+        )
 
     face = faces[0].get("face")
     if face is None:
-        raise HTTPException(status_code=422, detail="face not detected")
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "face_not_detected",
+                "reason": "Wajah tidak terdeteksi pada foto. Silakan ulangi pemindaian.",
+            },
+        )
 
     return face
 
@@ -94,7 +157,7 @@ def _embedding_from_face(face: np.ndarray) -> np.ndarray:
         img_path=face,
         model_name=model_name,
         detector_backend="skip",
-        enforce_detection=False,
+        enforce_detection=True,
     )
 
     if not embedding_objs:
@@ -163,6 +226,32 @@ def verify_face(user_id: str = Form(...), image: UploadFile = File(...)):
         matched = confidence >= _get_threshold()
 
         return {"matched": matched, "confidence": confidence}
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=500, detail="internal error")
+
+
+@app.post("/detect-face")
+def detect_face(image: UploadFile = File(...)):
+    try:
+        pil_image = _load_image(image)
+        faces = _detect_faces(pil_image, enforce_detection=False)
+
+        if not faces:
+            raise HTTPException(
+                status_code=422,
+                detail={
+                    "error": "face_not_detected",
+                    "reason": "Wajah tidak terdeteksi pada foto. Silakan ulangi pemindaian.",
+                },
+            )
+
+        return {
+            "detector_backend": DEFAULT_DETECTOR,
+            "faces_detected": len(faces),
+            "image_resolution": {"width": pil_image.width, "height": pil_image.height},
+        }
     except HTTPException:
         raise
     except Exception:

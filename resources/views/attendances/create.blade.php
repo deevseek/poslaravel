@@ -148,17 +148,25 @@
             detectedStatusElement.textContent = 'Sistem akan menampilkan nama karyawan dan menyimpan absensi otomatis setelah wajah dikenali.';
         };
 
-        const captureSnapshot = () => {
+        const captureSnapshot = async () => {
             if (!videoElement.srcObject) {
                 statusElement.textContent = 'Kamera belum siap. Silakan izinkan akses kamera terlebih dahulu.';
                 return null;
             }
 
-            const width = videoElement.videoWidth || 640;
-            const height = videoElement.videoHeight || 480;
+            if (!videoElement.videoWidth || !videoElement.videoHeight) {
+                statusElement.textContent = 'Kamera belum siap. Tunggu sebentar, lalu coba lagi.';
+                return null;
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, 200));
+
+            const width = videoElement.videoWidth;
+            const height = videoElement.videoHeight;
             canvasElement.width = width;
             canvasElement.height = height;
             const context = canvasElement.getContext('2d');
+            context.imageSmoothingEnabled = false;
             context.drawImage(videoElement, 0, 0, width, height);
             const snapshot = canvasElement.toDataURL('image/jpeg', 0.9);
             snapshotInput.value = snapshot;
@@ -215,7 +223,7 @@
 
         captureButton.addEventListener('click', async () => {
             resetDetectedEmployee();
-            const snapshot = captureSnapshot();
+            const snapshot = await captureSnapshot();
             await handleIdentification(snapshot);
         });
     </script>

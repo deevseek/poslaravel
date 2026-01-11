@@ -132,17 +132,25 @@
             previewImage.classList.remove('hidden');
         };
 
-        const captureSnapshot = () => {
+        const captureSnapshot = async () => {
             if (! videoElement.srcObject) {
                 statusElement.textContent = 'Kamera belum aktif. Pastikan izin kamera sudah diberikan.';
                 return false;
             }
 
-            const width = videoElement.videoWidth || 640;
-            const height = videoElement.videoHeight || 480;
+            if (!videoElement.videoWidth || !videoElement.videoHeight) {
+                statusElement.textContent = 'Kamera belum siap. Tunggu sebentar, lalu coba lagi.';
+                return false;
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, 200));
+
+            const width = videoElement.videoWidth;
+            const height = videoElement.videoHeight;
             canvasElement.width = width;
             canvasElement.height = height;
             const context = canvasElement.getContext('2d');
+            context.imageSmoothingEnabled = false;
             context.drawImage(videoElement, 0, 0, width, height);
 
             const dataUrl = canvasElement.toDataURL('image/jpeg', 0.9);
@@ -166,8 +174,8 @@
                 .then(() => {
                     statusElement.textContent = 'Arahkan wajah ke kamera. Sistem akan merekam otomatis, atau klik tombol rekam bila diperlukan.';
                     if (! snapshotInput.value) {
-                        setTimeout(() => {
-                            if (! captureSnapshot()) {
+                        setTimeout(async () => {
+                            if (! await captureSnapshot()) {
                                 statusElement.textContent = 'Kamera aktif. Pastikan wajah terlihat jelas, lalu klik tombol rekam untuk menyimpan data wajah.';
                             }
                         }, 1000);
@@ -180,8 +188,8 @@
             statusElement.textContent = 'Perangkat ini tidak mendukung akses kamera melalui browser.';
         }
 
-        captureButton.addEventListener('click', () => {
-            if (! captureSnapshot()) {
+        captureButton.addEventListener('click', async () => {
+            if (! await captureSnapshot()) {
                 statusElement.textContent = 'Kamera aktif. Pastikan wajah terlihat jelas, lalu klik tombol rekam kembali.';
             }
         });
