@@ -13,6 +13,7 @@ use App\Http\Controllers\PosController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\WarrantyClaimController;
 use App\Http\Controllers\WarrantyController;
@@ -112,6 +113,9 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::resource('employees', EmployeeController::class)
+        ->middleware(['feature:hrd', 'can:hrd.manage']);
+    Route::resource('attendances', AttendanceController::class)
+        ->only(['index', 'create', 'store', 'show'])
         ->middleware(['feature:hrd', 'can:hrd.manage']);
 
     Route::resource('payrolls', PayrollController::class)
