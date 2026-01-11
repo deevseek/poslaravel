@@ -93,6 +93,27 @@
                     </li>
                 @endfeature
 
+                @if(app(\App\Support\SubscriptionFeatureService::class)->hasFeature('hrd')
+                    || app(\App\Support\SubscriptionFeatureService::class)->hasFeature('payroll'))
+                    <li class="nav-header">HRD</li>
+                    @feature('hrd')
+                        <li class="nav-item">
+                            <a href="{{ route('employees.index') }}" class="nav-link {{ request()->routeIs('employees.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-id-badge"></i>
+                                <p>Karyawan</p>
+                            </a>
+                        </li>
+                    @endfeature
+                    @feature('payroll')
+                        <li class="nav-item">
+                            <a href="{{ route('payrolls.index') }}" class="nav-link {{ request()->routeIs('payrolls.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-file-invoice-dollar"></i>
+                                <p>Payroll</p>
+                            </a>
+                        </li>
+                    @endfeature
+                @endif
+
                 @if(app(\App\Support\SubscriptionFeatureService::class)->hasFeature('users')
                     || app(\App\Support\SubscriptionFeatureService::class)->hasFeature('roles'))
                     <li class="nav-header">Pengguna</li>

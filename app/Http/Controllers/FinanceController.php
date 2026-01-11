@@ -69,7 +69,6 @@ class FinanceController extends Controller
 
         $operationalExpense = Finance::whereBetween('recorded_at', [$start, $end])
             ->where('type', 'expense')
-            ->where('source', 'manual')
             ->where('category', '!=', 'HPP')
             ->sum('nominal');
 
