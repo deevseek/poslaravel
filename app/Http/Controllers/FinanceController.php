@@ -83,7 +83,7 @@ class FinanceController extends Controller
         $activeSession = CashSession::active()->latest('opened_at')->first();
         $recentSessions = CashSession::orderByDesc('opened_at')->take(5)->get();
         $productAssetValue = Product::query()
-            ->selectRaw('COALESCE(SUM(cost_price * stock), 0) as total_asset_value')
+            ->selectRaw('COALESCE(SUM(COALESCE(cost_price, 0) * COALESCE(stock, 0)), 0) as total_asset_value')
             ->value('total_asset_value');
 
         return view('finances.index', [
