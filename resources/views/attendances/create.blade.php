@@ -7,7 +7,7 @@
         <a href="{{ route('attendances.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Kembali ke daftar</a>
     </div>
 
-    <form action="{{ route('attendances.store') }}" method="POST" class="space-y-6">
+    <form id="attendance-form" action="{{ route('attendances.store') }}" method="POST" class="space-y-6">
         @csrf
 
         <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm space-y-4">
@@ -122,8 +122,8 @@
         const canvasElement = document.getElementById('face-recognition-canvas');
         const detectedNameElement = document.getElementById('detected-employee-name');
         const detectedStatusElement = document.getElementById('detected-employee-status');
-        const attendanceForm = document.querySelector('form');
-        const csrfToken = document.querySelector('input[name="_token"]').value;
+        const attendanceForm = document.getElementById('attendance-form');
+        const csrfToken = attendanceForm.querySelector('input[name="_token"]').value;
         let autoSubmitInProgress = false;
 
         if (navigator.mediaDevices?.getUserMedia) {
