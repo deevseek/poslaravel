@@ -2,111 +2,159 @@
 
 namespace App\Services;
 
-use App\Exceptions\FaceRecognitionException;
+use App\Exceptions\FaceApiBadResponseException;
+use App\Exceptions\FaceApiUnavailableException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class FaceRecognitionService
 {
-    private string $baseUrl;
+    private string $verifyUrl;
+    private string $healthUrl;
     private int $timeout;
+    private ?string $lastHealthError = null;
 
     public function __construct()
     {
-        $this->baseUrl = rtrim(
-            (string) config('services.face_recognition.base_url', 'http://127.0.0.1:8000'),
-            '/',
-        );
-        $this->timeout = (int) config('services.face_recognition.timeout', 20);
+        $this->verifyUrl = (string) config('attendance.face_api_url');
+        $this->healthUrl = (string) config('attendance.face_api_health_url');
+        $this->timeout = (int) config('attendance.timeout', 20);
     }
 
-    public function registerFace(int|string $employeeId, string $imagePath): array
+    public function health(): bool
     {
-        return $this->sendRequest('/register-face', ['user_id' => (string) $employeeId], $imagePath);
-    }
-
-    public function verifyFace(int|string $employeeId, string $imagePath): array
-    {
-        return $this->sendRequest('/verify-face', ['user_id' => (string) $employeeId], $imagePath);
-    }
-
-    public function identifyFace(string $imagePath): array
-    {
-        return $this->sendRequest('/identify-face', [], $imagePath);
-    }
-
-    private function sendRequest(string $endpoint, array $fields, string $imagePath): array
-    {
-        $url = $this->baseUrl . $endpoint;
-
-        if (! is_file($imagePath)) {
-            throw new FaceRecognitionException('Snapshot wajah tidak ditemukan.', null, [
-                'error' => 'snapshot_missing',
-            ]);
-        }
+        $this->lastHealthError = null;
 
         try {
-            $response = Http::timeout($this->timeout)
-                ->attach('image', fopen($imagePath, 'rb'), $this->guessFilename($imagePath))
-                ->post($url, $fields);
+            $response = Http::timeout($this->timeout)->get($this->healthUrl);
         } catch (ConnectionException $exception) {
-            throw new FaceRecognitionException('Layanan face recognition tidak tersedia.', null, [
-                'error' => 'service_unavailable',
-            ], $exception);
+            $this->lastHealthError = 'connection_failed';
+            Log::warning('Face API health check connection failed.', [
+                'exception' => $exception->getMessage(),
+                'url' => $this->healthUrl,
+            ]);
+
+            return false;
         }
 
         if (! $response->ok()) {
-            $payload = $response->json();
-            $message = $this->extractErrorMessage($payload) ?? 'Permintaan face recognition gagal.';
-
-            throw new FaceRecognitionException($message, $response->status(), [
-                'error' => $payload['error'] ?? null,
-                'response' => $payload,
+            $this->lastHealthError = 'bad_response';
+            Log::warning('Face API health check failed.', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'url' => $this->healthUrl,
             ]);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public function lastHealthError(): ?string
+    {
+        return $this->lastHealthError;
+    }
+
+    public function verifyFace(string $base64Image, ?string $employeeId = null): array
+    {
+        return $this->postImage($this->verifyUrl, $base64Image, array_filter([
+            'employee_id' => $employeeId,
+        ], static fn ($value) => $value !== null));
+    }
+
+    public function registerFace(int|string $employeeId, string $base64Image): array
+    {
+        $url = $this->buildEndpointUrl('/register-face');
+
+        return $this->postImage($url, $base64Image, [
+            'user_id' => (string) $employeeId,
+        ]);
+    }
+
+    public function identifyFace(string $base64Image): array
+    {
+        $url = $this->buildEndpointUrl('/identify-face');
+
+        return $this->postImage($url, $base64Image, []);
+    }
+
+    private function postImage(string $url, string $base64Image, array $fields): array
+    {
+        [$decodedImage, $extension] = $this->decodeBase64Image($base64Image);
+        $filename = Str::uuid() . '.' . $extension;
+
+        try {
+            $response = Http::timeout($this->timeout)
+                ->attach('image', $decodedImage, $filename)
+                ->post($url, $fields);
+        } catch (ConnectionException $exception) {
+            Log::warning('Face API connection failed.', [
+                'exception' => $exception->getMessage(),
+                'url' => $url,
+            ]);
+
+            throw new FaceApiUnavailableException('Face API unavailable.', $exception);
+        }
+
+        if (! $response->ok()) {
+            Log::warning('Face API bad response.', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'url' => $url,
+            ]);
+
+            throw new FaceApiBadResponseException(
+                'Face API returned a bad response.',
+                $response->status(),
+                $response->body(),
+            );
         }
 
         $payload = $response->json();
         if (! is_array($payload)) {
-            throw new FaceRecognitionException('Respon face recognition tidak valid.', $response->status(), [
-                'error' => 'invalid_response',
+            Log::warning('Face API invalid JSON.', [
+                'body' => $response->body(),
+                'url' => $url,
             ]);
+
+            throw new FaceApiBadResponseException('Face API returned invalid JSON.', $response->status(), $response->body());
         }
 
         return $payload;
     }
 
-    private function extractErrorMessage(mixed $payload): ?string
+    private function decodeBase64Image(string $base64Image): array
     {
-        if (! is_array($payload)) {
-            return null;
+        if (! preg_match('/^data:image\/(png|jpeg|jpg|webp);base64,/', $base64Image, $matches)) {
+            throw new FaceApiBadResponseException('Invalid image data.', 422, $base64Image);
         }
 
-        $detail = $payload['detail'] ?? $payload['message'] ?? null;
-        if (is_string($detail)) {
-            return $detail;
+        $extension = match ($matches[1]) {
+            'jpeg', 'jpg' => 'jpg',
+            'webp' => 'webp',
+            default => 'png',
+        };
+
+        $encodedImage = substr($base64Image, strpos($base64Image, ',') + 1);
+        $decodedImage = base64_decode($encodedImage, true);
+
+        if ($decodedImage === false) {
+            throw new FaceApiBadResponseException('Invalid base64 payload.', 422, null);
         }
 
-        if (is_array($detail)) {
-            if (isset($detail['reason']) && is_string($detail['reason'])) {
-                return $detail['reason'];
-            }
-
-            if (isset($detail['message']) && is_string($detail['message'])) {
-                return $detail['message'];
-            }
-        }
-
-        return null;
+        return [$decodedImage, $extension];
     }
 
-    private function guessFilename(string $imagePath): string
+    private function buildEndpointUrl(string $path): string
     {
-        $extension = pathinfo($imagePath, PATHINFO_EXTENSION);
-        if (! $extension) {
-            $extension = 'jpg';
+        $verifyUrl = rtrim($this->verifyUrl, '/');
+        if (str_ends_with($verifyUrl, '/verify-face')) {
+            return substr($verifyUrl, 0, -strlen('/verify-face')) . $path;
         }
 
-        return Str::uuid() . '.' . $extension;
+        return $verifyUrl . $path;
     }
 }

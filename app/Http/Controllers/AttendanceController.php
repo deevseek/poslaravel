@@ -4,14 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\Employee;
-use App\Exceptions\FaceRecognitionException;
+use App\Exceptions\FaceApiBadResponseException;
+use App\Exceptions\FaceApiUnavailableException;
 use App\Services\FaceRecognitionService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class AttendanceController extends Controller
@@ -51,26 +51,25 @@ class AttendanceController extends Controller
             'face_recognition_snapshot' => ['required', 'string', 'regex:/^data:image\\/(png|jpeg|jpg|webp);base64,/'],
         ]);
 
-        $temporarySnapshotPath = $this->storeTemporarySnapshot($validated['face_recognition_snapshot']);
-
-        if (! $temporarySnapshotPath) {
-            return back()
-                ->withErrors(['face_recognition_snapshot' => 'Snapshot wajah tidak valid. Silakan ulangi pemindaian.'])
-                ->withInput();
-        }
-
-        $temporarySnapshotFullPath = Storage::disk('local')->path($temporarySnapshotPath);
-
         try {
             $employee = Employee::find($validated['employee_id']);
 
-            if (! $employee->face_recognition_scan_path || ! $employee->face_recognition_registered_at) {
+            if (! $employee->face_recognition_registered_at) {
                 return back()
                     ->withErrors(['employee_id' => 'Pengenalan wajah karyawan belum terdaftar. Silakan daftar terlebih dahulu di profil karyawan.'])
                     ->withInput();
             }
 
-            $verification = $this->faceRecognition->verifyFace($employee->id, $temporarySnapshotFullPath);
+            if (! $this->faceRecognition->health()) {
+                return back()
+                    ->withErrors(['face_recognition_snapshot' => $this->mapFaceRecognitionError('unavailable')])
+                    ->withInput();
+            }
+
+            $verification = $this->faceRecognition->verifyFace(
+                $validated['face_recognition_snapshot'],
+                (string) $employee->id,
+            );
 
             if (! empty($verification['error'])) {
                 return back()
@@ -80,17 +79,26 @@ class AttendanceController extends Controller
 
             if (empty($verification['matched'])) {
                 return back()
-                    ->withErrors(['face_recognition_snapshot' => 'Wajah terdeteksi tetapi tidak cocok dengan data terdaftar.'])
+                    ->withErrors(['face_recognition_snapshot' => $this->mapFaceRecognitionError('not_matched')])
                     ->withInput();
             }
-        } catch (FaceRecognitionException $exception) {
-            $error = $exception->context()['error'] ?? data_get($exception->context(), 'response.error');
+        } catch (FaceApiUnavailableException $exception) {
+            Log::warning('Face API unavailable during attendance verify.', [
+                'exception' => $exception->getMessage(),
+            ]);
 
             return back()
-                ->withErrors(['face_recognition_snapshot' => $this->mapFaceRecognitionError($error, $exception->getMessage())])
+                ->withErrors(['face_recognition_snapshot' => $this->mapFaceRecognitionError('unavailable')])
                 ->withInput();
-        } finally {
-            Storage::disk('local')->delete($temporarySnapshotPath);
+        } catch (FaceApiBadResponseException $exception) {
+            Log::warning('Face API bad response during attendance verify.', [
+                'status' => $exception->statusCode(),
+                'body' => $exception->responseBody(),
+            ]);
+
+            return back()
+                ->withErrors(['face_recognition_snapshot' => $this->mapFaceRecognitionError(null, $exception->getMessage())])
+                ->withInput();
         }
 
         $existingAttendance = Attendance::where('employee_id', $employee->id)
@@ -133,16 +141,8 @@ class AttendanceController extends Controller
             'attendance_date' => ['nullable', 'date'],
         ]);
 
-        $temporarySnapshotPath = $this->storeTemporarySnapshot($validated['face_recognition_snapshot']);
-
-        if (! $temporarySnapshotPath) {
-            return response()->json(['message' => 'Snapshot wajah tidak valid. Silakan ulangi pemindaian.'], 422);
-        }
-
-        $temporarySnapshotFullPath = Storage::disk('local')->path($temporarySnapshotPath);
-
         try {
-            $identification = $this->faceRecognition->identifyFace($temporarySnapshotFullPath);
+            $identification = $this->faceRecognition->identifyFace($validated['face_recognition_snapshot']);
 
             if (! empty($identification['error'])) {
                 return response()->json([
@@ -190,52 +190,37 @@ class AttendanceController extends Controller
                 ],
                 'already_attended' => $alreadyAttended,
             ]);
-        } catch (FaceRecognitionException $exception) {
-            $error = $exception->context()['error'] ?? data_get($exception->context(), 'response.error', 'service_unavailable');
+        } catch (FaceApiUnavailableException $exception) {
+            Log::warning('Face API unavailable during attendance identify.', [
+                'exception' => $exception->getMessage(),
+            ]);
 
             return response()->json([
                 'matched' => false,
-                'error' => $error,
-                'message' => $this->mapFaceRecognitionError($error, $exception->getMessage()),
+                'error' => 'unavailable',
+                'message' => $this->mapFaceRecognitionError('unavailable', $exception->getMessage()),
             ], 502);
-        } finally {
-            Storage::disk('local')->delete($temporarySnapshotPath);
+        } catch (FaceApiBadResponseException $exception) {
+            Log::warning('Face API bad response during attendance identify.', [
+                'status' => $exception->statusCode(),
+                'body' => $exception->responseBody(),
+            ]);
+
+            return response()->json([
+                'matched' => false,
+                'error' => 'unavailable',
+                'message' => $this->mapFaceRecognitionError('unavailable', $exception->getMessage()),
+            ], 502);
         }
-    }
-
-    private function storeTemporarySnapshot(string $snapshot): ?string
-    {
-        if (! preg_match('/^data:image\\/(png|jpeg|jpg|webp);base64,/', $snapshot)) {
-            return null;
-        }
-
-        $extension = match (true) {
-            str_contains($snapshot, 'image/jpeg') => 'jpg',
-            str_contains($snapshot, 'image/jpg') => 'jpg',
-            str_contains($snapshot, 'image/webp') => 'webp',
-            default => 'png',
-        };
-
-        $encodedImage = substr($snapshot, strpos($snapshot, ',') + 1);
-        $decodedImage = base64_decode($encodedImage, true);
-
-        if ($decodedImage === false) {
-            return null;
-        }
-
-        $filename = 'face-recognition-temp/' . Str::uuid() . '.' . $extension;
-        Storage::disk('local')->put($filename, $decodedImage);
-
-        return $filename;
     }
 
     private function mapFaceRecognitionError(?string $error, ?string $fallback = null): string
     {
         return match ($error) {
             'no_face_detected' => 'Wajah tidak terdeteksi pada foto. Silakan ulangi pemindaian.',
-            'multiple_faces_detected' => 'Terdapat lebih dari satu wajah pada foto. Silakan ulangi pemindaian.',
-            'face_not_registered' => 'Wajah karyawan belum terdaftar. Silakan daftar terlebih dahulu di profil karyawan.',
-            'service_unavailable' => 'Layanan face recognition tidak tersedia. Silakan coba beberapa saat lagi.',
+            'not_matched' => 'Wajah terdeteksi tetapi tidak cocok dengan data terdaftar.',
+            'face_not_matched' => 'Wajah terdeteksi tetapi tidak cocok dengan data terdaftar.',
+            'unavailable' => 'Layanan face recognition tidak tersedia. Silakan coba beberapa saat lagi.',
             default => $fallback ?? 'Terjadi kesalahan saat memverifikasi wajah. Silakan ulangi.',
         };
     }
