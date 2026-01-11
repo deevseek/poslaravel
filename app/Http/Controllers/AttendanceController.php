@@ -4,15 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\Employee;
+use App\Services\FaceRecognitionService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class AttendanceController extends Controller
 {
+    public function __construct(private readonly FaceRecognitionService $faceRecognition)
+    {
+    }
+
     public function index(): View
     {
         $attendances = Attendance::with('employee')
@@ -41,29 +47,44 @@ class AttendanceController extends Controller
             'check_in_time' => ['required', 'date_format:H:i'],
             'check_out_time' => ['nullable', 'date_format:H:i', 'after_or_equal:check_in_time'],
             'note' => ['nullable', 'string', 'max:500'],
-            'face_recognition_code' => ['required', 'string', 'max:255'],
+            'face_recognition_snapshot' => ['required', 'string', 'regex:/^data:image\\/(png|jpeg|jpg|webp);base64,/'],
         ]);
 
-        $employee = $validated['employee_id']
-            ? Employee::find($validated['employee_id'])
-            : $this->matchEmployeeByFaceCode($validated['face_recognition_code']);
+        $temporarySnapshotPath = $this->storeTemporarySnapshot($validated['face_recognition_snapshot']);
 
-        if (! $employee) {
+        if (! $temporarySnapshotPath) {
             return back()
-                ->withErrors(['face_recognition_code' => 'Pengenalan wajah tidak cocok dengan data terdaftar.'])
+                ->withErrors(['face_recognition_snapshot' => 'Snapshot wajah tidak valid. Silakan ulangi pemindaian.'])
                 ->withInput();
         }
 
-        if (! $employee->face_recognition_signature || ! $employee->face_recognition_registered_at) {
-            return back()
-                ->withErrors(['employee_id' => 'Pengenalan wajah karyawan belum terdaftar. Silakan daftar terlebih dahulu di profil karyawan.'])
-                ->withInput();
-        }
+        $temporarySnapshotFullPath = Storage::disk('local')->path($temporarySnapshotPath);
 
-        if (! Hash::check($validated['face_recognition_code'], $employee->face_recognition_signature)) {
-            return back()
-                ->withErrors(['face_recognition_code' => 'Pengenalan wajah tidak cocok dengan data terdaftar.'])
-                ->withInput();
+        try {
+            $employee = $validated['employee_id']
+                ? Employee::find($validated['employee_id'])
+                : $this->matchEmployeeByFaceSnapshot($temporarySnapshotFullPath);
+
+            if (! $employee) {
+                return back()
+                    ->withErrors(['face_recognition_snapshot' => 'Pengenalan wajah tidak cocok dengan data terdaftar.'])
+                    ->withInput();
+            }
+
+            if (! $employee->face_recognition_scan_path || ! $employee->face_recognition_registered_at) {
+                return back()
+                    ->withErrors(['employee_id' => 'Pengenalan wajah karyawan belum terdaftar. Silakan daftar terlebih dahulu di profil karyawan.'])
+                    ->withInput();
+            }
+
+            $referencePath = Storage::disk('public')->path($employee->face_recognition_scan_path);
+            if (! $this->faceRecognition->matchSnapshot($referencePath, $employee->face_recognition_signature, $temporarySnapshotFullPath)) {
+                return back()
+                    ->withErrors(['face_recognition_snapshot' => 'Pengenalan wajah tidak cocok dengan data terdaftar.'])
+                    ->withInput();
+            }
+        } finally {
+            Storage::disk('local')->delete($temporarySnapshotPath);
         }
 
         $existingAttendance = Attendance::where('employee_id', $employee->id)
@@ -102,47 +123,86 @@ class AttendanceController extends Controller
     public function identify(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'face_recognition_code' => ['required', 'string', 'max:255'],
+            'face_recognition_snapshot' => ['required', 'string', 'regex:/^data:image\\/(png|jpeg|jpg|webp);base64,/'],
             'attendance_date' => ['nullable', 'date'],
         ]);
 
-        $employee = $this->matchEmployeeByFaceCode($validated['face_recognition_code']);
+        $temporarySnapshotPath = $this->storeTemporarySnapshot($validated['face_recognition_snapshot']);
 
-        if (! $employee) {
-            return response()->json(['message' => 'Pengenalan wajah tidak cocok dengan data terdaftar.'], 404);
+        if (! $temporarySnapshotPath) {
+            return response()->json(['message' => 'Snapshot wajah tidak valid. Silakan ulangi pemindaian.'], 422);
         }
 
-        $alreadyAttended = false;
-        if (! empty($validated['attendance_date'])) {
-            $alreadyAttended = Attendance::where('employee_id', $employee->id)
-                ->where('attendance_date', $validated['attendance_date'])
-                ->exists();
-        }
+        $temporarySnapshotFullPath = Storage::disk('local')->path($temporarySnapshotPath);
 
-        return response()->json([
-            'employee' => [
-                'id' => $employee->id,
-                'name' => $employee->name,
-                'position' => $employee->position,
-            ],
-            'already_attended' => $alreadyAttended,
-        ]);
+        try {
+            $employee = $this->matchEmployeeByFaceSnapshot($temporarySnapshotFullPath);
+
+            if (! $employee) {
+                return response()->json(['message' => 'Pengenalan wajah tidak cocok dengan data terdaftar.'], 404);
+            }
+
+            $alreadyAttended = false;
+            if (! empty($validated['attendance_date'])) {
+                $alreadyAttended = Attendance::where('employee_id', $employee->id)
+                    ->where('attendance_date', $validated['attendance_date'])
+                    ->exists();
+            }
+
+            return response()->json([
+                'employee' => [
+                    'id' => $employee->id,
+                    'name' => $employee->name,
+                    'position' => $employee->position,
+                ],
+                'already_attended' => $alreadyAttended,
+            ]);
+        } finally {
+            Storage::disk('local')->delete($temporarySnapshotPath);
+        }
     }
 
-    protected function matchEmployeeByFaceCode(string $faceCode): ?Employee
+    protected function matchEmployeeByFaceSnapshot(string $snapshotPath): ?Employee
     {
         $employees = Employee::query()
             ->where('is_active', true)
-            ->whereNotNull('face_recognition_signature')
+            ->whereNotNull('face_recognition_scan_path')
             ->whereNotNull('face_recognition_registered_at')
             ->get();
 
         foreach ($employees as $employee) {
-            if (Hash::check($faceCode, $employee->face_recognition_signature)) {
+            $referencePath = Storage::disk('public')->path($employee->face_recognition_scan_path);
+            if ($this->faceRecognition->matchSnapshot($referencePath, $employee->face_recognition_signature, $snapshotPath)) {
                 return $employee;
             }
         }
 
         return null;
+    }
+
+    private function storeTemporarySnapshot(string $snapshot): ?string
+    {
+        if (! preg_match('/^data:image\\/(png|jpeg|jpg|webp);base64,/', $snapshot)) {
+            return null;
+        }
+
+        $extension = match (true) {
+            str_contains($snapshot, 'image/jpeg') => 'jpg',
+            str_contains($snapshot, 'image/jpg') => 'jpg',
+            str_contains($snapshot, 'image/webp') => 'webp',
+            default => 'png',
+        };
+
+        $encodedImage = substr($snapshot, strpos($snapshot, ',') + 1);
+        $decodedImage = base64_decode($encodedImage, true);
+
+        if ($decodedImage === false) {
+            return null;
+        }
+
+        $filename = 'face-recognition-temp/' . Str::uuid() . '.' . $extension;
+        Storage::disk('local')->put($filename, $decodedImage);
+
+        return $filename;
     }
 }
