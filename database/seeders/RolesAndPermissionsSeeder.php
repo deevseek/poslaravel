@@ -38,6 +38,8 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'Catat Pengeluaran', 'slug' => 'finance.create_expense'],
             ['name' => 'Tutup Kas', 'slug' => 'finance.close_cash'],
             ['name' => 'Laporan Keuangan', 'slug' => 'finance.report'],
+            ['name' => 'Kelola HRD', 'slug' => 'hrd.manage'],
+            ['name' => 'Kelola Payroll', 'slug' => 'payroll.manage'],
             ['name' => 'Lihat Laporan', 'slug' => 'report.view'],
             ['name' => 'Ekspor Laporan', 'slug' => 'report.export'],
             ['name' => 'Lihat Pengaturan', 'slug' => 'settings.view'],

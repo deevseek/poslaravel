@@ -12,6 +12,8 @@ use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\FinanceController;
+use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\WarrantyClaimController;
 use App\Http\Controllers\WarrantyController;
 use App\Http\Controllers\SettingController;
@@ -108,6 +110,13 @@ Route::middleware(['auth'])->group(function () {
         Route::post('finances/cash/close', 'closeCash')->name('finances.cash.close')->middleware(['feature:finance', 'can:finance.close_cash']);
         Route::get('finances/export', 'export')->name('finances.export')->middleware(['feature:finance', 'can:finance.report']);
     });
+
+    Route::resource('employees', EmployeeController::class)
+        ->middleware(['feature:hrd', 'can:hrd.manage']);
+
+    Route::resource('payrolls', PayrollController::class)
+        ->only(['index', 'create', 'store', 'show', 'destroy'])
+        ->middleware(['feature:payroll', 'can:payroll.manage']);
 
     Route::get('warranties/reminders', [WarrantyController::class, 'reminder'])
         ->middleware(['feature:warranty', 'can:warranty.view'])
