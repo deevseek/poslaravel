@@ -7,7 +7,7 @@
         <a href="{{ route('employees.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Kembali ke daftar</a>
     </div>
 
-    <form action="{{ route('employees.store') }}" method="POST" class="space-y-6">
+    <form action="{{ route('employees.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
         @csrf
 
         <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm space-y-4">
@@ -83,14 +83,22 @@
 
             <div class="rounded-lg border border-blue-100 bg-blue-50 p-4">
                 <p class="text-sm font-semibold text-blue-700">Pendaftaran Retina</p>
-                <p class="mt-1 text-xs text-blue-600">Masukkan kode retina yang direkam dari kamera agar absensi hanya bisa dilakukan oleh pemilik retina.</p>
-                <div class="mt-3">
+                <p class="mt-1 text-xs text-blue-600">Masukkan kode retina dan unggah hasil scan retina agar absensi hanya bisa dilakukan oleh pemilik retina.</p>
+                <div class="mt-3 space-y-3">
                     <label class="block text-sm font-semibold text-gray-700" for="retina_scan_code">Kode Retina (opsional)</label>
                     <input type="text" id="retina_scan_code" name="retina_scan_code" value="{{ old('retina_scan_code') }}"
                         class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
                     @error('retina_scan_code')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700" for="retina_scan_image">Upload Scan Retina (opsional)</label>
+                        <input type="file" id="retina_scan_image" name="retina_scan_image" accept="image/*"
+                            class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
+                        @error('retina_scan_image')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
             </div>
         </div>

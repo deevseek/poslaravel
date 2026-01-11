@@ -69,6 +69,12 @@
                 @else
                     <p class="text-sm text-gray-600">Belum terdaftar</p>
                 @endif
+                @if ($employee->retina_scan_path)
+                    <div class="mt-2">
+                        <p class="text-xs text-gray-500">Scan retina tersimpan</p>
+                        <img src="{{ Storage::url($employee->retina_scan_path) }}" alt="Scan retina {{ $employee->name }}" class="mt-1 h-24 w-24 rounded-lg border border-gray-200 object-cover">
+                    </div>
+                @endif
             </div>
         </div>
 

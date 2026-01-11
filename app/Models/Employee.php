@@ -21,6 +21,7 @@ class Employee extends Model
         'is_active',
         'retina_signature',
         'retina_registered_at',
+        'retina_scan_path',
     ];
 
     protected $casts = [

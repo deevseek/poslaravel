@@ -6,6 +6,7 @@ use App\Models\Employee;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class EmployeeController extends Controller
@@ -34,16 +35,21 @@ class EmployeeController extends Controller
             'base_salary' => ['nullable', 'numeric', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
             'retina_scan_code' => ['nullable', 'string', 'max:255'],
+            'retina_scan_image' => ['nullable', 'image', 'max:4096'],
         ]);
 
         $validated['is_active'] = (bool) ($validated['is_active'] ?? true);
+
+        if ($request->hasFile('retina_scan_image')) {
+            $validated['retina_scan_path'] = $request->file('retina_scan_image')->store('retina-scans', 'public');
+        }
 
         if (! empty($validated['retina_scan_code'])) {
             $validated['retina_signature'] = Hash::make($validated['retina_scan_code']);
             $validated['retina_registered_at'] = now();
         }
 
-        unset($validated['retina_scan_code']);
+        unset($validated['retina_scan_code'], $validated['retina_scan_image']);
 
         Employee::create($validated);
 
@@ -74,12 +80,23 @@ class EmployeeController extends Controller
             'base_salary' => ['nullable', 'numeric', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
             'retina_scan_code' => ['nullable', 'string', 'max:255'],
+            'retina_scan_image' => ['nullable', 'image', 'max:4096'],
             'reset_retina' => ['nullable', 'boolean'],
+            'remove_retina_scan' => ['nullable', 'boolean'],
         ]);
 
         $validated['is_active'] = (bool) ($validated['is_active'] ?? false);
+        $resetRetina = ! empty($validated['reset_retina']);
+        $removeRetinaScan = ! empty($validated['remove_retina_scan']);
 
-        if (! empty($validated['reset_retina'])) {
+        if ($resetRetina || $removeRetinaScan) {
+            if ($employee->retina_scan_path) {
+                Storage::disk('public')->delete($employee->retina_scan_path);
+            }
+            $validated['retina_scan_path'] = null;
+        }
+
+        if ($resetRetina) {
             $validated['retina_signature'] = null;
             $validated['retina_registered_at'] = null;
         } elseif (! empty($validated['retina_scan_code'])) {
@@ -87,7 +104,15 @@ class EmployeeController extends Controller
             $validated['retina_registered_at'] = now();
         }
 
-        unset($validated['retina_scan_code'], $validated['reset_retina']);
+        if ($request->hasFile('retina_scan_image')) {
+            if ($employee->retina_scan_path) {
+                Storage::disk('public')->delete($employee->retina_scan_path);
+            }
+
+            $validated['retina_scan_path'] = $request->file('retina_scan_image')->store('retina-scans', 'public');
+        }
+
+        unset($validated['retina_scan_code'], $validated['retina_scan_image'], $validated['reset_retina'], $validated['remove_retina_scan']);
 
         $employee->update($validated);
 
