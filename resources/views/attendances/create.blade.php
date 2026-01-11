@@ -195,13 +195,30 @@
                     }),
                 });
 
+                const data = await response.json().catch(() => ({}));
+
                 if (!response.ok) {
                     resetDetectedEmployee();
-                    detectedStatusElement.textContent = 'Wajah belum terdaftar atau tidak dikenali.';
+                    switch (data.error) {
+                        case 'no_face_detected':
+                            detectedStatusElement.textContent = 'Wajah tidak terdeteksi. Pastikan pencahayaan cukup, lalu coba lagi.';
+                            break;
+                        case 'multiple_faces_detected':
+                            detectedStatusElement.textContent = 'Terdapat lebih dari satu wajah pada foto. Silakan ulangi.';
+                            break;
+                        case 'face_not_matched':
+                            detectedStatusElement.textContent = 'Wajah terdeteksi tetapi tidak cocok dengan data karyawan.';
+                            break;
+                        case 'service_unavailable':
+                            detectedStatusElement.textContent = 'Layanan face recognition sedang tidak tersedia. Coba lagi nanti.';
+                            break;
+                        default:
+                            detectedStatusElement.textContent = data.message || 'Wajah belum terdaftar atau tidak dikenali.';
+                            break;
+                    }
                     return;
                 }
 
-                const data = await response.json();
                 const employeeLabel = `${data.employee.name}${data.employee.position ? ' - ' + data.employee.position : ''}`;
 
                 employeeSelect.value = data.employee.id;
@@ -220,6 +237,13 @@
                 detectedStatusElement.textContent = 'Gagal memverifikasi wajah. Silakan coba lagi.';
             }
         };
+
+        attendanceForm.addEventListener('submit', (event) => {
+            if (!snapshotInput.value) {
+                event.preventDefault();
+                detectedStatusElement.textContent = 'Silakan lakukan scan wajah terlebih dahulu sebelum menyimpan absensi.';
+            }
+        });
 
         captureButton.addEventListener('click', async () => {
             resetDetectedEmployee();
