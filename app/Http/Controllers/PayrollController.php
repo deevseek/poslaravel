@@ -6,6 +6,7 @@ use App\Models\CashSession;
 use App\Models\Employee;
 use App\Models\Finance;
 use App\Models\Payroll;
+use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -76,6 +77,20 @@ class PayrollController extends Controller
         $payroll->load('employee');
 
         return view('payrolls.show', compact('payroll'));
+    }
+
+    public function slip(Payroll $payroll): View
+    {
+        $payroll->load('employee');
+
+        $store = [
+            'name' => Setting::getValue(Setting::STORE_NAME, config('app.name')),
+            'address' => Setting::getValue(Setting::STORE_ADDRESS),
+            'phone' => Setting::getValue(Setting::STORE_PHONE),
+            'logo' => Setting::getValue(Setting::STORE_LOGO_PATH),
+        ];
+
+        return view('payrolls.slip', compact('payroll', 'store'));
     }
 
     public function edit(Payroll $payroll): View

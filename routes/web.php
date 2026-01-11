@@ -117,6 +117,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('payrolls', PayrollController::class)
         ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
         ->middleware(['feature:payroll', 'can:payroll.manage']);
+    Route::get('payrolls/{payroll}/slip', [PayrollController::class, 'slip'])
+        ->middleware(['feature:payroll', 'can:payroll.manage'])
+        ->name('payrolls.slip');
 
     Route::get('warranties/reminders', [WarrantyController::class, 'reminder'])
         ->middleware(['feature:warranty', 'can:warranty.view'])
