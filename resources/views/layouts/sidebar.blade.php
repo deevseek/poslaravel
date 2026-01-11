@@ -103,6 +103,12 @@
                                 <p>Karyawan</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ route('attendances.index') }}" class="nav-link {{ request()->routeIs('attendances.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-eye"></i>
+                                <p>Absensi</p>
+                            </a>
+                        </li>
                     @endfeature
                     @feature('payroll')
                         <li class="nav-item">
