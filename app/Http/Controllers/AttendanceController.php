@@ -129,8 +129,8 @@ class AttendanceController extends Controller
                     ->withInput();
             }
 
-            $checkIn = Carbon::createFromFormat('H:i', $attendance->check_in_time);
-            $checkOut = Carbon::createFromFormat('H:i', $validated['check_out_time']);
+            $checkIn = Carbon::parse($attendance->check_in_time);
+            $checkOut = Carbon::parse($validated['check_out_time']);
 
             if ($checkOut->lessThan($checkIn)) {
                 return back()
