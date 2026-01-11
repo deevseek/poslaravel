@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CashSession;
 use App\Models\Finance;
+use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -81,6 +82,9 @@ class FinanceController extends Controller
 
         $activeSession = CashSession::active()->latest('opened_at')->first();
         $recentSessions = CashSession::orderByDesc('opened_at')->take(5)->get();
+        $productAssetValue = Product::query()
+            ->selectRaw('COALESCE(SUM(cost_price * stock), 0) as total_asset_value')
+            ->value('total_asset_value');
 
         return view('finances.index', [
             'finances' => $finances,
@@ -101,6 +105,7 @@ class FinanceController extends Controller
             'net_profit' => $netProfit,
             'todayIncome' => $todayIncome,
             'todayExpense' => $todayExpense,
+            'productAssetValue' => $productAssetValue,
             'month' => $month,
             'activeSession' => $activeSession,
             'recentSessions' => $recentSessions,

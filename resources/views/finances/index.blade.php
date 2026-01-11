@@ -208,6 +208,10 @@
                             <p class="text-xl font-semibold text-gray-900">Rp {{ number_format($serviceIncome, 0, ',', '.') }}</p>
                         </div>
                         <div class="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                            <p class="text-sm text-gray-600">Nilai Aset Produk</p>
+                            <p class="text-xl font-semibold text-gray-900">Rp {{ number_format($productAssetValue, 0, ',', '.') }}</p>
+                        </div>
+                        <div class="rounded-lg border border-gray-100 bg-gray-50 p-4">
                             <p class="text-sm text-gray-600">HPP POS</p>
                             <p class="text-xl font-semibold text-red-700">Rp {{ number_format($posHpp, 0, ',', '.') }}</p>
                         </div>
