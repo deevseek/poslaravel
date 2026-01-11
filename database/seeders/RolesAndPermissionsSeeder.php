@@ -128,6 +128,26 @@ class RolesAndPermissionsSeeder extends Seeder
                     'settings.view',
                 ])->pluck('id'),
             ],
+            'hrd' => [
+                'name' => 'HRD',
+                'description' => 'Mengelola data karyawan dan administrasi HRD',
+                'permissions' => $permissions->only([
+                    'dashboard.view',
+                    'hrd.manage',
+                    'payroll.manage',
+                    'report.view',
+                    'settings.view',
+                ])->pluck('id'),
+            ],
+            'payroll' => [
+                'name' => 'Payroll',
+                'description' => 'Mengelola proses penggajian karyawan',
+                'permissions' => $permissions->only([
+                    'dashboard.view',
+                    'payroll.manage',
+                    'report.view',
+                ])->pluck('id'),
+            ],
         ];
 
         foreach ($roles as $slug => $roleData) {
