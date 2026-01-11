@@ -65,6 +65,14 @@
                         <p class="text-xs text-blue-600">Pegawai mendekatkan mata ke kamera/webcam, lalu sistem memverifikasi identitas melalui pola retina.</p>
                     </div>
                 </div>
+                <div class="mt-4">
+                    <div class="overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+                        <video id="retina-webcam" class="h-56 w-full object-cover" autoplay playsinline muted></video>
+                    </div>
+                    <p id="retina-webcam-status" class="mt-2 text-xs text-gray-500">
+                        Izinkan akses kamera agar pratinjau webcam tampil.
+                    </p>
+                </div>
             </div>
 
             <div>
@@ -82,4 +90,23 @@
             <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">Simpan Absensi</button>
         </div>
     </form>
+
+    <script>
+        const videoElement = document.getElementById('retina-webcam');
+        const statusElement = document.getElementById('retina-webcam-status');
+
+        if (navigator.mediaDevices?.getUserMedia) {
+            navigator.mediaDevices
+                .getUserMedia({ video: { facingMode: 'user' } })
+                .then((stream) => {
+                    videoElement.srcObject = stream;
+                    statusElement.textContent = 'Arahkan mata ke kamera untuk memulai pemindaian.';
+                })
+                .catch(() => {
+                    statusElement.textContent = 'Tidak dapat mengakses kamera. Pastikan izin kamera sudah diaktifkan.';
+                });
+        } else {
+            statusElement.textContent = 'Perangkat ini tidak mendukung akses kamera melalui browser.';
+        }
+    </script>
 </x-app-layout>
