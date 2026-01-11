@@ -5,12 +5,26 @@
             <p class="text-gray-600">Informasi lengkap dan riwayat payroll.</p>
         </div>
         <div class="flex items-center gap-3">
+            @permission('hrd.manage')
+                <a href="{{ route('employees.edit', $employee) }}" class="rounded-lg border border-blue-200 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50">Edit Karyawan</a>
+                <form action="{{ route('employees.destroy', $employee) }}" method="POST" onsubmit="return confirm('Hapus data karyawan ini?')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="rounded-lg border border-red-200 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">Hapus</button>
+                </form>
+            @endpermission
             @feature('payroll')
                 <a href="{{ route('payrolls.create', ['employee_id' => $employee->id]) }}" class="rounded-lg border border-blue-200 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50">Catat Payroll</a>
             @endfeature
             <a href="{{ route('employees.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Kembali ke daftar</a>
         </div>
     </div>
+
+    @if (session('success'))
+        <div class="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
+            {{ session('success') }}
+        </div>
+    @endif
 
     <div class="grid gap-6 lg:grid-cols-3">
         <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm space-y-3">

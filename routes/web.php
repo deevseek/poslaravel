@@ -115,7 +115,7 @@ Route::middleware(['auth'])->group(function () {
         ->middleware(['feature:hrd', 'can:hrd.manage']);
 
     Route::resource('payrolls', PayrollController::class)
-        ->only(['index', 'create', 'store', 'show', 'destroy'])
+        ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
         ->middleware(['feature:payroll', 'can:payroll.manage']);
 
     Route::get('warranties/reminders', [WarrantyController::class, 'reminder'])
