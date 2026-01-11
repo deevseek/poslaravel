@@ -19,12 +19,15 @@ class Employee extends Model
         'join_date',
         'base_salary',
         'is_active',
+        'retina_signature',
+        'retina_registered_at',
     ];
 
     protected $casts = [
         'join_date' => 'date',
         'base_salary' => 'decimal:2',
         'is_active' => 'boolean',
+        'retina_registered_at' => 'datetime',
     ];
 
     public function payrolls(): HasMany

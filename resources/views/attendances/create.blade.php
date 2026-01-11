@@ -19,7 +19,7 @@
                         <option value="">Pilih karyawan</option>
                         @foreach ($employees as $employee)
                             <option value="{{ $employee->id }}" {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
-                                {{ $employee->name }} {{ $employee->position ? ' - ' . $employee->position : '' }}
+                                {{ $employee->name }} {{ $employee->position ? ' - ' . $employee->position : '' }} {{ $employee->retina_registered_at ? '' : '(Retina belum terdaftar)' }}
                             </option>
                         @endforeach
                     </select>
@@ -63,6 +63,7 @@
                     <div>
                         <p class="font-semibold">Scan Retina via Webcam</p>
                         <p class="text-xs text-blue-600">Pegawai mendekatkan mata ke kamera/webcam, lalu sistem memverifikasi identitas melalui pola retina.</p>
+                        <p class="text-xs text-blue-600">Pastikan retina karyawan sudah terdaftar pada profil karyawan sebelum melakukan absensi.</p>
                     </div>
                 </div>
                 <div class="mt-4">
@@ -73,6 +74,16 @@
                         Izinkan akses kamera agar pratinjau webcam tampil.
                     </p>
                 </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700" for="retina_scan_code">Kode Scan Retina</label>
+                <input type="text" id="retina_scan_code" name="retina_scan_code" value="{{ old('retina_scan_code') }}" required
+                    class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
+                <p class="mt-1 text-xs text-gray-500">Kode ini harus sesuai dengan retina yang sudah didaftarkan agar absensi tidak bisa dipalsukan.</p>
+                @error('retina_scan_code')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
             </div>
 
             <div>

@@ -81,6 +81,32 @@
                     <label class="text-sm font-semibold text-gray-700" for="is_active">Aktif</label>
                 </div>
             </div>
+
+            <div class="rounded-lg border border-blue-100 bg-blue-50 p-4">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <p class="text-sm font-semibold text-blue-700">Pendaftaran Retina</p>
+                    @if ($employee->retina_registered_at)
+                        <span class="rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-700">Terdaftar {{ $employee->retina_registered_at->format('d M Y H:i') }}</span>
+                    @else
+                        <span class="rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-600">Belum terdaftar</span>
+                    @endif
+                </div>
+                <p class="mt-1 text-xs text-blue-600">Perbarui kode retina jika ada perekaman ulang. Centang reset untuk menghapus data retina lama.</p>
+                <div class="mt-3 grid gap-3 md:grid-cols-2">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700" for="retina_scan_code">Kode Retina Baru (opsional)</label>
+                        <input type="text" id="retina_scan_code" name="retina_scan_code" value="{{ old('retina_scan_code') }}"
+                            class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
+                        @error('retina_scan_code')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="reset_retina" name="reset_retina" value="1" class="h-4 w-4 rounded border-gray-300 text-blue-600" {{ old('reset_retina') ? 'checked' : '' }}>
+                        <label class="text-sm font-semibold text-gray-700" for="reset_retina">Reset data retina</label>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="flex justify-end gap-3">

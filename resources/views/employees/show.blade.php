@@ -61,6 +61,15 @@
                     <span class="rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-600">Nonaktif</span>
                 @endif
             </div>
+            <div>
+                <p class="text-sm text-gray-500">Retina</p>
+                @if ($employee->retina_registered_at)
+                    <p class="text-sm font-semibold text-gray-900">Terdaftar</p>
+                    <p class="text-xs text-gray-600">{{ $employee->retina_registered_at->format('d M Y H:i') }}</p>
+                @else
+                    <p class="text-sm text-gray-600">Belum terdaftar</p>
+                @endif
+            </div>
         </div>
 
         <div class="lg:col-span-2">
