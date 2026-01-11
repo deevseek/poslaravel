@@ -111,6 +111,9 @@
                 .getUserMedia({ video: { facingMode: 'user' } })
                 .then((stream) => {
                     videoElement.srcObject = stream;
+                    return videoElement.play();
+                })
+                .then(() => {
                     statusElement.textContent = 'Arahkan mata ke kamera untuk memulai pemindaian.';
                 })
                 .catch(() => {
