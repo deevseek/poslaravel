@@ -187,10 +187,12 @@ Route::middleware(['auth'])->group(function () {
             ->except(['show']);
     });
 
-    Route::resource('roles', RoleController::class)
+Route::resource('roles', RoleController::class)
         ->middleware(['feature:roles', 'can:role.manage']);
     Route::resource('users', UserController::class)
         ->middleware(['feature:users', 'can:user.manage']);
 });
+
+require base_path('app/Modules/Attendance/routes.php');
 
 require __DIR__.'/auth.php';
