@@ -25,6 +25,7 @@ use App\Http\Controllers\TenantController;
 use App\Http\Controllers\TenantRegistrationController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\HrdSettingController;
 
 Route::get('/', [TenantRegistrationController::class, 'landing'])->name('landing');
 Route::post('tenant-registrations', [TenantRegistrationController::class, 'store'])
@@ -114,6 +115,12 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('employees', EmployeeController::class)
         ->middleware(['feature:hrd', 'can:hrd.manage']);
+    Route::get('hrd/settings', [HrdSettingController::class, 'index'])
+        ->middleware(['feature:hrd', 'can:hrd.manage'])
+        ->name('hrd-settings.index');
+    Route::post('hrd/settings', [HrdSettingController::class, 'update'])
+        ->middleware(['feature:hrd', 'can:hrd.manage'])
+        ->name('hrd-settings.update');
     Route::post('attendances/identify', [AttendanceController::class, 'identify'])
         ->middleware(['feature:hrd', 'can:hrd.manage'])
         ->name('attendances.identify');

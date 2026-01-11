@@ -45,19 +45,21 @@
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700" for="check_in_time">Jam Check-in</label>
-                    <input type="time" id="check_in_time" name="check_in_time" value="{{ old('check_in_time', now()->format('H:i')) }}" required
+                    <input type="time" id="check_in_time" name="check_in_time" value="{{ old('check_in_time', $workStart ?? now()->format('H:i')) }}" required
                         class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
                     @error('check_in_time')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
+                    <p class="mt-1 text-xs text-gray-500">Jam masuk standar: {{ $workStart ?? '09:00' }}</p>
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700" for="check_out_time">Jam Check-out (opsional)</label>
-                    <input type="time" id="check_out_time" name="check_out_time" value="{{ old('check_out_time') }}"
+                    <input type="time" id="check_out_time" name="check_out_time" value="{{ old('check_out_time', $workEnd ?? '') }}"
                         class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
                     @error('check_out_time')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
+                    <p class="mt-1 text-xs text-gray-500">Jam pulang standar: {{ $workEnd ?? '17:00' }}</p>
                 </div>
             </div>
 

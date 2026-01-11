@@ -109,6 +109,12 @@
                                 <p>Absensi</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ route('hrd-settings.index') }}" class="nav-link {{ request()->routeIs('hrd-settings.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-user-clock"></i>
+                                <p>Pengaturan HRD</p>
+                            </a>
+                        </li>
                     @endfeature
                     @feature('payroll')
                         <li class="nav-item">
