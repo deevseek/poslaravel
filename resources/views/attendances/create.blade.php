@@ -2,7 +2,7 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-2xl font-semibold text-gray-900">Catat Absensi</h1>
-            <p class="text-gray-600">Rekam kehadiran pegawai menggunakan pemindaian retina.</p>
+            <p class="text-gray-600">Rekam kehadiran pegawai dengan mendekatkan mata ke kamera/webcam untuk pemindaian retina.</p>
         </div>
         <a href="{{ route('attendances.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Kembali ke daftar</a>
     </div>
@@ -61,8 +61,8 @@
                 <div class="mt-1 flex items-center gap-3 rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-700">
                     <span class="text-lg">👁️</span>
                     <div>
-                        <p class="font-semibold">Scan Retina</p>
-                        <p class="text-xs text-blue-600">Sistem akan memverifikasi identitas pegawai melalui pola retina.</p>
+                        <p class="font-semibold">Scan Retina via Webcam</p>
+                        <p class="text-xs text-blue-600">Pegawai mendekatkan mata ke kamera/webcam, lalu sistem memverifikasi identitas melalui pola retina.</p>
                     </div>
                 </div>
             </div>
