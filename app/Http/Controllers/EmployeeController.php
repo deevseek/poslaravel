@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use App\Exceptions\FaceRecognitionException;
 use App\Services\FaceRecognitionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -44,29 +45,42 @@ class EmployeeController extends Controller
 
         $validated['is_active'] = (bool) ($validated['is_active'] ?? true);
 
+        $faceRecognitionPath = null;
         if (! empty($validated['face_recognition_snapshot'])) {
             $faceRecognitionPath = $this->storeFaceRecognitionSnapshot($validated['face_recognition_snapshot']);
-            if ($faceRecognitionPath) {
-                $snapshotPath = Storage::disk('public')->path($faceRecognitionPath);
-                if (! $this->faceRecognition->hasFace($snapshotPath)) {
-                    Storage::disk('public')->delete($faceRecognitionPath);
-
-                    return back()
-                        ->withErrors(['face_recognition_snapshot' => 'Wajah tidak terdeteksi pada foto. Silakan ulangi pemindaian.'])
-                        ->withInput();
-                }
-
-                $signature = $this->faceRecognition->extractSignature($snapshotPath);
-
-                $validated['face_recognition_scan_path'] = $faceRecognitionPath;
-                $validated['face_recognition_signature'] = $signature ? json_encode($signature) : null;
-                $validated['face_recognition_registered_at'] = now();
+            if (! $faceRecognitionPath) {
+                return back()
+                    ->withErrors(['face_recognition_snapshot' => 'Snapshot wajah tidak valid. Silakan ulangi pemindaian.'])
+                    ->withInput();
             }
         }
 
         unset($validated['face_recognition_snapshot']);
 
-        Employee::create($validated);
+        $employee = Employee::create($validated);
+
+        if ($faceRecognitionPath) {
+            $snapshotPath = Storage::disk('public')->path($faceRecognitionPath);
+            try {
+                $this->faceRecognition->registerFace($employee->id, $snapshotPath);
+            } catch (FaceRecognitionException $exception) {
+                Storage::disk('public')->delete($faceRecognitionPath);
+                $employee->delete();
+
+                return back()
+                    ->withErrors(['face_recognition_snapshot' => $this->mapFaceRecognitionError(
+                        $exception->context()['error'] ?? data_get($exception->context(), 'response.error'),
+                        $exception->getMessage(),
+                    )])
+                    ->withInput();
+            }
+
+            $employee->update([
+                'face_recognition_scan_path' => $faceRecognitionPath,
+                'face_recognition_signature' => null,
+                'face_recognition_registered_at' => now(),
+            ]);
+        }
 
         return redirect()->route('employees.index')->with('success', 'Data karyawan berhasil ditambahkan.');
     }
@@ -123,22 +137,29 @@ class EmployeeController extends Controller
             }
 
             $faceRecognitionPath = $this->storeFaceRecognitionSnapshot($validated['face_recognition_snapshot']);
-            if ($faceRecognitionPath) {
-                $snapshotPath = Storage::disk('public')->path($faceRecognitionPath);
-                if (! $this->faceRecognition->hasFace($snapshotPath)) {
-                    Storage::disk('public')->delete($faceRecognitionPath);
-
-                    return back()
-                        ->withErrors(['face_recognition_snapshot' => 'Wajah tidak terdeteksi pada foto. Silakan ulangi pemindaian.'])
-                        ->withInput();
-                }
-
-                $signature = $this->faceRecognition->extractSignature($snapshotPath);
-
-                $validated['face_recognition_scan_path'] = $faceRecognitionPath;
-                $validated['face_recognition_signature'] = $signature ? json_encode($signature) : null;
-                $validated['face_recognition_registered_at'] = now();
+            if (! $faceRecognitionPath) {
+                return back()
+                    ->withErrors(['face_recognition_snapshot' => 'Snapshot wajah tidak valid. Silakan ulangi pemindaian.'])
+                    ->withInput();
             }
+
+            $snapshotPath = Storage::disk('public')->path($faceRecognitionPath);
+            try {
+                $this->faceRecognition->registerFace($employee->id, $snapshotPath);
+            } catch (FaceRecognitionException $exception) {
+                Storage::disk('public')->delete($faceRecognitionPath);
+
+                return back()
+                    ->withErrors(['face_recognition_snapshot' => $this->mapFaceRecognitionError(
+                        $exception->context()['error'] ?? data_get($exception->context(), 'response.error'),
+                        $exception->getMessage(),
+                    )])
+                    ->withInput();
+            }
+
+            $validated['face_recognition_scan_path'] = $faceRecognitionPath;
+            $validated['face_recognition_signature'] = null;
+            $validated['face_recognition_registered_at'] = now();
         }
 
         unset($validated['face_recognition_snapshot'], $validated['reset_face_recognition'], $validated['remove_face_recognition_scan']);
@@ -179,5 +200,15 @@ class EmployeeController extends Controller
         Storage::disk('public')->put($filename, $decodedImage);
 
         return $filename;
+    }
+
+    private function mapFaceRecognitionError(?string $error, ?string $fallback = null): string
+    {
+        return match ($error) {
+            'no_face_detected' => 'Wajah tidak terdeteksi pada foto. Silakan ulangi pemindaian.',
+            'multiple_faces_detected' => 'Terdapat lebih dari satu wajah pada foto. Silakan ulangi pemindaian.',
+            'service_unavailable' => 'Layanan face recognition tidak tersedia. Silakan coba beberapa saat lagi.',
+            default => $fallback ?? 'Terjadi kesalahan saat mendaftarkan wajah. Silakan ulangi.',
+        };
     }
 }

@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'face_recognition' => [
+        'base_url' => env('FACE_RECOGNITION_BASE_URL', 'http://127.0.0.1:8000'),
+        'timeout' => env('FACE_RECOGNITION_TIMEOUT', 20),
+    ],
+
 ];

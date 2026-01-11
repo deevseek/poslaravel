@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\Employee;
+use App\Exceptions\FaceRecognitionException;
 use App\Services\FaceRecognitionService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -40,7 +41,7 @@ class AttendanceController extends Controller
     {
         $validated = $request->validate([
             'employee_id' => [
-                'nullable',
+                'required',
                 'exists:employees,id',
             ],
             'attendance_date' => ['required', 'date'],
@@ -61,15 +62,7 @@ class AttendanceController extends Controller
         $temporarySnapshotFullPath = Storage::disk('local')->path($temporarySnapshotPath);
 
         try {
-            $employee = $validated['employee_id']
-                ? Employee::find($validated['employee_id'])
-                : $this->matchEmployeeByFaceSnapshot($temporarySnapshotFullPath);
-
-            if (! $employee) {
-                return back()
-                    ->withErrors(['face_recognition_snapshot' => 'Pengenalan wajah tidak cocok dengan data terdaftar.'])
-                    ->withInput();
-            }
+            $employee = Employee::find($validated['employee_id']);
 
             if (! $employee->face_recognition_scan_path || ! $employee->face_recognition_registered_at) {
                 return back()
@@ -77,12 +70,25 @@ class AttendanceController extends Controller
                     ->withInput();
             }
 
-            $referencePath = Storage::disk('public')->path($employee->face_recognition_scan_path);
-            if (! $this->faceRecognition->matchSnapshot($referencePath, $employee->face_recognition_signature, $temporarySnapshotFullPath)) {
+            $verification = $this->faceRecognition->verifyFace($employee->id, $temporarySnapshotFullPath);
+
+            if (! empty($verification['error'])) {
                 return back()
-                    ->withErrors(['face_recognition_snapshot' => 'Pengenalan wajah tidak cocok dengan data terdaftar.'])
+                    ->withErrors(['face_recognition_snapshot' => $this->mapFaceRecognitionError($verification['error'])])
                     ->withInput();
             }
+
+            if (empty($verification['matched'])) {
+                return back()
+                    ->withErrors(['face_recognition_snapshot' => 'Wajah terdeteksi tetapi tidak cocok dengan data terdaftar.'])
+                    ->withInput();
+            }
+        } catch (FaceRecognitionException $exception) {
+            $error = $exception->context()['error'] ?? data_get($exception->context(), 'response.error');
+
+            return back()
+                ->withErrors(['face_recognition_snapshot' => $this->mapFaceRecognitionError($error, $exception->getMessage())])
+                ->withInput();
         } finally {
             Storage::disk('local')->delete($temporarySnapshotPath);
         }
@@ -136,10 +142,34 @@ class AttendanceController extends Controller
         $temporarySnapshotFullPath = Storage::disk('local')->path($temporarySnapshotPath);
 
         try {
-            $employee = $this->matchEmployeeByFaceSnapshot($temporarySnapshotFullPath);
+            $identification = $this->faceRecognition->identifyFace($temporarySnapshotFullPath);
 
+            if (! empty($identification['error'])) {
+                return response()->json([
+                    'matched' => false,
+                    'faces_detected' => $identification['faces_detected'] ?? 0,
+                    'error' => $identification['error'],
+                    'message' => $this->mapFaceRecognitionError($identification['error']),
+                ], 422);
+            }
+
+            if (empty($identification['matched']) || empty($identification['user_id'])) {
+                return response()->json([
+                    'matched' => false,
+                    'faces_detected' => $identification['faces_detected'] ?? 1,
+                    'error' => 'face_not_matched',
+                    'message' => 'Wajah terdeteksi tetapi tidak cocok dengan data karyawan.',
+                ], 404);
+            }
+
+            $employee = Employee::find($identification['user_id']);
             if (! $employee) {
-                return response()->json(['message' => 'Pengenalan wajah tidak cocok dengan data terdaftar.'], 404);
+                return response()->json([
+                    'matched' => false,
+                    'faces_detected' => $identification['faces_detected'] ?? 1,
+                    'error' => 'employee_not_found',
+                    'message' => 'Data karyawan tidak ditemukan.',
+                ], 404);
             }
 
             $alreadyAttended = false;
@@ -150,6 +180,9 @@ class AttendanceController extends Controller
             }
 
             return response()->json([
+                'matched' => true,
+                'confidence' => $identification['confidence'] ?? null,
+                'faces_detected' => $identification['faces_detected'] ?? 1,
                 'employee' => [
                     'id' => $employee->id,
                     'name' => $employee->name,
@@ -157,27 +190,17 @@ class AttendanceController extends Controller
                 ],
                 'already_attended' => $alreadyAttended,
             ]);
+        } catch (FaceRecognitionException $exception) {
+            $error = $exception->context()['error'] ?? data_get($exception->context(), 'response.error', 'service_unavailable');
+
+            return response()->json([
+                'matched' => false,
+                'error' => $error,
+                'message' => $this->mapFaceRecognitionError($error, $exception->getMessage()),
+            ], 502);
         } finally {
             Storage::disk('local')->delete($temporarySnapshotPath);
         }
-    }
-
-    protected function matchEmployeeByFaceSnapshot(string $snapshotPath): ?Employee
-    {
-        $employees = Employee::query()
-            ->where('is_active', true)
-            ->whereNotNull('face_recognition_scan_path')
-            ->whereNotNull('face_recognition_registered_at')
-            ->get();
-
-        foreach ($employees as $employee) {
-            $referencePath = Storage::disk('public')->path($employee->face_recognition_scan_path);
-            if ($this->faceRecognition->matchSnapshot($referencePath, $employee->face_recognition_signature, $snapshotPath)) {
-                return $employee;
-            }
-        }
-
-        return null;
     }
 
     private function storeTemporarySnapshot(string $snapshot): ?string
@@ -204,5 +227,16 @@ class AttendanceController extends Controller
         Storage::disk('local')->put($filename, $decodedImage);
 
         return $filename;
+    }
+
+    private function mapFaceRecognitionError(?string $error, ?string $fallback = null): string
+    {
+        return match ($error) {
+            'no_face_detected' => 'Wajah tidak terdeteksi pada foto. Silakan ulangi pemindaian.',
+            'multiple_faces_detected' => 'Terdapat lebih dari satu wajah pada foto. Silakan ulangi pemindaian.',
+            'face_not_registered' => 'Wajah karyawan belum terdaftar. Silakan daftar terlebih dahulu di profil karyawan.',
+            'service_unavailable' => 'Layanan face recognition tidak tersedia. Silakan coba beberapa saat lagi.',
+            default => $fallback ?? 'Terjadi kesalahan saat memverifikasi wajah. Silakan ulangi.',
+        };
     }
 }

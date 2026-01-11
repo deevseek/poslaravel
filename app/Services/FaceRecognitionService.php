@@ -2,182 +2,111 @@
 
 namespace App\Services;
 
-use Freearhey\LaravelFaceDetection\Facades\FaceDetection;
+use App\Exceptions\FaceRecognitionException;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class FaceRecognitionService
 {
-    public function hasFace(string $imagePath): bool
+    private string $baseUrl;
+    private int $timeout;
+
+    public function __construct()
     {
-        return ! empty($this->detectFaces($imagePath));
+        $this->baseUrl = rtrim(
+            (string) config('services.face_recognition.base_url', 'http://127.0.0.1:8000'),
+            '/',
+        );
+        $this->timeout = (int) config('services.face_recognition.timeout', 20);
     }
 
-    public function extractSignature(string $imagePath): ?array
+    public function registerFace(int|string $employeeId, string $imagePath): array
     {
-        $faces = $this->detectFaces($imagePath);
+        return $this->sendRequest('/register-face', ['user_id' => (string) $employeeId], $imagePath);
+    }
 
-        if (empty($faces)) {
+    public function verifyFace(int|string $employeeId, string $imagePath): array
+    {
+        return $this->sendRequest('/verify-face', ['user_id' => (string) $employeeId], $imagePath);
+    }
+
+    public function identifyFace(string $imagePath): array
+    {
+        return $this->sendRequest('/identify-face', [], $imagePath);
+    }
+
+    private function sendRequest(string $endpoint, array $fields, string $imagePath): array
+    {
+        $url = $this->baseUrl . $endpoint;
+
+        if (! is_file($imagePath)) {
+            throw new FaceRecognitionException('Snapshot wajah tidak ditemukan.', null, [
+                'error' => 'snapshot_missing',
+            ]);
+        }
+
+        try {
+            $response = Http::timeout($this->timeout)
+                ->attach('image', fopen($imagePath, 'rb'), $this->guessFilename($imagePath))
+                ->post($url, $fields);
+        } catch (ConnectionException $exception) {
+            throw new FaceRecognitionException('Layanan face recognition tidak tersedia.', null, [
+                'error' => 'service_unavailable',
+            ], $exception);
+        }
+
+        if (! $response->ok()) {
+            $payload = $response->json();
+            $message = $this->extractErrorMessage($payload) ?? 'Permintaan face recognition gagal.';
+
+            throw new FaceRecognitionException($message, $response->status(), [
+                'error' => $payload['error'] ?? null,
+                'response' => $payload,
+            ]);
+        }
+
+        $payload = $response->json();
+        if (! is_array($payload)) {
+            throw new FaceRecognitionException('Respon face recognition tidak valid.', $response->status(), [
+                'error' => 'invalid_response',
+            ]);
+        }
+
+        return $payload;
+    }
+
+    private function extractErrorMessage(mixed $payload): ?string
+    {
+        if (! is_array($payload)) {
             return null;
         }
 
-        $face = $faces[0];
-        $signature = null;
+        $detail = $payload['detail'] ?? $payload['message'] ?? null;
+        if (is_string($detail)) {
+            return $detail;
+        }
 
-        if (is_array($face)) {
-            foreach (['descriptor', 'embedding', 'signature', 'encoding'] as $key) {
-                if (array_key_exists($key, $face)) {
-                    $signature = $face[$key];
-                    break;
-                }
+        if (is_array($detail)) {
+            if (isset($detail['reason']) && is_string($detail['reason'])) {
+                return $detail['reason'];
             }
-        } elseif (is_object($face)) {
-            foreach (['descriptor', 'embedding', 'signature', 'encoding'] as $key) {
-                if (isset($face->{$key})) {
-                    $signature = $face->{$key};
-                    break;
-                }
+
+            if (isset($detail['message']) && is_string($detail['message'])) {
+                return $detail['message'];
             }
         }
 
-        if (is_string($signature)) {
-            $decoded = json_decode($signature, true);
-            if (is_array($decoded)) {
-                return $decoded;
-            }
-        }
-
-        return is_array($signature) ? $signature : null;
+        return null;
     }
 
-    public function matchSnapshot(string $referencePath, ?string $referenceSignature, string $candidatePath): bool
+    private function guessFilename(string $imagePath): string
     {
-        if ($this->supportsImageComparison()) {
-            return $this->compareByImage($referencePath, $candidatePath);
+        $extension = pathinfo($imagePath, PATHINFO_EXTENSION);
+        if (! $extension) {
+            $extension = 'jpg';
         }
 
-        if (! $referenceSignature) {
-            return false;
-        }
-
-        $candidateSignature = $this->extractSignature($candidatePath);
-        $referenceVector = json_decode($referenceSignature, true);
-
-        if (! is_array($referenceVector) || ! is_array($candidateSignature)) {
-            return false;
-        }
-
-        return $this->compareSignatureVectors($referenceVector, $candidateSignature);
-    }
-
-    private function detectFaces(string $imagePath): array
-    {
-        if (! class_exists(FaceDetection::class)) {
-            return [];
-        }
-
-        foreach (['detect', 'detectFaces'] as $method) {
-            if (is_callable([FaceDetection::class, $method])) {
-                $faces = FaceDetection::$method($imagePath);
-                $normalized = $this->normalizeFaces($faces);
-                if ($normalized !== null) {
-                    return $normalized;
-                }
-            }
-        }
-
-        return [];
-    }
-
-    private function normalizeFaces(mixed $faces): ?array
-    {
-        if (is_string($faces)) {
-            $decoded = json_decode($faces, true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                return $this->normalizeFaces($decoded);
-            }
-        }
-
-        if (is_object($faces)) {
-            if (method_exists($faces, 'toArray')) {
-                return $this->normalizeFaces($faces->toArray());
-            }
-
-            if ($faces instanceof \JsonSerializable) {
-                return $this->normalizeFaces($faces->jsonSerialize());
-            }
-        }
-
-        if (! is_array($faces)) {
-            return null;
-        }
-
-        if (array_is_list($faces)) {
-            return $faces;
-        }
-
-        foreach (['faces', 'detections', 'results', 'data'] as $key) {
-            if (array_key_exists($key, $faces) && is_array($faces[$key])) {
-                return $faces[$key];
-            }
-        }
-
-        return $faces;
-    }
-
-    private function supportsImageComparison(): bool
-    {
-        if (! class_exists(FaceDetection::class)) {
-            return false;
-        }
-
-        foreach (['compare', 'match', 'verify', 'compareFaces'] as $method) {
-            if (is_callable([FaceDetection::class, $method])) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function compareByImage(string $referencePath, string $candidatePath): bool
-    {
-        foreach (['compare', 'match', 'verify', 'compareFaces'] as $method) {
-            if (is_callable([FaceDetection::class, $method])) {
-                return (bool) FaceDetection::$method($referencePath, $candidatePath);
-            }
-        }
-
-        return false;
-    }
-
-    private function compareSignatureVectors(array $referenceVector, array $candidateVector): bool
-    {
-        if (count($referenceVector) !== count($candidateVector)) {
-            return false;
-        }
-
-        $dot = 0.0;
-        $referenceMagnitude = 0.0;
-        $candidateMagnitude = 0.0;
-
-        foreach ($referenceVector as $index => $value) {
-            if (! isset($candidateVector[$index])) {
-                return false;
-            }
-
-            $referenceValue = (float) $value;
-            $candidateValue = (float) $candidateVector[$index];
-
-            $dot += $referenceValue * $candidateValue;
-            $referenceMagnitude += $referenceValue ** 2;
-            $candidateMagnitude += $candidateValue ** 2;
-        }
-
-        if ($referenceMagnitude === 0.0 || $candidateMagnitude === 0.0) {
-            return false;
-        }
-
-        $similarity = $dot / (sqrt($referenceMagnitude) * sqrt($candidateMagnitude));
-
-        return $similarity >= 0.8;
+        return Str::uuid() . '.' . $extension;
     }
 }

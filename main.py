@@ -5,6 +5,7 @@ from io import BytesIO
 import numpy as np
 from deepface import DeepFace
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.responses import JSONResponse
 from PIL import Image
 
 APP_MAX_WIDTH = 800
@@ -20,6 +21,13 @@ STORAGE_DIR = os.path.join("storage", "faces")
 app = FastAPI()
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 logger = logging.getLogger("face_recognition_service")
+
+
+class FaceDetectionError(Exception):
+    def __init__(self, error: str, faces_detected: int):
+        super().__init__(error)
+        self.error = error
+        self.faces_detected = faces_detected
 
 
 def _get_env_float(name: str, default: float) -> float:
@@ -74,12 +82,12 @@ def _load_image(upload: UploadFile) -> Image.Image:
     return resized
 
 
-def _detect_faces(image: Image.Image, *, enforce_detection: bool) -> list[dict]:
+def _detect_faces(image: Image.Image) -> list[dict]:
     img_array = np.array(image)
     faces = DeepFace.extract_faces(
         img_path=img_array,
         detector_backend=DEFAULT_DETECTOR,
-        enforce_detection=enforce_detection,
+        enforce_detection=False,
         align=True,
     )
     logger.info(
@@ -90,65 +98,29 @@ def _detect_faces(image: Image.Image, *, enforce_detection: bool) -> list[dict]:
     return faces
 
 
-def _extract_single_face(image: Image.Image) -> np.ndarray:
-    faces = _detect_faces(image, enforce_detection=False)
+def _extract_single_face(image: Image.Image) -> tuple[np.ndarray, int]:
+    faces = _detect_faces(image)
+    faces_detected = len(faces)
 
-    if not faces:
-        raise HTTPException(
-            status_code=422,
-            detail={
-                "error": "face_not_detected",
-                "reason": "Wajah tidak terdeteksi pada foto. Silakan ulangi pemindaian.",
-            },
-        )
-    if len(faces) > 1:
-        raise HTTPException(
-            status_code=422,
-            detail={
-                "error": "multiple_faces_detected",
-                "reason": "Terdapat lebih dari satu wajah pada foto. Silakan ulangi pemindaian.",
-            },
-        )
+    if faces_detected == 0:
+        raise FaceDetectionError("no_face_detected", 0)
+    if faces_detected > 1:
+        raise FaceDetectionError("multiple_faces_detected", faces_detected)
 
     try:
-        faces = _detect_faces(image, enforce_detection=True)
+        face = DeepFace.detectFace(
+            img_path=np.array(image),
+            detector_backend=DEFAULT_DETECTOR,
+            enforce_detection=True,
+            align=True,
+        )
     except Exception as exc:
-        raise HTTPException(
-            status_code=422,
-            detail={
-                "error": "face_not_detected",
-                "reason": "Wajah tidak terdeteksi pada foto. Silakan ulangi pemindaian.",
-            },
-        ) from exc
+        raise FaceDetectionError("no_face_detected", 0) from exc
 
-    if not faces:
-        raise HTTPException(
-            status_code=422,
-            detail={
-                "error": "face_not_detected",
-                "reason": "Wajah tidak terdeteksi pada foto. Silakan ulangi pemindaian.",
-            },
-        )
-    if len(faces) > 1:
-        raise HTTPException(
-            status_code=422,
-            detail={
-                "error": "multiple_faces_detected",
-                "reason": "Terdapat lebih dari satu wajah pada foto. Silakan ulangi pemindaian.",
-            },
-        )
-
-    face = faces[0].get("face")
     if face is None:
-        raise HTTPException(
-            status_code=422,
-            detail={
-                "error": "face_not_detected",
-                "reason": "Wajah tidak terdeteksi pada foto. Silakan ulangi pemindaian.",
-            },
-        )
+        raise FaceDetectionError("no_face_detected", 0)
 
-    return face
+    return face, faces_detected
 
 
 def _embedding_from_face(face: np.ndarray) -> np.ndarray:
@@ -192,17 +164,44 @@ def _embedding_path(user_id: str) -> str:
     return os.path.join(STORAGE_DIR, f"{user_id}.npy")
 
 
+def _error_response(error: str, faces_detected: int) -> JSONResponse:
+    return JSONResponse(
+        status_code=422,
+        content={"matched": False, "faces_detected": faces_detected, "error": error},
+    )
+
+
+def _load_embeddings() -> list[tuple[str, np.ndarray]]:
+    if not os.path.isdir(STORAGE_DIR):
+        return []
+
+    embeddings: list[tuple[str, np.ndarray]] = []
+    for filename in os.listdir(STORAGE_DIR):
+        if not filename.endswith(".npy"):
+            continue
+        user_id = os.path.splitext(filename)[0]
+        path = os.path.join(STORAGE_DIR, filename)
+        try:
+            embeddings.append((user_id, np.load(path)))
+        except Exception:
+            logger.warning("Failed to load embedding for user %s", user_id)
+
+    return embeddings
+
+
 @app.post("/register-face")
 def register_face(user_id: str = Form(...), image: UploadFile = File(...)):
     try:
         pil_image = _load_image(image)
-        face = _extract_single_face(pil_image)
+        face, faces_detected = _extract_single_face(pil_image)
         embedding = _embedding_from_face(face)
 
         _ensure_storage_dir()
         np.save(_embedding_path(user_id), embedding)
 
-        return {"status": "registered", "user_id": user_id}
+        return {"status": "registered", "user_id": user_id, "faces_detected": faces_detected}
+    except FaceDetectionError as exc:
+        return _error_response(exc.error, exc.faces_detected)
     except HTTPException:
         raise
     except Exception:
@@ -213,11 +212,14 @@ def register_face(user_id: str = Form(...), image: UploadFile = File(...)):
 def verify_face(user_id: str = Form(...), image: UploadFile = File(...)):
     embedding_path = _embedding_path(user_id)
     if not os.path.exists(embedding_path):
-        raise HTTPException(status_code=404, detail="face not registered")
+        return JSONResponse(
+            status_code=404,
+            content={"matched": False, "faces_detected": 0, "error": "face_not_registered"},
+        )
 
     try:
         pil_image = _load_image(image)
-        face = _extract_single_face(pil_image)
+        face, faces_detected = _extract_single_face(pil_image)
         embedding = _embedding_from_face(face)
         stored_embedding = np.load(embedding_path)
 
@@ -225,33 +227,67 @@ def verify_face(user_id: str = Form(...), image: UploadFile = File(...)):
         confidence = float(np.clip(similarity, 0.0, 1.0))
         matched = confidence >= _get_threshold()
 
-        return {"matched": matched, "confidence": confidence}
+        return {
+            "matched": matched,
+            "confidence": confidence,
+            "faces_detected": faces_detected,
+        }
+    except FaceDetectionError as exc:
+        return _error_response(exc.error, exc.faces_detected)
     except HTTPException:
         raise
     except Exception:
         raise HTTPException(status_code=500, detail="internal error")
 
 
-@app.post("/detect-face")
-def detect_face(image: UploadFile = File(...)):
+@app.post("/identify-face")
+def identify_face(image: UploadFile = File(...)):
     try:
         pil_image = _load_image(image)
-        faces = _detect_faces(pil_image, enforce_detection=False)
+        face, faces_detected = _extract_single_face(pil_image)
+        embedding = _embedding_from_face(face)
 
-        if not faces:
-            raise HTTPException(
-                status_code=422,
-                detail={
-                    "error": "face_not_detected",
-                    "reason": "Wajah tidak terdeteksi pada foto. Silakan ulangi pemindaian.",
+        embeddings = _load_embeddings()
+        if not embeddings:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "matched": False,
+                    "faces_detected": faces_detected,
+                    "error": "no_registered_faces",
+                },
+            )
+
+        best_user_id = None
+        best_similarity = 0.0
+        for user_id, stored_embedding in embeddings:
+            similarity = _cosine_similarity(embedding, stored_embedding)
+            if similarity > best_similarity:
+                best_similarity = similarity
+                best_user_id = user_id
+
+        confidence = float(np.clip(best_similarity, 0.0, 1.0))
+        matched = confidence >= _get_threshold()
+
+        if not matched or best_user_id is None:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "matched": False,
+                    "faces_detected": faces_detected,
+                    "confidence": confidence,
+                    "error": "face_not_matched",
                 },
             )
 
         return {
-            "detector_backend": DEFAULT_DETECTOR,
-            "faces_detected": len(faces),
-            "image_resolution": {"width": pil_image.width, "height": pil_image.height},
+            "matched": True,
+            "faces_detected": faces_detected,
+            "confidence": confidence,
+            "user_id": best_user_id,
         }
+    except FaceDetectionError as exc:
+        return _error_response(exc.error, exc.faces_detected)
     except HTTPException:
         raise
     except Exception:
