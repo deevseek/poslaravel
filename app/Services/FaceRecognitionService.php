@@ -1,0 +1,151 @@
+<?php
+
+namespace App\Services;
+
+use Mpociot\FaceAuth\Facades\FaceAuth;
+
+class FaceRecognitionService
+{
+    public function hasFace(string $imagePath): bool
+    {
+        return ! empty($this->detectFaces($imagePath));
+    }
+
+    public function extractSignature(string $imagePath): ?array
+    {
+        $faces = $this->detectFaces($imagePath);
+
+        if (empty($faces)) {
+            return null;
+        }
+
+        $face = $faces[0];
+        $signature = null;
+
+        if (is_array($face)) {
+            foreach (['descriptor', 'embedding', 'signature', 'encoding'] as $key) {
+                if (array_key_exists($key, $face)) {
+                    $signature = $face[$key];
+                    break;
+                }
+            }
+        } elseif (is_object($face)) {
+            foreach (['descriptor', 'embedding', 'signature', 'encoding'] as $key) {
+                if (isset($face->{$key})) {
+                    $signature = $face->{$key};
+                    break;
+                }
+            }
+        }
+
+        if (is_string($signature)) {
+            $decoded = json_decode($signature, true);
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+        }
+
+        return is_array($signature) ? $signature : null;
+    }
+
+    public function matchSnapshot(string $referencePath, ?string $referenceSignature, string $candidatePath): bool
+    {
+        if ($this->supportsImageComparison()) {
+            return $this->compareByImage($referencePath, $candidatePath);
+        }
+
+        if (! $referenceSignature) {
+            return false;
+        }
+
+        $candidateSignature = $this->extractSignature($candidatePath);
+        $referenceVector = json_decode($referenceSignature, true);
+
+        if (! is_array($referenceVector) || ! is_array($candidateSignature)) {
+            return false;
+        }
+
+        return $this->compareSignatureVectors($referenceVector, $candidateSignature);
+    }
+
+    private function detectFaces(string $imagePath): array
+    {
+        if (! class_exists(FaceAuth::class)) {
+            return [];
+        }
+
+        foreach (['detect', 'detectFaces', 'detectFace', 'faces', 'faceDetect'] as $method) {
+            if (is_callable([FaceAuth::class, $method])) {
+                $faces = FaceAuth::$method($imagePath);
+
+                if (is_array($faces)) {
+                    return $faces;
+                }
+
+                if (is_object($faces) && method_exists($faces, 'toArray')) {
+                    return $faces->toArray();
+                }
+            }
+        }
+
+        return [];
+    }
+
+    private function supportsImageComparison(): bool
+    {
+        if (! class_exists(FaceAuth::class)) {
+            return false;
+        }
+
+        foreach (['compare', 'match', 'verify', 'compareFaces', 'identify', 'recognize'] as $method) {
+            if (is_callable([FaceAuth::class, $method])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function compareByImage(string $referencePath, string $candidatePath): bool
+    {
+        foreach (['compare', 'match', 'verify', 'compareFaces', 'identify', 'recognize'] as $method) {
+            if (is_callable([FaceAuth::class, $method])) {
+                return (bool) FaceAuth::$method($referencePath, $candidatePath);
+            }
+        }
+
+        return false;
+    }
+
+    private function compareSignatureVectors(array $referenceVector, array $candidateVector): bool
+    {
+        if (count($referenceVector) !== count($candidateVector)) {
+            return false;
+        }
+
+        $dot = 0.0;
+        $referenceMagnitude = 0.0;
+        $candidateMagnitude = 0.0;
+
+        foreach ($referenceVector as $index => $value) {
+            if (! isset($candidateVector[$index])) {
+                return false;
+            }
+
+            $referenceValue = (float) $value;
+            $candidateValue = (float) $candidateVector[$index];
+
+            $dot += $referenceValue * $candidateValue;
+            $referenceMagnitude += $referenceValue ** 2;
+            $candidateMagnitude += $candidateValue ** 2;
+        }
+
+        if ($referenceMagnitude === 0.0 || $candidateMagnitude === 0.0) {
+            return false;
+        }
+
+        $similarity = $dot / (sqrt($referenceMagnitude) * sqrt($candidateMagnitude));
+
+        return $similarity >= 0.8;
+    }
+}

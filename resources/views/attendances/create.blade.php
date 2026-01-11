@@ -2,7 +2,7 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-2xl font-semibold text-gray-900">Catat Absensi</h1>
-            <p class="text-gray-600">Rekam kehadiran pegawai dengan menghadap kamera/webcam untuk proses face recognition.</p>
+            <p class="text-gray-600">Rekam kehadiran pegawai dengan menghadap kamera/webcam untuk proses face recognition berbasis laravel-face-auth.</p>
         </div>
         <a href="{{ route('attendances.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Kembali ke daftar</a>
     </div>
@@ -78,17 +78,22 @@
                     <p id="face-recognition-webcam-status" class="mt-2 text-xs text-gray-500">
                         Izinkan akses kamera agar pratinjau webcam tampil.
                     </p>
+                    <div class="mt-3 flex flex-wrap items-center gap-3">
+                        <button type="button" id="face-recognition-capture" class="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-100">
+                            Scan Wajah
+                        </button>
+                        <span class="text-xs text-gray-500">Klik tombol scan untuk mengambil foto terbaru.</span>
+                    </div>
+                    <input type="hidden" id="face_recognition_snapshot" name="face_recognition_snapshot" value="{{ old('face_recognition_snapshot') }}">
+                    <canvas id="face-recognition-canvas" class="hidden"></canvas>
+                    <div class="mt-3">
+                        <img id="face-recognition-preview" src="{{ old('face_recognition_snapshot') }}" alt="Pratinjau scan wajah"
+                            class="{{ old('face_recognition_snapshot') ? '' : 'hidden' }} h-24 w-24 rounded-lg border border-gray-200 object-cover">
+                    </div>
+                    @error('face_recognition_snapshot')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-semibold text-gray-700" for="face_recognition_code">Kode Face Recognition</label>
-                <input type="text" id="face_recognition_code" name="face_recognition_code" value="{{ old('face_recognition_code') }}" required
-                    class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                <p class="mt-1 text-xs text-gray-500">Kode ini harus sesuai dengan data wajah yang sudah didaftarkan agar absensi tidak bisa dipalsukan.</p>
-                @error('face_recognition_code')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
             </div>
 
             <div>
@@ -111,13 +116,15 @@
         const videoElement = document.getElementById('face-recognition-webcam');
         const statusElement = document.getElementById('face-recognition-webcam-status');
         const employeeSelect = document.getElementById('employee_id');
-        const faceCodeInput = document.getElementById('face_recognition_code');
+        const captureButton = document.getElementById('face-recognition-capture');
+        const snapshotInput = document.getElementById('face_recognition_snapshot');
+        const previewImage = document.getElementById('face-recognition-preview');
+        const canvasElement = document.getElementById('face-recognition-canvas');
         const detectedNameElement = document.getElementById('detected-employee-name');
         const detectedStatusElement = document.getElementById('detected-employee-status');
         const attendanceForm = document.querySelector('form');
         const csrfToken = document.querySelector('input[name="_token"]').value;
         let autoSubmitInProgress = false;
-        let identifyTimeout = null;
 
         if (navigator.mediaDevices?.getUserMedia) {
             navigator.mediaDevices
@@ -141,9 +148,27 @@
             detectedStatusElement.textContent = 'Sistem akan menampilkan nama karyawan dan menyimpan absensi otomatis setelah wajah dikenali.';
         };
 
-        const handleIdentification = async () => {
-            const faceCode = faceCodeInput.value.trim();
-            if (faceCode.length < 3 || autoSubmitInProgress) {
+        const captureSnapshot = () => {
+            if (!videoElement.srcObject) {
+                statusElement.textContent = 'Kamera belum siap. Silakan izinkan akses kamera terlebih dahulu.';
+                return null;
+            }
+
+            const width = videoElement.videoWidth || 640;
+            const height = videoElement.videoHeight || 480;
+            canvasElement.width = width;
+            canvasElement.height = height;
+            const context = canvasElement.getContext('2d');
+            context.drawImage(videoElement, 0, 0, width, height);
+            const snapshot = canvasElement.toDataURL('image/jpeg', 0.9);
+            snapshotInput.value = snapshot;
+            previewImage.src = snapshot;
+            previewImage.classList.remove('hidden');
+            return snapshot;
+        };
+
+        const handleIdentification = async (snapshot) => {
+            if (!snapshot || autoSubmitInProgress) {
                 return;
             }
 
@@ -157,7 +182,7 @@
                         'X-CSRF-TOKEN': csrfToken,
                     },
                     body: JSON.stringify({
-                        face_recognition_code: faceCode,
+                        face_recognition_snapshot: snapshot,
                         attendance_date: document.getElementById('attendance_date').value,
                     }),
                 });
@@ -188,10 +213,10 @@
             }
         };
 
-        faceCodeInput.addEventListener('input', () => {
+        captureButton.addEventListener('click', async () => {
             resetDetectedEmployee();
-            clearTimeout(identifyTimeout);
-            identifyTimeout = setTimeout(handleIdentification, 600);
+            const snapshot = captureSnapshot();
+            await handleIdentification(snapshot);
         });
     </script>
 </x-app-layout>
