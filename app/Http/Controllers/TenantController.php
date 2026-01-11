@@ -9,6 +9,7 @@ use App\Tenancy\Services\TenantProvisioningService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Throwable;
@@ -75,6 +76,23 @@ class TenantController extends Controller
         $this->syncSubscription($tenant, $validated);
 
         return redirect()->route('tenants.index')->with('success', 'Tenant berhasil diperbarui.');
+    }
+
+    public function syncMigrations(): RedirectResponse
+    {
+        try {
+            Artisan::call('tenant:migrate');
+        } catch (Throwable $e) {
+            report($e);
+
+            return redirect()
+                ->route('tenants.index')
+                ->withErrors(['general' => 'Gagal menyinkronkan tabel tenant. Silakan coba lagi.']);
+        }
+
+        return redirect()
+            ->route('tenants.index')
+            ->with('success', 'Sinkronisasi tabel tenant berhasil dijalankan.');
     }
 
     protected function syncSubscription(Tenant $tenant, array $validated): void

@@ -4,15 +4,29 @@
             <h1 class="text-2xl font-semibold text-gray-900">Tenant</h1>
             <p class="text-gray-600">Kelola tenant yang terhubung dengan sistem POS.</p>
         </div>
-        <a href="{{ route('tenants.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">
-            ➕
-            <span>Tambah Tenant</span>
-        </a>
+        <div class="flex items-center gap-3">
+            <form action="{{ route('tenants.sync-migrations') }}" method="POST" onsubmit="return confirm('Jalankan sinkronisasi tabel untuk semua tenant?')">
+                @csrf
+                <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-blue-200 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50">
+                    🔄
+                    <span>Sinkronkan Tabel Tenant</span>
+                </button>
+            </form>
+            <a href="{{ route('tenants.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">
+                ➕
+                <span>Tambah Tenant</span>
+            </a>
+        </div>
     </div>
 
     @if (session('success'))
         <div class="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
             {{ session('success') }}
+        </div>
+    @endif
+    @if ($errors->has('general'))
+        <div class="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+            {{ $errors->first('general') }}
         </div>
     @endif
 
