@@ -2,7 +2,7 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-2xl font-semibold text-gray-900">Absensi Pegawai</h1>
-            <p class="text-gray-600">Pantau kehadiran harian dengan metode scan retina.</p>
+            <p class="text-gray-600">Pantau kehadiran harian dengan metode scan retina melalui kamera/webcam.</p>
         </div>
         @permission('hrd.manage')
             <a href="{{ route('attendances.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">
