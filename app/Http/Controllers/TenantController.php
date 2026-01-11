@@ -95,6 +95,23 @@ class TenantController extends Controller
             ->with('success', 'Sinkronisasi tabel tenant berhasil dijalankan.');
     }
 
+    public function syncRoles(): RedirectResponse
+    {
+        try {
+            Artisan::call('tenant:seed');
+        } catch (Throwable $e) {
+            report($e);
+
+            return redirect()
+                ->route('tenants.index')
+                ->withErrors(['general' => 'Gagal menyinkronkan role tenant. Silakan coba lagi.']);
+        }
+
+        return redirect()
+            ->route('tenants.index')
+            ->with('success', 'Sinkronisasi role tenant berhasil dijalankan.');
+    }
+
     protected function syncSubscription(Tenant $tenant, array $validated): void
     {
         if (! array_key_exists('plan_id', $validated) || ! $validated['plan_id']) {
