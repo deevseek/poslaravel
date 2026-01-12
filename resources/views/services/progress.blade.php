@@ -29,11 +29,35 @@
                         @if ($service->customer->phone)
                             <p class="text-gray-500">{{ $service->customer->phone }}</p>
                         @endif
+                        @if ($service->customer->address)
+                            <p class="text-gray-500">{{ $service->customer->address }}</p>
+                        @endif
                     </div>
                     <div class="space-y-1">
                         <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Perangkat</p>
                         <p class="font-semibold text-gray-900">{{ $service->device }}</p>
                         <p class="text-gray-500">SN: {{ $service->serial_number ?? '-' }}</p>
+                        <p class="text-gray-500">Kelengkapan: {{ $service->accessories ?? '-' }}</p>
+                    </div>
+                </div>
+
+                <div class="mt-6 grid gap-4 rounded-xl border border-slate-100 bg-slate-50 p-4 text-sm text-gray-700 sm:grid-cols-2">
+                    <div class="space-y-1">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Keluhan</p>
+                        <p class="font-medium text-gray-900">{{ $service->complaint }}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Diagnosa</p>
+                        <p class="font-medium text-gray-900">{{ $service->diagnosis ?? '-' }}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Catatan Pengerjaan</p>
+                        <p class="font-medium text-gray-900">{{ $service->notes ?? '-' }}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Biaya & Garansi</p>
+                        <p class="font-medium text-gray-900">Biaya Jasa: Rp {{ number_format($service->service_fee, 0, ',', '.') }}</p>
+                        <p class="text-gray-500">Garansi: {{ $service->warranty_days }} hari</p>
                     </div>
                 </div>
             </div>
