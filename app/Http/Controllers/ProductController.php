@@ -16,6 +16,8 @@ class ProductController extends Controller
 {
     public function index(): View
     {
+        $search = request('search');
+
         $products = Product::select([
             'id',
             'category_id',
@@ -28,8 +30,18 @@ class ProductController extends Controller
             'margin_percentage',
         ])
             ->with('category')
+            ->when($search, function ($query) use ($search) {
+                $keyword = mb_strtolower(trim($search));
+                $like = '%' . $keyword . '%';
+
+                $query->where(function ($subQuery) use ($like) {
+                    $subQuery->whereRaw('LOWER(name) LIKE ?', [$like])
+                        ->orWhereRaw('LOWER(sku) LIKE ?', [$like]);
+                });
+            })
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         return view('products.index', compact('products'));
     }

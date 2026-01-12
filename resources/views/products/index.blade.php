@@ -52,6 +52,22 @@
         <p class="mt-1 text-xs text-blue-700">Harga otomatis dihitung dari HPP menggunakan margin persentase.</p>
     </div>
 
+    <form action="{{ route('products.index') }}" method="GET" class="mb-4 flex flex-wrap items-center gap-3">
+        <input
+            type="text"
+            name="search"
+            value="{{ request('search') }}"
+            placeholder="Cari nama atau SKU produk..."
+            class="w-full max-w-xs rounded-lg border border-gray-300 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+        <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">
+            Cari
+        </button>
+        @if (request('search'))
+            <a href="{{ route('products.index') }}" class="text-sm font-semibold text-gray-600 hover:text-gray-800">Reset</a>
+        @endif
+    </form>
+
     <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
