@@ -61,6 +61,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('categories', 'index')->name('categories.index')->middleware(['feature:product', 'can:inventory.view']);
         Route::get('categories/create', 'create')->name('categories.create')->middleware(['feature:product', 'can:inventory.create']);
         Route::post('categories', 'store')->name('categories.store')->middleware(['feature:product', 'can:inventory.create']);
+        Route::post('categories/import', 'importCsv')->name('categories.import')->middleware(['feature:product', 'can:inventory.create']);
         Route::get('categories/{category}', 'show')->name('categories.show')->middleware(['feature:product', 'can:inventory.view']);
         Route::get('categories/{category}/edit', 'edit')->name('categories.edit')->middleware(['feature:product', 'can:inventory.update']);
         Route::put('categories/{category}', 'update')->name('categories.update')->middleware(['feature:product', 'can:inventory.update']);
@@ -71,6 +72,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('products', 'index')->name('products.index')->middleware(['feature:product', 'can:inventory.view']);
         Route::get('products/create', 'create')->name('products.create')->middleware(['feature:product', 'can:inventory.create']);
         Route::post('products', 'store')->name('products.store')->middleware(['feature:product', 'can:inventory.create']);
+        Route::post('products/import', 'importCsv')->name('products.import')->middleware(['feature:product', 'can:inventory.create']);
         Route::get('products/{product}', 'show')->name('products.show')->middleware(['feature:product', 'can:inventory.view']);
         Route::get('products/{product}/edit', 'edit')->name('products.edit')->middleware(['feature:product', 'can:inventory.update']);
         Route::put('products/{product}', 'update')->name('products.update')->middleware(['feature:product', 'can:inventory.update']);
