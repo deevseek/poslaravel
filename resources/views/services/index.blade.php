@@ -1,5 +1,5 @@
 <x-app-layout title="Daftar Service">
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
             <h1 class="text-2xl font-semibold text-gray-900">Service</h1>
             <p class="text-gray-600">Pantau progres service dan status terbaru.</p>
@@ -9,6 +9,30 @@
             <span>Service Baru</span>
         </a>
     </div>
+
+    <form action="{{ route('services.index') }}" method="GET" class="mb-4">
+        <div class="flex flex-wrap items-center gap-3">
+            <div class="w-full sm:w-80">
+                <label for="service-search" class="sr-only">Cari service</label>
+                <input
+                    id="service-search"
+                    name="search"
+                    type="text"
+                    value="{{ $search }}"
+                    placeholder="Cari customer, perangkat, atau serial"
+                    class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+            </div>
+            <button type="submit" class="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-gray-800">
+                Cari
+            </button>
+            @if ($search)
+                <a href="{{ route('services.index') }}" class="rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                    Reset
+                </a>
+            @endif
+        </div>
+    </form>
 
     @if (session('success'))
         <div class="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">

@@ -28,11 +28,25 @@ class ServiceController extends Controller
     {
     }
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $services = Service::with('customer')->latest()->paginate(10);
+        $search = $request->query('search');
 
-        return view('services.index', compact('services'));
+        $services = Service::with('customer')
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('device', 'like', '%' . $search . '%')
+                        ->orWhere('serial_number', 'like', '%' . $search . '%')
+                        ->orWhereHas('customer', function ($query) use ($search) {
+                            $query->where('name', 'like', '%' . $search . '%');
+                        });
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('services.index', compact('services', 'search'));
     }
 
     public function create(): View
