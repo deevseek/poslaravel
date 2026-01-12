@@ -31,9 +31,17 @@ class ServiceController extends Controller
     public function index(Request $request): View
     {
         $search = $request->query('search');
+        $serviceNumber = null;
+
+        if ($search !== null) {
+            $normalizedSearch = ltrim(trim($search), '#');
+            if (is_numeric($normalizedSearch)) {
+                $serviceNumber = (int) $normalizedSearch;
+            }
+        }
 
         $services = Service::with('customer')
-            ->when($search, function ($query) use ($search) {
+            ->when($search, function ($query) use ($search, $serviceNumber) {
                 $query->where(function ($query) use ($search) {
                     $query->where('device', 'like', '%' . $search . '%')
                         ->orWhere('serial_number', 'like', '%' . $search . '%')
@@ -41,6 +49,10 @@ class ServiceController extends Controller
                             $query->where('name', 'like', '%' . $search . '%');
                         });
                 });
+
+                if ($serviceNumber !== null) {
+                    $query->orWhere('id', $serviceNumber);
+                }
             })
             ->latest()
             ->paginate(10)
