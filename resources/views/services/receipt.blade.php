@@ -84,6 +84,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
                     <div class="space-y-2">
                         <p class="font-semibold text-gray-900">Data Customer</p>
+                        <p class="text-gray-600">No. Service: #{{ $service->id }}</p>
                         <p>{{ $service->customer->name }}</p>
                         @if ($service->customer->phone)
                             <p class="text-gray-600">{{ $service->customer->phone }}</p>
@@ -140,6 +141,7 @@
             <div class="receipt-thermal text-[11px] font-mono text-gray-900">
                 <div class="space-y-1 text-center">
                     <p class="text-sm font-semibold uppercase">{{ $store['name'] }}</p>
+                    <p>No. Service: #{{ $service->id }}</p>
                     @if ($store['address'])
                         <p>{{ $store['address'] }}</p>
                     @endif
