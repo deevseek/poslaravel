@@ -76,7 +76,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('products/{product}', 'show')->name('products.show')->middleware(['feature:product', 'can:inventory.view']);
         Route::get('products/{product}/edit', 'edit')->name('products.edit')->middleware(['feature:product', 'can:inventory.update']);
         Route::put('products/{product}', 'update')->name('products.update')->middleware(['feature:product', 'can:inventory.update']);
-        Route::delete('products/{product}', 'destroy')->name('products.destroy')->middleware(['feature:product', 'can:inventory.update']);
+        Route::delete('products/{product}', 'destroy')->name('products.destroy')->middleware(['feature:product', 'can:inventory.delete']);
     });
 
     Route::controller(ServiceController::class)->group(function () {

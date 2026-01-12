@@ -4,10 +4,12 @@
             <h1 class="text-2xl font-semibold text-gray-900">Produk</h1>
             <p class="text-gray-600">Kelola data produk dan stok tersedia.</p>
         </div>
-        <a href="{{ route('products.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">
-            ➕
-            <span>Tambah Produk</span>
-        </a>
+        @can('inventory.create')
+            <a href="{{ route('products.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">
+                ➕
+                <span>Tambah Produk</span>
+            </a>
+        @endcan
     </div>
 
     @if (session('success'))
@@ -33,19 +35,21 @@
         </div>
     @endif
 
-    <div class="mb-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-        <h2 class="text-sm font-semibold text-gray-900">Upload CSV Produk</h2>
-        <p class="mt-1 text-xs text-gray-500">
-            Format kolom: <span class="font-semibold">name</span>, <span class="font-semibold">category</span>, <span class="font-semibold">stock</span>,
-            <span class="font-semibold">pricing_mode</span>, <span class="font-semibold">price</span>, <span class="font-semibold">cost_price</span>,
-            <span class="font-semibold">margin_percentage</span>, <span class="font-semibold">sku</span>, <span class="font-semibold">warranty_days</span>, <span class="font-semibold">description</span>.
-        </p>
-        <form action="{{ route('products.import') }}" method="POST" enctype="multipart/form-data" class="mt-3 flex flex-wrap items-center gap-3">
-            @csrf
-            <input type="file" name="csv" accept=".csv,text/csv" required class="w-full max-w-xs rounded-lg border border-gray-300 text-sm text-gray-700 file:mr-3 file:rounded-lg file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-gray-700 hover:file:bg-gray-200" />
-            <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">Upload CSV</button>
-        </form>
-    </div>
+    @can('inventory.create')
+        <div class="mb-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+            <h2 class="text-sm font-semibold text-gray-900">Upload CSV Produk</h2>
+            <p class="mt-1 text-xs text-gray-500">
+                Format kolom: <span class="font-semibold">name</span>, <span class="font-semibold">category</span>, <span class="font-semibold">stock</span>,
+                <span class="font-semibold">pricing_mode</span>, <span class="font-semibold">price</span>, <span class="font-semibold">cost_price</span>,
+                <span class="font-semibold">margin_percentage</span>, <span class="font-semibold">sku</span>, <span class="font-semibold">warranty_days</span>, <span class="font-semibold">description</span>.
+            </p>
+            <form action="{{ route('products.import') }}" method="POST" enctype="multipart/form-data" class="mt-3 flex flex-wrap items-center gap-3">
+                @csrf
+                <input type="file" name="csv" accept=".csv,text/csv" required class="w-full max-w-xs rounded-lg border border-gray-300 text-sm text-gray-700 file:mr-3 file:rounded-lg file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-gray-700 hover:file:bg-gray-200" />
+                <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">Upload CSV</button>
+            </form>
+        </div>
+    @endcan
 
     <div class="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
         <p>ℹ️ HPP dihitung menggunakan metode rata-rata tertimbang dari pembelian supplier.</p>
@@ -118,13 +122,19 @@
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $product->stock }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">
                             <div class="flex items-center justify-end gap-2">
-                                <a href="{{ route('products.show', $product) }}" class="rounded-lg border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50">Detail</a>
-                                <a href="{{ route('products.edit', $product) }}" class="rounded-lg border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50">Edit</a>
-                                <form action="{{ route('products.destroy', $product) }}" method="POST" onsubmit="return confirm('Hapus produk ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="rounded-lg border border-red-200 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-50">Hapus</button>
-                                </form>
+                                @can('inventory.view')
+                                    <a href="{{ route('products.show', $product) }}" class="rounded-lg border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50">Detail</a>
+                                @endcan
+                                @can('inventory.update')
+                                    <a href="{{ route('products.edit', $product) }}" class="rounded-lg border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50">Edit</a>
+                                @endcan
+                                @can('inventory.delete')
+                                    <form action="{{ route('products.destroy', $product) }}" method="POST" onsubmit="return confirm('Hapus produk ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="rounded-lg border border-red-200 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-50">Hapus</button>
+                                    </form>
+                                @endcan
                             </div>
                         </td>
                     </tr>
