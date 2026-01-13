@@ -276,6 +276,7 @@
                             detectedStatusElement.textContent = 'Wajah terdeteksi tetapi tidak cocok dengan data karyawan.';
                             break;
                         case 'service_unavailable':
+                        case 'unavailable':
                             detectedStatusElement.textContent = 'Layanan face recognition sedang tidak tersedia. Coba lagi nanti.';
                             break;
                         default:
