@@ -9,16 +9,20 @@ use RuntimeException;
 
 class FaceVerificationService
 {
-    public function verify(UploadedFile $image): FaceVerificationResult
+    public function verify(UploadedFile $image, int|string|null $userId = null): FaceVerificationResult
     {
         $url = config('attendance.face_api_url');
         $timeout = (int) config('attendance.timeout');
+        $payload = array_filter([
+            'user_id' => $userId !== null ? (string) $userId : null,
+            'employee_id' => $userId !== null ? (string) $userId : null,
+        ], static fn ($value) => $value !== null);
 
         try {
             $response = Http::timeout($timeout)
                 ->acceptJson()
                 ->attach('image', file_get_contents($image->getRealPath()), $image->getClientOriginalName())
-                ->post($url);
+                ->post($url, $payload);
         } catch (ConnectionException $exception) {
             throw new RuntimeException('Face API connection failed.', 0, $exception);
         }
