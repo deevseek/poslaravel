@@ -11,7 +11,7 @@ class FaceVerificationService
 {
     public function verify(UploadedFile $image, int|string|null $userId = null): FaceVerificationResult
     {
-        $url = config('attendance.face_api_url');
+        $url = $this->buildVerifyUrl();
         $timeout = (int) config('attendance.timeout');
         $payload = array_filter([
             'user_id' => $userId !== null ? (string) $userId : null,
@@ -41,5 +41,18 @@ class FaceVerificationService
             (bool) $payload['matched'],
             (float) $payload['confidence'],
         );
+    }
+
+    private function buildVerifyUrl(): string
+    {
+        $baseUrl = rtrim((string) config('attendance.face_api_url'), '/');
+
+        foreach (['/verify-face', '/identify-face', '/register-face'] as $endpoint) {
+            if (str_ends_with($baseUrl, $endpoint)) {
+                return substr($baseUrl, 0, -strlen($endpoint)) . '/verify-face';
+            }
+        }
+
+        return $baseUrl . '/verify-face';
     }
 }
