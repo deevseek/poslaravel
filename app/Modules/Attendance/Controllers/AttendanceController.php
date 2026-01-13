@@ -32,7 +32,10 @@ class AttendanceController
         ]);
 
         try {
-            $verification = $this->faceVerificationService->verify($validated['image']);
+            $verification = $this->faceVerificationService->verify(
+                $validated['image'],
+                $request->user()?->id,
+            );
         } catch (Throwable $exception) {
             return response()->json([
                 'matched' => false,
