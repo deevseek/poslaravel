@@ -62,7 +62,7 @@ class FaceRecognitionService
     {
         return $this->postImage($this->verifyUrl, $base64Image, array_filter([
             'employee_id' => $employeeId,
-        ], static fn ($value) => $value !== null));
+        ], static fn ($value) => $value !== null), true);
     }
 
     public function registerFace(int|string $employeeId, string $base64Image): array
@@ -78,10 +78,10 @@ class FaceRecognitionService
     {
         $url = $this->buildEndpointUrl('/identify-face');
 
-        return $this->postImage($url, $base64Image, []);
+        return $this->postImage($url, $base64Image, [], true);
     }
 
-    private function postImage(string $url, string $base64Image, array $fields): array
+    private function postImage(string $url, string $base64Image, array $fields, bool $allowErrorPayload = false): array
     {
         [$decodedImage, $extension] = $this->decodeBase64Image($base64Image);
         $filename = Str::uuid() . '.' . $extension;
@@ -99,6 +99,8 @@ class FaceRecognitionService
             throw new FaceApiUnavailableException('Face API unavailable.', $exception);
         }
 
+        $payload = $response->json();
+
         if (! $response->ok()) {
             Log::warning('Face API bad response.', [
                 'status' => $response->status(),
@@ -106,14 +108,16 @@ class FaceRecognitionService
                 'url' => $url,
             ]);
 
+            if ($allowErrorPayload && is_array($payload)) {
+                return $payload;
+            }
+
             throw new FaceApiBadResponseException(
                 'Face API returned a bad response.',
                 $response->status(),
                 $response->body(),
             );
         }
-
-        $payload = $response->json();
         if (! is_array($payload)) {
             Log::warning('Face API invalid JSON.', [
                 'body' => $response->body(),
