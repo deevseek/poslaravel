@@ -60,12 +60,13 @@ class FaceRecognitionService
 
     public function verifyFace(string $base64Image, ?string $employeeId = null): array
     {
+        $url = $this->buildEndpointUrl('/verify-face');
         $fields = array_filter([
             'user_id' => $employeeId !== null ? (string) $employeeId : null,
             'employee_id' => $employeeId !== null ? (string) $employeeId : null,
         ], static fn ($value) => $value !== null);
 
-        return $this->postImage($this->verifyUrl, $base64Image, $fields, true);
+        return $this->postImage($url, $base64Image, $fields, true);
     }
 
     public function registerFace(int|string $employeeId, string $base64Image): array
