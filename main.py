@@ -79,7 +79,16 @@ def _embedding_from_face(face_rgb: np.ndarray) -> np.ndarray:
     embedding = embeddings[0].get("embedding")
     if embedding is None:
         raise ValueError("embedding failed")
-    return np.array(embedding, dtype=np.float32)
+    return _normalize_embedding(np.array(embedding, dtype=np.float32))
+
+
+def _normalize_embedding(embedding: np.ndarray) -> np.ndarray:
+    if embedding.ndim != 1:
+        embedding = embedding.reshape(-1)
+    norm = np.linalg.norm(embedding)
+    if norm == 0:
+        raise ValueError("embedding norm is zero")
+    return embedding / norm
 
 
 def _cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
@@ -97,7 +106,16 @@ def _load_embedding(employee_id: str) -> Optional[np.ndarray]:
     path = _embedding_path(employee_id)
     if not os.path.exists(path):
         return None
-    return np.load(path)
+    try:
+        embedding = np.load(path)
+    except Exception:
+        logger.warning("failed to load embedding for %s", employee_id)
+        return None
+    try:
+        return _normalize_embedding(np.array(embedding, dtype=np.float32))
+    except ValueError:
+        logger.warning("invalid embedding for %s", employee_id)
+        return None
 
 
 def _success_response(matched: bool, confidence: Optional[float], faces_detected: int) -> dict:
