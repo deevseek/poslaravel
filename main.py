@@ -53,12 +53,16 @@ def _read_image(upload: UploadFile) -> np.ndarray:
 
 
 def _detect_faces(image_rgb: np.ndarray) -> list[dict]:
-    faces = DeepFace.extract_faces(
-        img_path=image_rgb,
-        detector_backend=DEFAULT_DETECTOR,
-        enforce_detection=False,
-        align=True,
-    )
+    try:
+        faces = DeepFace.extract_faces(
+            img_path=image_rgb,
+            detector_backend=DEFAULT_DETECTOR,
+            enforce_detection=True,
+            align=True,
+        )
+    except ValueError as exc:
+        logger.info("face detection failed: %s", exc)
+        return []
     return faces
 
 
