@@ -9,16 +9,20 @@ use RuntimeException;
 
 class FaceVerificationService
 {
-    public function verify(UploadedFile $image): FaceVerificationResult
+    public function verify(UploadedFile $image, int|string|null $userId = null): FaceVerificationResult
     {
-        $url = config('attendance.face_api_url');
+        $url = $this->buildVerifyUrl();
         $timeout = (int) config('attendance.timeout');
+        $payload = array_filter([
+            'user_id' => $userId !== null ? (string) $userId : null,
+            'employee_id' => $userId !== null ? (string) $userId : null,
+        ], static fn ($value) => $value !== null);
 
         try {
             $response = Http::timeout($timeout)
                 ->acceptJson()
                 ->attach('image', file_get_contents($image->getRealPath()), $image->getClientOriginalName())
-                ->post($url);
+                ->post($url, $payload);
         } catch (ConnectionException $exception) {
             throw new RuntimeException('Face API connection failed.', 0, $exception);
         }
@@ -37,5 +41,18 @@ class FaceVerificationService
             (bool) $payload['matched'],
             (float) $payload['confidence'],
         );
+    }
+
+    private function buildVerifyUrl(): string
+    {
+        $baseUrl = rtrim((string) config('attendance.face_api_url'), '/');
+
+        foreach (['/verify-face', '/identify-face', '/register-face'] as $endpoint) {
+            if (str_ends_with($baseUrl, $endpoint)) {
+                return substr($baseUrl, 0, -strlen($endpoint)) . '/verify-face';
+            }
+        }
+
+        return $baseUrl . '/verify-face';
     }
 }

@@ -158,11 +158,13 @@ class FaceRecognitionService
 
     private function buildEndpointUrl(string $path): string
     {
-        $verifyUrl = rtrim($this->verifyUrl, '/');
-        if (str_ends_with($verifyUrl, '/verify-face')) {
-            return substr($verifyUrl, 0, -strlen('/verify-face')) . $path;
+        $baseUrl = rtrim($this->verifyUrl, '/');
+        foreach (['/verify-face', '/identify-face', '/register-face'] as $endpoint) {
+            if (str_ends_with($baseUrl, $endpoint)) {
+                return substr($baseUrl, 0, -strlen($endpoint)) . $path;
+            }
         }
 
-        return $verifyUrl . $path;
+        return $baseUrl . $path;
     }
 }
