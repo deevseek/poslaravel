@@ -125,6 +125,7 @@ def verify_face(
     image: Optional[UploadFile] = File(None),
     file: Optional[UploadFile] = File(None),
     employee_id: Optional[str] = Form(None),
+    user_id: Optional[str] = Form(None),
 ):
     started_at = time.perf_counter()
     upload = image or file
@@ -149,8 +150,9 @@ def verify_face(
 
         embedding = _embedding_from_face(face_rgb)
         stored_embedding = None
-        if employee_id:
-            stored_embedding = _load_embedding(employee_id)
+        lookup_id = employee_id or user_id
+        if lookup_id:
+            stored_embedding = _load_embedding(lookup_id)
 
         if stored_embedding is None:
             confidence = 0.0
@@ -189,7 +191,15 @@ def verify_face(
 
 
 @app.post("/register-face")
-def register_face(user_id: str = Form(...), image: UploadFile = File(...)):
+def register_face(
+    image: UploadFile = File(...),
+    user_id: Optional[str] = Form(None),
+    employee_id: Optional[str] = Form(None),
+):
+    lookup_id = user_id or employee_id
+    if not lookup_id:
+        return _error_response("invalid_request", None, "user_id is required")
+
     try:
         image_rgb = _read_image(image)
         faces = _detect_faces(image_rgb)
@@ -205,9 +215,9 @@ def register_face(user_id: str = Form(...), image: UploadFile = File(...)):
 
         embedding = _embedding_from_face(face_rgb)
         os.makedirs(EMBEDDING_STORAGE_DIR, exist_ok=True)
-        np.save(_embedding_path(user_id), embedding)
+        np.save(_embedding_path(lookup_id), embedding)
 
-        return {"status": "registered", "user_id": user_id, "faces_detected": faces_detected}
+        return {"status": "registered", "user_id": lookup_id, "faces_detected": faces_detected}
     except Exception as exc:
         logger.exception("register-face failed")
         return _error_response("internal_error", None, str(exc), status_code=500)
