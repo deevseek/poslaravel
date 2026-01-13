@@ -1,5 +1,6 @@
 import logging
 import os
+import tempfile
 import time
 from typing import Optional
 
@@ -10,16 +11,39 @@ from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-DEFAULT_MODEL_NAME = "Facenet512"
-DEFAULT_DETECTOR = "opencv"
-DEFAULT_THRESHOLD = 0.8
-
-EMBEDDING_STORAGE_DIR = os.path.join("storage", "faces")
-
-app = FastAPI()
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 logger = logging.getLogger("face_recognition_service")
 
+DEFAULT_MODEL_NAME = "Facenet512"
+DEFAULT_DETECTOR = "opencv"
+DEFAULT_THRESHOLD = 0.8
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+def _resolve_embedding_storage_dir() -> str:
+    env_dir = os.getenv("FACE_EMBEDDING_DIR")
+    candidates = [env_dir] if env_dir else []
+    candidates.append(os.path.join(BASE_DIR, "storage", "faces"))
+    candidates.append(os.path.join(tempfile.gettempdir(), "poskomputer", "faces"))
+
+    for candidate in candidates:
+        if not candidate:
+            continue
+        try:
+            os.makedirs(candidate, exist_ok=True)
+        except PermissionError:
+            logger.warning("embedding storage permission denied: %s", candidate)
+            continue
+        if os.access(candidate, os.W_OK):
+            return candidate
+        logger.warning("embedding storage not writable: %s", candidate)
+
+    return os.path.join(tempfile.gettempdir(), "poskomputer", "faces")
+
+
+EMBEDDING_STORAGE_DIR = _resolve_embedding_storage_dir()
+
+app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://127.0.0.1:8000"],
