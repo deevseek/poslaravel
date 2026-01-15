@@ -65,7 +65,7 @@
                             @endif
                             <div class="flex flex-col text-gray-600">
                                 @if ($store['phone'])
-                                    <span>Telp: {{ $store['phone'] }}</span>
+                                    <span>Telp: <x-wa-link :phone="$store['phone']" class="text-gray-600" /></span>
                                 @endif
                                 @if ($store['hours'])
                                     <span>Jam Operasional: {{ $store['hours'] }}</span>
@@ -87,7 +87,7 @@
                         <p class="text-gray-600">No. Service: svc/{{ $service->created_at->format('Y') }}/{{ $service->id }}</p>
                         <p>{{ $service->customer->name }}</p>
                         @if ($service->customer->phone)
-                            <p class="text-gray-600">{{ $service->customer->phone }}</p>
+                            <x-wa-link :phone="$service->customer->phone" class="text-gray-600" />
                         @endif
                     </div>
                     <div class="space-y-2">
@@ -125,7 +125,8 @@
                     <div class="rounded-lg bg-gray-50 p-4 text-sm text-gray-700">
                         <p class="font-semibold text-gray-900">Terima kasih telah mempercayakan servis kepada kami.</p>
                         <p class="text-gray-600">Harap simpan tanda terima ini. Untuk informasi lebih lanjut hubungi
-                            {{ $store['phone'] ?? 'kontak toko' }} atau kunjungi kami pada jam operasional.</p>
+                            <x-wa-link :phone="$store['phone'] ?? null" class="text-gray-600 underline" fallback="kontak toko" />
+                            atau kunjungi kami pada jam operasional.</p>
                     </div>
                     <div class="flex items-center gap-4 rounded-lg border border-dashed border-gray-200 p-4">
                         <img src="{{ $progressQrUrl }}" alt="QR progres service" class="h-24 w-24 rounded bg-white p-1" />
@@ -146,7 +147,7 @@
                         <p>{{ $store['address'] }}</p>
                     @endif
                     @if ($store['phone'])
-                        <p>Telp: {{ $store['phone'] }}</p>
+                        <p>Telp: <x-wa-link :phone="$store['phone']" class="text-gray-700" /></p>
                     @endif
                 </div>
 
@@ -177,7 +178,7 @@
                     @if ($service->customer->phone)
                         <div class="flex items-center justify-between">
                             <span>Telepon</span>
-                            <span>{{ $service->customer->phone }}</span>
+                            <span><x-wa-link :phone="$service->customer->phone" class="text-gray-900" /></span>
                         </div>
                     @endif
                     <div class="flex items-center justify-between">

@@ -57,7 +57,9 @@
                         </td>
                         <td>
                             <div class="text-sm">{{ $registration->email }}</div>
-                            <div class="text-muted text-sm">{{ $registration->phone ?? '-' }}</div>
+                            <div class="text-muted text-sm">
+                                <x-wa-link :phone="$registration->phone" class="text-muted text-sm" />
+                            </div>
                         </td>
                         <td class="text-right">
                             @if ($registration->status === 'pending')

@@ -65,7 +65,7 @@
                         @endif
                         <div class="flex flex-col text-gray-600">
                             @if ($store['phone'])
-                                <span>Telp: {{ $store['phone'] }}</span>
+                                <span>Telp: <x-wa-link :phone="$store['phone']" class="text-gray-600" /></span>
                             @endif
                             @if ($store['hours'])
                                 <span>Jam Operasional: {{ $store['hours'] }}</span>
@@ -137,7 +137,7 @@
             <div class="mt-6 rounded-lg bg-gray-50 p-4 text-sm text-gray-700">
                 <p class="font-semibold text-gray-900">Terima kasih telah berbelanja!</p>
                 <p class="text-gray-600">Simpan struk ini sebagai bukti pembayaran. Jika ada pertanyaan, hubungi kami di
-                    {{ $store['phone'] ?? 'kontak toko' }}.</p>
+                    <x-wa-link :phone="$store['phone'] ?? null" class="text-gray-600 underline" fallback="kontak toko" />.</p>
             </div>
         </div>
 
@@ -148,7 +148,7 @@
                         <p>{{ $store['address'] }}</p>
                     @endif
                     @if ($store['phone'])
-                        <p>Telp: {{ $store['phone'] }}</p>
+                        <p>Telp: <x-wa-link :phone="$store['phone']" class="text-gray-700" /></p>
                     @endif
                 </div>
 
