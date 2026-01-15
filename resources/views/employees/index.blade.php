@@ -37,7 +37,9 @@
                     <tr>
                         <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $employee->name }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $employee->position ?? '-' }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">{{ $employee->phone ?? '-' }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">
+                            <x-wa-link :phone="$employee->phone" class="text-gray-600 hover:text-gray-800" />
+                        </td>
                         <td class="px-6 py-4 text-sm">
                             @if ($employee->is_active)
                                 <span class="rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-700">Aktif</span>

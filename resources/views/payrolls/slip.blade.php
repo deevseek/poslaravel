@@ -36,7 +36,7 @@
                             <p class="text-sm text-gray-600">{{ $store['address'] }}</p>
                         @endif
                         @if ($store['phone'])
-                            <p class="text-sm text-gray-600">Telp: {{ $store['phone'] }}</p>
+                            <p class="text-sm text-gray-600">Telp: <x-wa-link :phone="$store['phone']" class="text-gray-600" /></p>
                         @endif
                     </div>
                 </div>

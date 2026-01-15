@@ -25,7 +25,7 @@
                     <p class="font-semibold text-gray-900">Customer</p>
                     <p>{{ $service->customer->name }}</p>
                     @if ($service->customer->phone)
-                        <p class="text-gray-600">{{ $service->customer->phone }}</p>
+                        <x-wa-link :phone="$service->customer->phone" class="text-gray-600" />
                     @endif
                 </div>
                 <div class="space-y-2">

@@ -19,7 +19,7 @@
             </div>
             <div>
                 <p class="text-xs uppercase text-gray-500">Telepon</p>
-                <p class="text-sm text-gray-800">{{ $supplier->phone ?? '-' }}</p>
+                <x-wa-link :phone="$supplier->phone" class="text-sm text-gray-800" />
             </div>
         </div>
         <div class="grid gap-4 md:grid-cols-2">

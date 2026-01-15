@@ -37,7 +37,9 @@
                         <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $supplier->name }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $supplier->contact_person ?? '-' }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $supplier->email ?? '-' }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">{{ $supplier->phone ?? '-' }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">
+                            <x-wa-link :phone="$supplier->phone" class="text-gray-600 hover:text-gray-800" />
+                        </td>
                         @permission('supplier.manage')
                             <td class="px-6 py-4 text-sm text-gray-600">
                                 <div class="flex items-center justify-end gap-2">

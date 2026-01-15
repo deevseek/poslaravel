@@ -36,7 +36,9 @@
                     <tr>
                         <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $customer->name }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $customer->email ?? '-' }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">{{ $customer->phone ?? '-' }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">
+                            <x-wa-link :phone="$customer->phone" class="text-gray-600 hover:text-gray-800" />
+                        </td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $customer->address ?? '-' }}</td>
                         @permission('customer.manage')
                             <td class="px-6 py-4 text-sm text-gray-600">

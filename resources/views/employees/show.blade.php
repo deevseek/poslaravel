@@ -39,7 +39,7 @@
             <div>
                 <p class="text-sm text-gray-500">Kontak</p>
                 <p class="text-gray-700">{{ $employee->email ?? '-' }}</p>
-                <p class="text-gray-700">{{ $employee->phone ?? '-' }}</p>
+                <x-wa-link :phone="$employee->phone" class="text-gray-700" />
             </div>
             <div>
                 <p class="text-sm text-gray-500">Alamat</p>

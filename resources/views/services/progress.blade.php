@@ -27,7 +27,7 @@
                         <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Customer</p>
                         <p class="font-semibold text-gray-900">{{ $service->customer->name }}</p>
                         @if ($service->customer->phone)
-                            <p class="text-gray-500">{{ $service->customer->phone }}</p>
+                            <x-wa-link :phone="$service->customer->phone" class="text-gray-500" />
                         @endif
                         @if ($service->customer->address)
                             <p class="text-gray-500">{{ $service->customer->address }}</p>
@@ -87,7 +87,9 @@
             <div class="rounded-2xl border border-blue-100 bg-blue-50 p-5 text-sm text-blue-900">
                 <p class="font-semibold">Butuh bantuan?</p>
                 <p class="text-blue-700">
-                    Hubungi kami di {{ $store['phone'] ?? 'kontak toko' }} untuk informasi lebih lanjut.
+                    Hubungi kami di
+                    <x-wa-link :phone="$store['phone'] ?? null" class="text-blue-700 underline" fallback="kontak toko" />
+                    untuk informasi lebih lanjut.
                 </p>
             </div>
         </div>
