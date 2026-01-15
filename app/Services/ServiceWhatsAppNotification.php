@@ -51,6 +51,11 @@ class ServiceWhatsAppNotification
                 'label' => 'Notifikasi Service Diambil',
                 'message' => "Halo {$service->customer->name},\n\nTerima kasih. Service {$serviceNumber} sudah diambil." . ($invoiceNumber ? "\nInvoice: {$invoiceNumber}" : '') . "\n\nSemoga perangkat berfungsi normal. Jika ada kendala, silakan hubungi kami.\n{$storeName}",
             ],
+            [
+                'key' => 'canceled',
+                'label' => 'Notifikasi Service Dibatalkan',
+                'message' => "Halo {$service->customer->name},\n\nInformasi service {$serviceNumber}: status dibatalkan.\n\nJika ada pertanyaan, silakan hubungi kami.\n{$storeName}",
+            ],
         ];
 
         $phone = $service->customer?->phone;

@@ -16,12 +16,14 @@ class Service extends Model
     public const STATUS_DIKERJAKAN = 'dikerjakan';
     public const STATUS_SELESAI = 'selesai';
     public const STATUS_DIAMBIL = 'diambil';
+    public const STATUS_BATAL = 'batal';
 
     public const STATUSES = [
         self::STATUS_MENUNGGU,
         self::STATUS_DIKERJAKAN,
         self::STATUS_SELESAI,
         self::STATUS_DIAMBIL,
+        self::STATUS_BATAL,
     ];
 
     protected $fillable = [
