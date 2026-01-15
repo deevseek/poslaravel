@@ -10,7 +10,7 @@ use Illuminate\View\View;
 
 class SettingController extends Controller
 {
-    public function index(Request $request): View
+    public function index(): View
     {
         $keys = [
             Setting::STORE_NAME,
@@ -20,14 +20,11 @@ class SettingController extends Controller
             Setting::TRANSACTION_PREFIX,
             Setting::TRANSACTION_PADDING,
             Setting::STORE_LOGO_PATH,
-            Setting::WHATSAPP_ENABLED,
         ];
 
         $settings = Setting::whereIn('key', $keys)->pluck('value', 'key');
-        $tab = $request->get('tab', 'general');
-        $tab = $tab === 'whatsapp' ? 'whatsapp' : 'general';
 
-        return view('settings.index', compact('settings', 'tab'));
+        return view('settings.index', compact('settings'));
     }
 
     public function update(Request $request): RedirectResponse
@@ -40,7 +37,6 @@ class SettingController extends Controller
             Setting::TRANSACTION_PREFIX,
             Setting::TRANSACTION_PADDING,
             Setting::STORE_LOGO_PATH,
-            Setting::WHATSAPP_ENABLED,
         ])->pluck('value', 'key');
 
         $logoPath = $current[Setting::STORE_LOGO_PATH] ?? '';
@@ -61,7 +57,6 @@ class SettingController extends Controller
             Setting::TRANSACTION_PREFIX => $request->input(Setting::TRANSACTION_PREFIX, $current[Setting::TRANSACTION_PREFIX] ?? ''),
             Setting::TRANSACTION_PADDING => $request->input(Setting::TRANSACTION_PADDING, $current[Setting::TRANSACTION_PADDING] ?? 4),
             Setting::STORE_LOGO_PATH => $logoPath,
-            Setting::WHATSAPP_ENABLED => $request->boolean(Setting::WHATSAPP_ENABLED, filter_var($current[Setting::WHATSAPP_ENABLED] ?? false, FILTER_VALIDATE_BOOLEAN)),
         ];
 
         $validated = validator($payload, [
@@ -72,7 +67,6 @@ class SettingController extends Controller
             Setting::TRANSACTION_PREFIX => ['required', 'string', 'max:10'],
             Setting::TRANSACTION_PADDING => ['required', 'integer', 'min:1', 'max:10'],
             Setting::STORE_LOGO_PATH => ['nullable', 'string', 'max:255'],
-            Setting::WHATSAPP_ENABLED => ['boolean'],
         ])->validate();
 
         foreach ($validated as $key => $value) {
