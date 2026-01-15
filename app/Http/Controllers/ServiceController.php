@@ -125,10 +125,52 @@ class ServiceController extends Controller
             'warranty_days' => ['nullable', 'integer', 'min:0'],
         ]);
 
-        $service->update($validated);
-        $service->addLog('Diagnosa/biaya diperbarui');
+        $service->fill($validated);
+        $dirty = $service->getDirty();
+        $original = $service->getOriginal();
+
+        $service->save();
+
+        $logMessages = [];
+
+        if (array_key_exists('diagnosis', $dirty)) {
+            $before = trim((string) ($original['diagnosis'] ?? '')) ?: '-';
+            $after = trim((string) ($service->diagnosis ?? '')) ?: '-';
+            $logMessages[] = "Diagnosa diperbarui: {$before} → {$after}";
+        }
+
+        if (array_key_exists('notes', $dirty)) {
+            $before = trim((string) ($original['notes'] ?? '')) ?: '-';
+            $after = trim((string) ($service->notes ?? '')) ?: '-';
+            $logMessages[] = "Catatan diperbarui: {$before} → {$after}";
+        }
+
+        if (array_key_exists('service_fee', $dirty)) {
+            $before = $this->formatCurrency((float) ($original['service_fee'] ?? 0));
+            $after = $this->formatCurrency((float) ($service->service_fee ?? 0));
+            $logMessages[] = "Biaya jasa diperbarui: Rp {$before} → Rp {$after}";
+        }
+
+        if (array_key_exists('warranty_days', $dirty)) {
+            $before = (int) ($original['warranty_days'] ?? 0);
+            $after = (int) ($service->warranty_days ?? 0);
+            $logMessages[] = "Garansi diperbarui: {$before} hari → {$after} hari";
+        }
+
+        if ($logMessages === []) {
+            $logMessages[] = 'Data service diperbarui';
+        }
+
+        foreach ($logMessages as $message) {
+            $service->addLog($message);
+        }
 
         return back()->with('success', 'Data service diperbarui.');
+    }
+
+    protected function formatCurrency(float $amount): string
+    {
+        return number_format($amount, 0, ',', '.');
     }
 
     public function addItem(Request $request, Service $service): RedirectResponse
