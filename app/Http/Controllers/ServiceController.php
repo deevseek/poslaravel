@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Service;
 use App\Models\ServiceItem;
 use App\Models\Setting;
+use App\Services\ServiceWhatsAppNotification;
 use App\Models\StockMovement;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
@@ -95,7 +96,7 @@ class ServiceController extends Controller
         return redirect()->route('services.show', $service)->with('success', 'Service berhasil dicatat.');
     }
 
-    public function show(Service $service): View
+    public function show(Service $service, ServiceWhatsAppNotification $whatsAppNotification): View
     {
         $service->load([
             'customer',
@@ -105,11 +106,13 @@ class ServiceController extends Controller
         ]);
 
         $products = Product::orderBy('name')->get();
+        $whatsappNotifications = $whatsAppNotification->forService($service);
 
         return view('services.show', [
             'service' => $service,
             'products' => $products,
             'statuses' => Service::STATUSES,
+            'whatsappNotifications' => $whatsappNotifications,
         ]);
     }
 

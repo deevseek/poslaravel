@@ -196,6 +196,35 @@
                         @endif
                     </form>
                 </div>
+
+                <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Notifikasi WhatsApp</h2>
+                    @if (! $whatsappNotifications['phone'])
+                        <p class="text-sm text-gray-500">Nomor WhatsApp pelanggan belum tersedia.</p>
+                    @else
+                        <div class="space-y-3 text-sm">
+                            <div class="rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
+                                <p class="text-xs text-gray-500">Nomor Pelanggan</p>
+                                <p class="font-semibold text-gray-900">{{ $whatsappNotifications['phone'] }}</p>
+                            </div>
+                            <div class="space-y-2">
+                                @foreach ($whatsappNotifications['items'] as $item)
+                                    <div class="rounded-lg border border-gray-100 px-4 py-3">
+                                        <div class="flex items-center justify-between">
+                                            <p class="font-semibold text-gray-900">{{ $item['label'] }}</p>
+                                            @if ($item['link'])
+                                                <a href="{{ $item['link'] }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700 hover:bg-green-100">Kirim via WA</a>
+                                            @else
+                                                <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-500">Nomor tidak valid</span>
+                                            @endif
+                                        </div>
+                                        <p class="mt-2 whitespace-pre-line text-sm text-gray-700">{{ $item['message'] }}</p>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
