@@ -202,27 +202,6 @@
                     </li>
                 @endfeature
 
-                @feature('whatsapp')
-                    <li class="nav-header">WhatsApp</li>
-                    <li class="nav-item">
-                        <a href="{{ route('wa.broadcast') }}" class="nav-link {{ request()->routeIs('wa.broadcast') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-bullhorn"></i>
-                            <p>Broadcast</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('wa-templates.index') }}" class="nav-link {{ request()->routeIs('wa-templates.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-puzzle-piece"></i>
-                            <p>Template Pesan</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('wa.logs') }}" class="nav-link {{ request()->routeIs('wa.logs') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-file-alt"></i>
-                            <p>Log Pengiriman</p>
-                        </a>
-                    </li>
-                @endfeature
             </ul>
         </nav>
     </div>

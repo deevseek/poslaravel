@@ -18,8 +18,6 @@ use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\WarrantyClaimController;
 use App\Http\Controllers\WarrantyController;
 use App\Http\Controllers\SettingController;
-use App\Http\Controllers\WaBroadcastController;
-use App\Http\Controllers\WaTemplateController;
 use App\Http\Controllers\SubscriptionPlanController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\TenantRegistrationController;
@@ -164,18 +162,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('pos/checkout', 'checkout')->name('pos.checkout')->middleware(['feature:pos', 'can:pos.create']);
         Route::get('pos/transactions/{transaction}/receipt', 'receipt')->name('pos.receipt')->middleware(['feature:pos', 'can:pos.print']);
     });
-
-    Route::resource('wa-templates', WaTemplateController::class)
-        ->middleware(['feature:whatsapp', 'can:whatsapp.template_manage']);
-    Route::get('wa/broadcast', [WaBroadcastController::class, 'index'])
-        ->middleware(['feature:whatsapp', 'can:whatsapp.broadcast'])
-        ->name('wa.broadcast');
-    Route::post('wa/broadcast', [WaBroadcastController::class, 'send'])
-        ->middleware(['feature:whatsapp', 'can:whatsapp.broadcast'])
-        ->name('wa.broadcast.send');
-    Route::get('wa/logs', [WaBroadcastController::class, 'logs'])
-        ->middleware(['feature:whatsapp', 'can:whatsapp.log_view'])
-        ->name('wa.logs');
 
     Route::middleware(['central.domain', 'feature:tenants', 'can:tenant.manage'])->group(function () {
         Route::resource('tenants', TenantController::class)
