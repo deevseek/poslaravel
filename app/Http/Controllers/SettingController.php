@@ -21,7 +21,6 @@ class SettingController extends Controller
             Setting::TRANSACTION_PADDING,
             Setting::STORE_LOGO_PATH,
             Setting::WHATSAPP_ENABLED,
-            Setting::WHATSAPP_GATEWAY_URL,
         ];
 
         $settings = Setting::whereIn('key', $keys)->pluck('value', 'key');
@@ -42,7 +41,6 @@ class SettingController extends Controller
             Setting::TRANSACTION_PADDING,
             Setting::STORE_LOGO_PATH,
             Setting::WHATSAPP_ENABLED,
-            Setting::WHATSAPP_GATEWAY_URL,
         ])->pluck('value', 'key');
 
         $logoPath = $current[Setting::STORE_LOGO_PATH] ?? '';
@@ -64,7 +62,6 @@ class SettingController extends Controller
             Setting::TRANSACTION_PADDING => $request->input(Setting::TRANSACTION_PADDING, $current[Setting::TRANSACTION_PADDING] ?? 4),
             Setting::STORE_LOGO_PATH => $logoPath,
             Setting::WHATSAPP_ENABLED => $request->boolean(Setting::WHATSAPP_ENABLED, filter_var($current[Setting::WHATSAPP_ENABLED] ?? false, FILTER_VALIDATE_BOOLEAN)),
-            Setting::WHATSAPP_GATEWAY_URL => $request->input(Setting::WHATSAPP_GATEWAY_URL, $current[Setting::WHATSAPP_GATEWAY_URL] ?? null),
         ];
 
         $validated = validator($payload, [
@@ -76,7 +73,6 @@ class SettingController extends Controller
             Setting::TRANSACTION_PADDING => ['required', 'integer', 'min:1', 'max:10'],
             Setting::STORE_LOGO_PATH => ['nullable', 'string', 'max:255'],
             Setting::WHATSAPP_ENABLED => ['boolean'],
-            Setting::WHATSAPP_GATEWAY_URL => ['nullable', 'url'],
         ])->validate();
 
         foreach ($validated as $key => $value) {

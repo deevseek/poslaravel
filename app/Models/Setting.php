@@ -17,7 +17,6 @@ class Setting extends Model
     public const TRANSACTION_PADDING = 'transaction_padding';
     public const STORE_LOGO_PATH = 'store_logo_path';
     public const WHATSAPP_ENABLED = 'whatsapp_enabled';
-    public const WHATSAPP_GATEWAY_URL = 'whatsapp_gateway_url';
     public const HRD_WORK_START = 'hrd_work_start';
     public const HRD_WORK_END = 'hrd_work_end';
 

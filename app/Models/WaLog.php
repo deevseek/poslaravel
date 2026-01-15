@@ -15,4 +15,13 @@ class WaLog extends Model
         'type',
         'status',
     ];
+
+    public function getWaMeUrlAttribute(): string
+    {
+        $phone = preg_replace('/\\D+/', '', $this->phone ?? '');
+        $message = $this->message ?? '';
+        $query = $message !== '' ? '?text=' . urlencode($message) : '';
+
+        return $phone !== '' ? "https://wa.me/{$phone}{$query}" : '';
+    }
 }

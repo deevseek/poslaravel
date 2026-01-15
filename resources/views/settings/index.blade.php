@@ -22,7 +22,7 @@
                     <div class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-4">
                         <div>
                             <p class="text-sm font-semibold text-gray-900">Aktifkan WhatsApp</p>
-                            <p class="text-sm text-gray-600">Gunakan Baileys gateway untuk mengirim pesan otomatis.</p>
+                            <p class="text-sm text-gray-600">Gunakan tautan wa.me untuk membuka chat pelanggan.</p>
                         </div>
                         <label class="inline-flex cursor-pointer items-center">
                             <input type="hidden" name="{{ App\Models\Setting::WHATSAPP_ENABLED }}" value="0">
@@ -31,19 +31,6 @@
                                 {{ ($settings[App\Models\Setting::WHATSAPP_ENABLED] ?? false) ? 'checked' : '' }}>
                             <span class="ml-2 text-sm text-gray-700">Aktif</span>
                         </label>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700" for="{{ App\Models\Setting::WHATSAPP_GATEWAY_URL }}">Gateway URL</label>
-                        <input type="url" id="{{ App\Models\Setting::WHATSAPP_GATEWAY_URL }}"
-                            name="{{ App\Models\Setting::WHATSAPP_GATEWAY_URL }}"
-                            value="{{ old(App\Models\Setting::WHATSAPP_GATEWAY_URL, $settings[App\Models\Setting::WHATSAPP_GATEWAY_URL] ?? '') }}"
-                            class="mt-2 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            placeholder="https://gateway-baileys.local/send">
-                        <p class="mt-1 text-sm text-gray-500">Endpoint HTTP POST yang menerima parameter <code>phone</code> dan <code>message</code>.</p>
-                        @error(App\Models\Setting::WHATSAPP_GATEWAY_URL)
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
 
                     <div class="flex justify-end">
