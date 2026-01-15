@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Progress Service #{{ $service->id }}</title>
+    <title>Progress Service svc/{{ $service->created_at->format('Y') }}/{{ $service->id }}</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -14,7 +14,7 @@
                 <div class="flex flex-wrap items-start justify-between gap-4">
                     <div>
                         <p class="text-sm font-semibold text-blue-600">Progress Service</p>
-                        <h1 class="text-2xl font-semibold text-gray-900">#{{ $service->id }}</h1>
+                        <h1 class="text-2xl font-semibold text-gray-900">svc/{{ $service->created_at->format('Y') }}/{{ $service->id }}</h1>
                         <p class="text-sm text-gray-500">{{ $service->created_at->format('d M Y H:i') }}</p>
                     </div>
                     <span class="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 capitalize">

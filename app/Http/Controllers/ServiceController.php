@@ -34,7 +34,12 @@ class ServiceController extends Controller
         $serviceNumber = null;
 
         if ($search !== null) {
-            $normalizedSearch = ltrim(trim($search), '#');
+            $normalizedSearch = strtolower(trim($search));
+            $normalizedSearch = ltrim($normalizedSearch, '#');
+            if (str_starts_with($normalizedSearch, 'svc/')) {
+                $segments = array_values(array_filter(explode('/', $normalizedSearch)));
+                $normalizedSearch = end($segments) ?: $normalizedSearch;
+            }
             if (is_numeric($normalizedSearch)) {
                 $serviceNumber = (int) $normalizedSearch;
             }
@@ -162,7 +167,7 @@ class ServiceController extends Controller
                     'source' => 'service',
                     'reference' => $service->id,
                     'quantity' => $validated['quantity'],
-                    'note' => 'Penggunaan untuk service #' . $service->id,
+                    'note' => 'Penggunaan untuk service svc/' . $service->created_at->format('Y') . '/' . $service->id,
                 ]);
 
                 $service->addLog('Menambahkan sparepart: ' . $product->name . ' x ' . $validated['quantity']);

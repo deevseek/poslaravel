@@ -1,4 +1,4 @@
-<x-app-layout :title="'Invoice Service #' . $service->id">
+<x-app-layout :title="'Invoice Service svc/' . $service->created_at->format('Y') . '/' . $service->id">
     <div class="mx-auto max-w-4xl space-y-6">
         <div class="flex items-center justify-between">
             <div>

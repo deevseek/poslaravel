@@ -1,4 +1,4 @@
-<x-app-layout :title="'Tanda Terima Service #' . $service->id">
+<x-app-layout :title="'Tanda Terima Service svc/' . $service->created_at->format('Y') . '/' . $service->id">
     <style>
         .receipt-layout[data-format="standard"] .receipt-thermal {
             display: none;
@@ -29,7 +29,7 @@
         <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-semibold text-gray-900">Tanda Terima Service</h1>
-                <p class="text-gray-600">{{ $store['name'] }} • No. Service #{{ $service->id }}</p>
+                <p class="text-gray-600">{{ $store['name'] }} • No. Service svc/{{ $service->created_at->format('Y') }}/{{ $service->id }}</p>
             </div>
             <div class="receipt-actions flex flex-wrap items-center gap-2">
                 <button type="button" data-receipt-format="standard"
@@ -75,7 +75,7 @@
                     </div>
                     <div class="text-right space-y-1">
                         <p class="text-sm font-semibold text-gray-900">No. Service</p>
-                        <p class="text-gray-700">#{{ $service->id }}</p>
+                        <p class="text-gray-700">svc/{{ $service->created_at->format('Y') }}/{{ $service->id }}</p>
                         <p class="text-gray-600">{{ $service->created_at->format('d M Y H:i') }}</p>
                         <p class="text-gray-600 capitalize">Status: {{ $service->status }}</p>
                     </div>
@@ -84,7 +84,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
                     <div class="space-y-2">
                         <p class="font-semibold text-gray-900">Data Customer</p>
-                        <p class="text-gray-600">No. Service: #{{ $service->id }}</p>
+                        <p class="text-gray-600">No. Service: svc/{{ $service->created_at->format('Y') }}/{{ $service->id }}</p>
                         <p>{{ $service->customer->name }}</p>
                         @if ($service->customer->phone)
                             <p class="text-gray-600">{{ $service->customer->phone }}</p>
@@ -141,7 +141,7 @@
             <div class="receipt-thermal text-[11px] font-mono text-gray-900">
                 <div class="space-y-1 text-center">
                     <p class="text-sm font-semibold uppercase">{{ $store['name'] }}</p>
-                    <p>No. Service: #{{ $service->id }}</p>
+                    <p>No. Service: svc/{{ $service->created_at->format('Y') }}/{{ $service->id }}</p>
                     @if ($store['address'])
                         <p>{{ $store['address'] }}</p>
                     @endif
@@ -155,7 +155,7 @@
                 <div class="space-y-1">
                     <div class="flex items-center justify-between">
                         <span>No. Service</span>
-                        <span>#{{ $service->id }}</span>
+                        <span>svc/{{ $service->created_at->format('Y') }}/{{ $service->id }}</span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span>Tanggal</span>

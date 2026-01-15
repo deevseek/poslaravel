@@ -1,4 +1,4 @@
-<x-app-layout :title="'Detail Service #' . $service->id">
+<x-app-layout :title="'Detail Service svc/' . $service->created_at->format('Y') . '/' . $service->id">
     <div class="space-y-6">
         @if (session('success'))
             <div class="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
