@@ -2,7 +2,7 @@
     <div class="flex items-center justify-between">
         <div>
             <h1 class="text-2xl font-semibold text-gray-900">Log WhatsApp</h1>
-            <p class="text-gray-600">Riwayat semua pesan yang dikirim melalui gateway Baileys.</p>
+            <p class="text-gray-600">Riwayat semua pesan yang dibuat sebagai tautan wa.me.</p>
         </div>
         <a href="{{ route('wa.broadcast') }}" class="text-sm font-semibold text-blue-700 hover:underline">Kirim Broadcast</a>
     </div>
@@ -17,6 +17,7 @@
                         <th class="py-3">Tipe</th>
                         <th class="py-3">Status</th>
                         <th class="py-3">Pesan</th>
+                        <th class="py-3">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -33,10 +34,19 @@
                                 @endif
                             </td>
                             <td class="py-3 text-gray-800">{{ \Illuminate\Support\Str::limit($log->message, 100) }}</td>
+                            <td class="py-3">
+                                @if ($log->wa_me_url)
+                                    <a href="{{ $log->wa_me_url }}" class="text-sm font-semibold text-blue-700 hover:underline" target="_blank" rel="noopener">
+                                        Buka wa.me
+                                    </a>
+                                @else
+                                    <span class="text-sm text-gray-400">-</span>
+                                @endif
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="py-4 text-center text-gray-500">Belum ada log pengiriman.</td>
+                            <td colspan="6" class="py-4 text-center text-gray-500">Belum ada log pengiriman.</td>
                         </tr>
                     @endforelse
                 </tbody>

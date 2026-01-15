@@ -35,7 +35,7 @@
             </div>
 
             <div class="rounded-lg bg-yellow-50 p-4 text-sm text-yellow-900">
-                Pastikan gateway WhatsApp aktif pada menu pengaturan sebelum mengirim broadcast.
+                Broadcast akan dibuat sebagai tautan wa.me yang bisa dibuka dari log.
             </div>
 
             <div class="flex items-center justify-end gap-3">
