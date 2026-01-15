@@ -19,7 +19,7 @@
                     name="search"
                     type="text"
                     value="{{ $search }}"
-                    placeholder="Cari no. service, customer, perangkat, atau serial"
+                    placeholder="Cari no. service (svc/2024/123), customer, perangkat, atau serial"
                     class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 />
             </div>
