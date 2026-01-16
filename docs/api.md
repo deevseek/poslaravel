@@ -25,6 +25,7 @@ https://<domain>/api/v1
 Dokumentasi ini mencakup seluruh modul berikut:
 
 - Authentication (`/auth/*`)
+- Dashboard (`/dashboard/*`)
 - Attendance Face Verification (`/attendance/*`)
 - Attendance Logs (`/attendance-logs`)
 - Attendances (`/attendances`)
@@ -56,6 +57,7 @@ Dokumentasi ini mencakup seluruh modul berikut:
 | Modul | Base Path | Ringkasan Endpoint |
 | --- | --- | --- |
 | Authentication | `/auth/*` | `POST /auth/login`, `GET /auth/me`, `POST /auth/logout` |
+| Dashboard | `/dashboard/*` | `GET /dashboard/summary` |
 | Attendance Face Verification | `/attendance/*` | `POST /attendance/check-in`, `POST /attendance/check-out` |
 | Attendance Logs | `/attendance-logs` | CRUD standar (list, detail, create, update, delete) |
 | Attendances | `/attendances` | CRUD standar |
@@ -144,6 +146,66 @@ Authorization: Bearer <token>
 ```json
 {
   "message": "Logout berhasil."
+}
+```
+
+## Dashboard
+
+Endpoint ringkasan untuk kebutuhan dashboard aplikasi.
+
+### Summary
+
+`GET /dashboard/summary`
+
+**Headers**
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameter (Opsional)**
+- `days` (integer, default 7): jumlah hari yang ditarik untuk grafik pemasukan/pengeluaran (minimum 1).
+
+**Response**
+```json
+{
+  "data": {
+    "today_sales": 1250000,
+    "monthly_sales": 45200000,
+    "transactions_today": 12,
+    "customers_count": 340,
+    "products_count": 780,
+    "active_services_count": 8,
+    "outstanding_purchases": 5000000,
+    "recent_transactions": [
+      {
+        "id": 120,
+        "invoice_number": "INV-2026-001",
+        "total": 250000,
+        "customer": {
+          "id": 15,
+          "name": "Andi"
+        },
+        "created_at": "2026-03-10T08:15:30Z"
+      }
+    ],
+    "recent_services": [
+      {
+        "id": 45,
+        "device": "iPhone 13",
+        "status": "in_progress",
+        "customer": {
+          "id": 18,
+          "name": "Budi"
+        },
+        "created_at": "2026-03-10T09:00:00Z"
+      }
+    ],
+    "finance_chart": {
+      "labels": ["04 Mar", "05 Mar", "06 Mar", "07 Mar", "08 Mar", "09 Mar", "10 Mar"],
+      "income": [100000, 250000, 0, 300000, 200000, 150000, 400000],
+      "expense": [50000, 100000, 0, 80000, 60000, 75000, 90000]
+    }
+  }
 }
 ```
 
