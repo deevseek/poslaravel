@@ -51,6 +51,37 @@ Dokumentasi ini mencakup seluruh modul berikut:
 - Warranties (`/warranties`)
 - Warranty Claims (`/warranty-claims`)
 
+## Ringkasan Endpoint per Modul
+
+| Modul | Base Path | Ringkasan Endpoint |
+| --- | --- | --- |
+| Authentication | `/auth/*` | `POST /auth/login`, `GET /auth/me`, `POST /auth/logout` |
+| Attendance Face Verification | `/attendance/*` | `POST /attendance/check-in`, `POST /attendance/check-out` |
+| Attendance Logs | `/attendance-logs` | CRUD standar (list, detail, create, update, delete) |
+| Attendances | `/attendances` | CRUD standar |
+| Cash Sessions | `/cash-sessions` | CRUD standar |
+| Categories | `/categories` | CRUD standar |
+| Customers | `/customers` | CRUD standar |
+| Employees | `/employees` | CRUD standar |
+| Finances | `/finances` | CRUD standar |
+| Payrolls | `/payrolls` | CRUD standar |
+| Permissions | `/permissions` | CRUD standar |
+| Products | `/products` | CRUD standar |
+| Purchases | `/purchases` | CRUD standar |
+| Purchase Items | `/purchase-items` | CRUD standar |
+| Roles | `/roles` | CRUD standar |
+| Services | `/services` | CRUD standar |
+| Service Items | `/service-items` | CRUD standar |
+| Service Logs | `/service-logs` | CRUD standar |
+| Settings | `/settings` | CRUD standar |
+| Stock Movements | `/stock-movements` | CRUD standar |
+| Suppliers | `/suppliers` | CRUD standar |
+| Transactions | `/transactions` | CRUD standar |
+| Transaction Items | `/transaction-items` | CRUD standar |
+| Users | `/users` | CRUD standar |
+| Warranties | `/warranties` | CRUD standar |
+| Warranty Claims | `/warranty-claims` | CRUD standar |
+
 ## Authentication
 
 Gunakan token Bearer dari endpoint login.
