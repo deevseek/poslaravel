@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\ApiResourceController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Modules\Attendance\Controllers\AttendanceController as AttendanceModuleController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,9 @@ Route::prefix('v1')->group(function (): void {
     Route::middleware('api.token')->group(function (): void {
         Route::get('auth/me', [AuthController::class, 'me']);
         Route::post('auth/logout', [AuthController::class, 'logout']);
+
+        Route::get('dashboard/summary', [DashboardController::class, 'summary'])
+            ->name('api.dashboard.summary');
 
         Route::post('attendance/check-in', [AttendanceModuleController::class, 'checkIn']);
         Route::post('attendance/check-out', [AttendanceModuleController::class, 'checkOut']);
