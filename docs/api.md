@@ -8,6 +8,49 @@ Dokumentasi ini ditujukan untuk konsumsi aplikasi Android/Flutter.
 https://<domain>/api/v1
 ```
 
+## Health Check
+
+`GET /`
+
+**Response**
+```json
+{
+  "status": "ok",
+  "message": "API v1 is available."
+}
+```
+
+## Daftar Modul API
+
+Dokumentasi ini mencakup seluruh modul berikut:
+
+- Authentication (`/auth/*`)
+- Attendance Face Verification (`/attendance/*`)
+- Attendance Logs (`/attendance-logs`)
+- Attendances (`/attendances`)
+- Cash Sessions (`/cash-sessions`)
+- Categories (`/categories`)
+- Customers (`/customers`)
+- Employees (`/employees`)
+- Finances (`/finances`)
+- Payrolls (`/payrolls`)
+- Permissions (`/permissions`)
+- Products (`/products`)
+- Purchases (`/purchases`)
+- Purchase Items (`/purchase-items`)
+- Roles (`/roles`)
+- Services (`/services`)
+- Service Items (`/service-items`)
+- Service Logs (`/service-logs`)
+- Settings (`/settings`)
+- Stock Movements (`/stock-movements`)
+- Suppliers (`/suppliers`)
+- Transactions (`/transactions`)
+- Transaction Items (`/transaction-items`)
+- Users (`/users`)
+- Warranties (`/warranties`)
+- Warranty Claims (`/warranty-claims`)
+
 ## Authentication
 
 Gunakan token Bearer dari endpoint login.
