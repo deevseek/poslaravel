@@ -275,6 +275,161 @@ DELETE /customers/{id}
 }
 ```
 
+## Customers
+
+Modul customer menggunakan resource `/customers` di API v1.
+
+**Base URL**
+```
+/api/v1/customers
+```
+
+**Headers**
+```
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+### Data Fields
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| name | string | **required** saat create, nama pelanggan |
+| email | string | optional, harus unik |
+| phone | string | optional |
+| address | string | optional |
+
+### List Customers
+
+`GET /customers`
+
+**Query Parameters**
+- `per_page` (opsional, default 15)
+- `search` (opsional, mencari di `name`, `email`, `phone`)
+
+**Contoh**
+```
+GET /customers?per_page=20&search=andi
+```
+
+**Response sukses (200)**
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Andi",
+      "email": "andi@example.com",
+      "phone": "08123456789",
+      "address": "Jakarta",
+      "created_at": "2026-03-10T09:00:00Z",
+      "updated_at": "2026-03-10T09:00:00Z"
+    }
+  ],
+  "links": {
+    "first": "http://localhost/api/v1/customers?page=1",
+    "last": "http://localhost/api/v1/customers?page=1",
+    "prev": null,
+    "next": null
+  },
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "path": "http://localhost/api/v1/customers",
+    "per_page": 20,
+    "to": 1,
+    "total": 1
+  }
+}
+```
+
+### Detail Customer
+
+`GET /customers/{id}`
+
+**Response sukses (200)**
+```json
+{
+  "data": {
+    "id": 1,
+    "name": "Andi",
+    "email": "andi@example.com",
+    "phone": "08123456789",
+    "address": "Jakarta",
+    "created_at": "2026-03-10T09:00:00Z",
+    "updated_at": "2026-03-10T09:00:00Z"
+  }
+}
+```
+
+### Create Customer
+
+`POST /customers`
+
+**Request Body**
+```json
+{
+  "name": "Andi",
+  "email": "andi@example.com",
+  "phone": "08123456789",
+  "address": "Jakarta"
+}
+```
+
+**Response sukses (201)**
+```json
+{
+  "data": {
+    "id": 1,
+    "name": "Andi",
+    "email": "andi@example.com",
+    "phone": "08123456789",
+    "address": "Jakarta",
+    "created_at": "2026-03-10T09:00:00Z",
+    "updated_at": "2026-03-10T09:00:00Z"
+  }
+}
+```
+
+### Update Customer
+
+`PATCH /customers/{id}`
+
+**Request Body**
+```json
+{
+  "phone": "08111111111",
+  "address": "Bandung"
+}
+```
+
+**Response sukses (200)**
+```json
+{
+  "data": {
+    "id": 1,
+    "name": "Andi",
+    "email": "andi@example.com",
+    "phone": "08111111111",
+    "address": "Bandung",
+    "created_at": "2026-03-10T09:00:00Z",
+    "updated_at": "2026-03-10T09:10:00Z"
+  }
+}
+```
+
+### Delete Customer
+
+`DELETE /customers/{id}`
+
+**Response sukses (200)**
+```json
+{
+  "message": "Deleted."
+}
+```
+
 ## Error
 
 - `401 Unauthorized` jika token tidak valid.
