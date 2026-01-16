@@ -14,7 +14,6 @@
 @if ($url)
     <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" {{ $attributes }}>
         {{ $label }}
-        <span class="sr-only">Buka WhatsApp</span>
     </a>
 @else
     <span {{ $attributes }}>{{ $fallback }}</span>
