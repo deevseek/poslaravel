@@ -51,12 +51,17 @@
             </div>
         </div>
 
+        @php
+            $logoUrl = $store['logo']
+                ? (\Illuminate\Support\Str::startsWith($store['logo'], ['http://', 'https://']) ? $store['logo'] : asset($store['logo']))
+                : null;
+        @endphp
         <div class="receipt-layout rounded-lg border border-gray-200 bg-white p-6 shadow-sm" data-receipt-layout data-format="standard">
             <div class="receipt-standard space-y-6">
             <div class="flex flex-wrap items-start justify-between gap-4 border-b border-gray-100 pb-4 text-sm text-gray-700">
                 <div class="flex items-start gap-3">
-                    @if ($store['logo'])
-                        <img src="{{ asset($store['logo']) }}" alt="{{ $store['name'] }}" class="h-14 w-14 rounded" />
+                    @if ($logoUrl)
+                        <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="h-14 w-14 rounded" />
                     @endif
                     <div class="space-y-1">
                         <p class="text-base font-semibold text-gray-900">{{ $store['name'] }}</p>
@@ -143,6 +148,9 @@
 
             <div class="receipt-thermal text-[11px] font-mono text-gray-900">
                 <div class="space-y-1 text-center">
+                    @if ($logoUrl)
+                        <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="mx-auto h-10 w-10 rounded object-cover" />
+                    @endif
                     <p class="text-sm font-semibold uppercase">{{ $store['name'] }}</p>
                     @if ($store['address'])
                         <p>{{ $store['address'] }}</p>
