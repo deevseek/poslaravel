@@ -6,6 +6,13 @@ use App\Modules\Attendance\Controllers\AttendanceController as AttendanceModuleC
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
+    Route::get('/', function () {
+        return response()->json([
+            'status' => 'ok',
+            'message' => 'API v1 is available.',
+        ]);
+    });
+
     Route::post('auth/login', [AuthController::class, 'login']);
 
     Route::middleware('api.token')->group(function (): void {
