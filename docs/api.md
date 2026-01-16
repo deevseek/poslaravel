@@ -145,6 +145,11 @@ Setiap resource mendukung:
 - `/warranties`
 - `/warranty-claims`
 
+## Penamaan Route (Internal)
+
+Untuk kebutuhan internal Laravel (route name), semua resource API menggunakan prefix `api.`.
+Contoh: endpoint `GET /settings` memakai nama route `api.settings.index`.
+
 ## Contoh Create
 
 ```
