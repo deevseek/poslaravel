@@ -64,96 +64,100 @@
         @endphp
         <div class="receipt-layout rounded-lg border border-gray-200 bg-white p-6 shadow-sm" data-receipt-layout data-format="standard">
             <div class="receipt-standard space-y-6">
-            <div class="flex flex-wrap items-start justify-between gap-4 border-b border-gray-100 pb-4 text-sm text-gray-700">
-                <div class="flex items-start gap-3">
-                    @if ($logoUrl)
-                        <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="h-8 w-8 rounded object-contain" />
-                    @endif
-                    <div class="space-y-1">
-                        <p class="text-base font-semibold text-gray-900">{{ $store['name'] }}</p>
-                        @if ($store['address'])
-                            <p class="text-gray-600 leading-snug">{{ $store['address'] }}</p>
+                <div class="flex flex-wrap items-start justify-between gap-4 border-b border-gray-100 pb-4 text-sm text-gray-700">
+                    <div class="flex items-start gap-3">
+                        @if ($logoUrl)
+                            <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="h-8 w-8 rounded object-contain" />
                         @endif
-                        <div class="flex flex-col text-gray-600">
-                            @if ($store['phone'])
-                                <span>Telp: <x-wa-link :phone="$store['phone']" class="text-gray-600" /></span>
+                        <div class="space-y-1">
+                            <p class="text-base font-semibold text-gray-900">{{ $store['name'] }}</p>
+                            @if ($store['address'])
+                                <p class="text-gray-600 leading-snug">{{ $store['address'] }}</p>
                             @endif
-                            @if ($store['hours'])
-                                <span>Jam Operasional: {{ $store['hours'] }}</span>
-                            @endif
+                            <div class="flex flex-col text-gray-600">
+                                @if ($store['phone'])
+                                    <span>Telp: <x-wa-link :phone="$store['phone']" class="text-gray-600" /></span>
+                                @endif
+                                @if ($store['hours'])
+                                    <span>Jam Operasional: {{ $store['hours'] }}</span>
+                                @endif
+                            </div>
                         </div>
                     </div>
+                    <div class="space-y-1 text-right">
+                        <p class="text-sm font-semibold text-gray-900">Invoice</p>
+                        <p class="text-gray-700">{{ $transaction->invoice_number }}</p>
+                        <p class="text-gray-600">{{ $transaction->created_at->format('d M Y H:i') }}</p>
+                        <p class="text-gray-600 uppercase">{{ str_replace('-', ' ', $transaction->payment_method) }}</p>
+                        @if ($receiver)
+                            <p class="text-gray-600">Penerima: {{ $receiver->name }}</p>
+                        @endif
+                    </div>
                 </div>
-                <div class="text-right space-y-1">
-                    <p class="text-sm font-semibold text-gray-900">Invoice</p>
-                    <p class="text-gray-700">{{ $transaction->invoice_number }}</p>
-                    <p class="text-gray-600">{{ $transaction->created_at->format('d M Y H:i') }}</p>
-                    <p class="text-gray-600 uppercase">{{ str_replace('-', ' ', $transaction->payment_method) }}</p>
-                    @if ($receiver)
-                        <p class="text-gray-600">Penerima: {{ $receiver->name }}</p>
-                    @endif
-                </div>
-            </div>
 
-            @if ($transaction->customer)
-                <div class="border-b border-gray-100 py-4 text-sm text-gray-700">
-                    <p class="font-semibold text-gray-900">Customer</p>
-                    <p>{{ $transaction->customer->name }}</p>
-                </div>
-            @endif
+                @if ($transaction->customer)
+                    <div class="border-b border-gray-100 py-4 text-sm text-gray-700">
+                        <p class="font-semibold text-gray-900">Customer</p>
+                        <p>{{ $transaction->customer->name }}</p>
+                    </div>
+                @endif
 
-            <div class="py-4">
-                <table class="min-w-full text-sm text-gray-700">
+                <div class="py-4">
+                    <table class="min-w-full table-fixed text-sm text-gray-700">
                     <thead>
                         <tr class="border-b border-gray-200">
-                            <th class="py-2 text-left font-semibold">Produk</th>
-                            <th class="py-2 text-center font-semibold">Qty</th>
-                            <th class="py-2 text-right font-semibold">Harga</th>
-                            <th class="py-2 text-right font-semibold">Total</th>
+                            <th class="w-1/2 py-2 text-left font-semibold">Produk</th>
+                            <th class="w-1/6 py-2 text-center font-semibold">Qty</th>
+                            <th class="w-1/6 py-2 text-right font-semibold">Harga</th>
+                            <th class="w-1/6 py-2 text-right font-semibold">Total</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @foreach ($transaction->items as $item)
                             <tr>
-                                <td class="py-2">{{ $item->product?->name ?? 'Produk' }}</td>
-                                <td class="py-2 text-center">{{ $item->quantity }}</td>
-                                <td class="py-2 text-right">Rp {{ number_format($item->price, 0, ',', '.') }}</td>
-                                <td class="py-2 text-right font-semibold">Rp {{ number_format($item->total, 0, ',', '.') }}</td>
+                                <td class="py-2 pr-3 leading-snug text-gray-800">
+                                    {{ $item->product?->name ?? 'Produk' }}
+                                </td>
+                                <td class="py-2 text-center tabular-nums">{{ $item->quantity }}</td>
+                                <td class="py-2 text-right tabular-nums">Rp {{ number_format($item->price, 0, ',', '.') }}</td>
+                                <td class="py-2 text-right font-semibold tabular-nums">Rp {{ number_format($item->total, 0, ',', '.') }}</td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
-            </div>
+                </div>
 
-            <div class="space-y-2 border-t border-gray-200 pt-4 text-sm text-gray-700">
-                <div class="flex items-center justify-between">
-                    <span>Subtotal</span>
-                    <span>Rp {{ number_format($transaction->subtotal, 0, ',', '.') }}</span>
+                <div class="space-y-2 border-t border-gray-200 pt-4 text-sm text-gray-700">
+                    <div class="grid grid-cols-[1fr_auto] items-center gap-3">
+                        <span>Subtotal</span>
+                        <span class="text-right tabular-nums">Rp {{ number_format($transaction->subtotal, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="grid grid-cols-[1fr_auto] items-center gap-3">
+                        <span>Diskon</span>
+                        <span class="text-right tabular-nums">Rp {{ number_format($transaction->discount, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="grid grid-cols-[1fr_auto] items-center gap-3 text-base font-semibold text-gray-900">
+                        <span>Total</span>
+                        <span class="text-right tabular-nums">Rp {{ number_format($transaction->total, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="grid grid-cols-[1fr_auto] items-center gap-3">
+                        <span>Jumlah Bayar</span>
+                        <span class="text-right tabular-nums">Rp {{ number_format($transaction->paid_amount, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="grid grid-cols-[1fr_auto] items-center gap-3">
+                        <span>Kembalian</span>
+                        <span class="text-right tabular-nums">Rp {{ number_format($transaction->change_amount, 0, ',', '.') }}</span>
+                    </div>
                 </div>
-                <div class="flex items-center justify-between">
-                    <span>Diskon</span>
-                    <span>Rp {{ number_format($transaction->discount, 0, ',', '.') }}</span>
-                </div>
-                <div class="flex items-center justify-between text-base font-semibold text-gray-900">
-                    <span>Total</span>
-                    <span>Rp {{ number_format($transaction->total, 0, ',', '.') }}</span>
-                </div>
-                <div class="flex items-center justify-between">
-                    <span>Jumlah Bayar</span>
-                    <span>Rp {{ number_format($transaction->paid_amount, 0, ',', '.') }}</span>
-                </div>
-                <div class="flex items-center justify-between">
-                    <span>Kembalian</span>
-                    <span>Rp {{ number_format($transaction->change_amount, 0, ',', '.') }}</span>
-                </div>
-            </div>
 
-            <div class="mt-6 rounded-lg bg-gray-50 p-4 text-sm text-gray-700">
-                <p class="font-semibold text-gray-900">Terima kasih telah berbelanja!</p>
-                <p class="text-gray-600">Simpan struk ini sebagai bukti pembayaran. Jika ada pertanyaan, hubungi kami di
-                    <x-wa-link :phone="$store['phone'] ?? null" class="text-gray-600 underline" fallback="kontak toko" />.</p>
+                <div class="mt-6 rounded-lg bg-gray-50 p-4 text-sm text-gray-700">
+                    <p class="font-semibold text-gray-900">Terima kasih telah berbelanja!</p>
+                    <p class="text-gray-600">
+                        Simpan struk ini sebagai bukti pembayaran. Jika ada pertanyaan, hubungi kami di
+                        <x-wa-link :phone="$store['phone'] ?? null" class="text-gray-600 underline" fallback="kontak toko" />.
+                    </p>
+                </div>
             </div>
-        </div>
 
             <div class="receipt-thermal text-[11px] font-mono text-gray-900">
                 <div class="space-y-1 text-center">
