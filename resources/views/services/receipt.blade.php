@@ -95,7 +95,7 @@
                         <div class="flex flex-wrap items-start justify-between gap-6">
                             <div class="flex items-start gap-3">
                                 @if ($logoUrl)
-                                    <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="h-12 w-12 rounded-lg object-cover" />
+                                    <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="h-10 w-10 rounded-lg object-cover" />
                                 @endif
                                 <div class="space-y-1">
                                     <p class="text-sm font-semibold uppercase tracking-[0.2em] text-gray-900">{{ $store['name'] }}</p>
@@ -254,7 +254,7 @@
             <div class="receipt-thermal text-[11px] font-mono text-gray-900">
                 <div class="space-y-1 text-center">
                     @if ($logoUrl)
-                        <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="mx-auto h-10 w-10 rounded object-cover" />
+                        <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="mx-auto h-8 w-8 rounded object-cover" />
                     @endif
                     <p class="text-sm font-semibold uppercase">{{ $store['name'] }}</p>
                     <p>No. Service: svc/{{ $service->created_at->format('Y') }}/{{ $service->id }}</p>

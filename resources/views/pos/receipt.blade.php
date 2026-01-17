@@ -67,7 +67,7 @@
             <div class="flex flex-wrap items-start justify-between gap-4 border-b border-gray-100 pb-4 text-sm text-gray-700">
                 <div class="flex items-start gap-3">
                     @if ($logoUrl)
-                        <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="h-14 w-14 rounded" />
+                        <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="h-10 w-10 rounded" />
                     @endif
                     <div class="space-y-1">
                         <p class="text-base font-semibold text-gray-900">{{ $store['name'] }}</p>
@@ -158,7 +158,7 @@
             <div class="receipt-thermal text-[11px] font-mono text-gray-900">
                 <div class="space-y-1 text-center">
                     @if ($logoUrl)
-                        <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="mx-auto h-10 w-10 rounded object-cover" />
+                        <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="mx-auto h-8 w-8 rounded object-cover" />
                     @endif
                     <p class="text-sm font-semibold uppercase">{{ $store['name'] }}</p>
                     @if ($store['address'])
