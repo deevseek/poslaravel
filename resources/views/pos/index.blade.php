@@ -184,8 +184,11 @@
                                     </p>
                                     <p class="text-sm font-semibold text-emerald-600">Rp {{ number_format($transaction->total, 0, ',', '.') }}</p>
                                 </div>
-                                <div>
+                                <div class="flex flex-wrap items-center gap-2">
                                     <a href="{{ route('pos.receipt', $transaction) }}" class="inline-flex items-center rounded-lg bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-100">Cetak Ulang</a>
+                                    @if ($transaction->customer)
+                                        <a href="{{ route('pos.receiver.print', $transaction) }}" class="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50">Cetak Penerima</a>
+                                    @endif
                                 </div>
                             </div>
                         </div>
