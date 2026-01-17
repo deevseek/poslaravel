@@ -9,6 +9,11 @@
         }
 
         @media print {
+            @page {
+                size: A5 portrait;
+                margin: 8mm;
+            }
+
             .receipt-actions {
                 display: none !important;
             }
@@ -24,7 +29,8 @@
             }
 
             .receipt-layout[data-format="standard"] {
-                width: 135mm;
+                width: 148mm;
+                margin: 0 auto;
             }
 
             .receipt-sheet {
