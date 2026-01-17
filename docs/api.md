@@ -757,6 +757,150 @@ Searchable: `name`, `email`, `phone`.
 | phone | string | nomor telepon |
 | address | string | alamat |
 
+#### Daftar Supplier
+
+`GET /suppliers`
+
+**Query Parameter**
+- `search` (string, opsional): pencarian di `name`, `contact_person`, `email`, `phone`.
+- `per_page` (integer, opsional, default 15): jumlah data per halaman.
+
+**Response**
+```json
+{
+  "data": [
+    {
+      "id": 12,
+      "name": "PT Sumber Jaya",
+      "contact_person": "Rina",
+      "email": "rina@sumberjaya.co.id",
+      "phone": "08123456789",
+      "address": "Jl. Merdeka No. 10",
+      "created_at": "2026-03-10T08:10:00Z",
+      "updated_at": "2026-03-10T08:10:00Z"
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "last_page": 4,
+    "per_page": 15,
+    "total": 52,
+    "from": 1,
+    "to": 15
+  },
+  "links": {
+    "first": "https://<domain>/api/v1/suppliers?page=1",
+    "last": "https://<domain>/api/v1/suppliers?page=4",
+    "prev": null,
+    "next": "https://<domain>/api/v1/suppliers?page=2"
+  }
+}
+```
+
+#### Detail Supplier
+
+`GET /suppliers/{id}`
+
+**Response**
+```json
+{
+  "data": {
+    "id": 12,
+    "name": "PT Sumber Jaya",
+    "contact_person": "Rina",
+    "email": "rina@sumberjaya.co.id",
+    "phone": "08123456789",
+    "address": "Jl. Merdeka No. 10",
+    "created_at": "2026-03-10T08:10:00Z",
+    "updated_at": "2026-03-10T08:10:00Z"
+  }
+}
+```
+
+#### Tambah Supplier
+
+`POST /suppliers`
+
+**Body**
+```json
+{
+  "name": "PT Sumber Jaya",
+  "contact_person": "Rina",
+  "email": "rina@sumberjaya.co.id",
+  "phone": "08123456789",
+  "address": "Jl. Merdeka No. 10"
+}
+```
+
+**Validasi**
+- `name` (required, string, max 255)
+- `contact_person` (nullable, string, max 255)
+- `email` (nullable, email, max 255, unique)
+- `phone` (nullable, string, max 50)
+- `address` (nullable, string)
+
+**Response (201)**
+```json
+{
+  "data": {
+    "id": 12,
+    "name": "PT Sumber Jaya",
+    "contact_person": "Rina",
+    "email": "rina@sumberjaya.co.id",
+    "phone": "08123456789",
+    "address": "Jl. Merdeka No. 10",
+    "created_at": "2026-03-10T08:10:00Z",
+    "updated_at": "2026-03-10T08:10:00Z"
+  }
+}
+```
+
+#### Ubah Supplier
+
+`PATCH /suppliers/{id}`
+
+**Body**
+```json
+{
+  "name": "PT Sumber Jaya Abadi",
+  "phone": "08123456780"
+}
+```
+
+**Validasi**
+- `name` (sometimes, string, max 255)
+- `contact_person` (sometimes, nullable, string, max 255)
+- `email` (sometimes, nullable, email, max 255, unique kecuali id saat ini)
+- `phone` (sometimes, nullable, string, max 50)
+- `address` (sometimes, nullable, string)
+
+**Response**
+```json
+{
+  "data": {
+    "id": 12,
+    "name": "PT Sumber Jaya Abadi",
+    "contact_person": "Rina",
+    "email": "rina@sumberjaya.co.id",
+    "phone": "08123456780",
+    "address": "Jl. Merdeka No. 10",
+    "created_at": "2026-03-10T08:10:00Z",
+    "updated_at": "2026-03-12T02:00:00Z"
+  }
+}
+```
+
+#### Hapus Supplier
+
+`DELETE /suppliers/{id}`
+
+**Response**
+```json
+{
+  "message": "Deleted."
+}
+```
+
 ### Transactions (`/transactions`)
 
 Searchable: `invoice_number`, `customer_id`, `status`.
