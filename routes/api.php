@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\ApiResourceController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Modules\Attendance\Controllers\AttendanceController as AttendanceModuleController;
 use Illuminate\Support\Facades\Route;
@@ -31,7 +32,7 @@ Route::prefix('v1')->group(function (): void {
             Route::apiResource('attendances', ApiResourceController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
             Route::apiResource('cash-sessions', ApiResourceController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
             Route::apiResource('categories', ApiResourceController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
-            Route::apiResource('customers', ApiResourceController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
+            Route::apiResource('customers', CustomerController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
             Route::apiResource('employees', ApiResourceController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
             Route::apiResource('finances', ApiResourceController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
             Route::apiResource('payrolls', ApiResourceController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
