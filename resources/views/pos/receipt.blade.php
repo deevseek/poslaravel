@@ -150,9 +150,9 @@ $logo = $store['logo']
         <button data-format="thermal80" class="btn">Preview Thermal 80mm</button>
         <button data-format="thermal58" class="btn">Preview Thermal 58mm</button>
 
-        <button data-format="standard" data-print class="bg-blue-600 text-white px-4 py-2 rounded">Cetak</button>
-        <button data-format="thermal80" data-print class="bg-green-600 text-white px-4 py-2 rounded">Cetak Thermal</button>
-        <button data-format="thermal58" data-print class="bg-emerald-600 text-white px-4 py-2 rounded">Cetak Thermal 58mm</button>
+        <button data-format="standard" data-print="true" class="bg-blue-600 text-white px-4 py-2 rounded">Cetak</button>
+        <button data-format="thermal80" data-print="true" class="bg-green-600 text-white px-4 py-2 rounded">Cetak Thermal</button>
+        <button data-format="thermal58" data-print="true" class="bg-emerald-600 text-white px-4 py-2 rounded">Cetak Thermal 58mm</button>
 
         <a href="{{ route('pos.receiver.print', $transaction) }}"
            class="bg-indigo-50 border px-4 py-2 rounded text-indigo-700">
@@ -290,12 +290,12 @@ const applyPageStyle = (format) => {
     pageStyle.textContent = `@media print { @page { size: ${config.size}; margin: ${config.margin}; } }`;
 };
 
-document.querySelectorAll('[data-format]').forEach(btn => {
+document.querySelectorAll('.receipt-actions [data-format]').forEach(btn => {
     btn.onclick = () => {
         const format = btn.dataset.format;
         layout.dataset.format = format;
         applyPageStyle(format);
-        if (btn.dataset.print) {
+        if (btn.hasAttribute('data-print')) {
             window.print();
         }
     };
