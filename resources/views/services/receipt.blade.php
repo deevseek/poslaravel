@@ -24,12 +24,12 @@
             }
 
             .receipt-layout[data-format="standard"] {
-                width: 210mm;
+                width: 148mm;
             }
 
             .receipt-sheet {
-                min-height: 148mm;
-                padding: 14mm 14mm;
+                min-height: 210mm;
+                padding: 12mm 12mm;
             }
         }
 
@@ -40,7 +40,7 @@
         }
 
         .receipt-label {
-            width: 130px;
+            width: 120px;
         }
 
         .receipt-dotline {
@@ -49,11 +49,11 @@
         }
 
         .receipt-watermark {
-            opacity: 0.12;
+            opacity: 0.08;
         }
     </style>
 
-    <div class="mx-auto max-w-5xl space-y-6">
+    <div class="mx-auto max-w-3xl space-y-6">
         <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-semibold text-gray-900">Tanda Terima Service</h1>
@@ -62,7 +62,7 @@
             <div class="receipt-actions flex flex-wrap items-center gap-2">
                 <button type="button" data-receipt-format="standard"
                     class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50">
-                    Preview Printer Biasa
+                    Preview Printer Biasa (A5)
                 </button>
                 <button type="button" data-receipt-format="thermal"
                     class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50">
@@ -70,7 +70,7 @@
                 </button>
                 <button type="button" data-receipt-format="standard" data-receipt-print="true"
                     class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">
-                    Cetak Printer Biasa
+                    Cetak Printer Biasa (A5)
                 </button>
                 <button type="button" data-receipt-format="thermal" data-receipt-print="true"
                     class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-700">
@@ -86,19 +86,19 @@
         @endphp
         <div class="receipt-layout rounded-lg border border-gray-200 bg-white shadow-sm" data-receipt-layout data-format="standard">
             <div class="receipt-standard space-y-6">
-                <div class="receipt-sheet relative overflow-hidden rounded-lg border border-gray-200 bg-white text-gray-700">
+                <div class="receipt-sheet relative overflow-hidden rounded-2xl border border-gray-200 bg-white text-gray-700 shadow-sm">
                     <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
-                        <p class="receipt-watermark text-6xl font-semibold uppercase tracking-[0.3em] text-gray-400">{{ $store['name'] }}</p>
+                        <p class="receipt-watermark text-5xl font-semibold uppercase tracking-[0.35em] text-gray-400">{{ $store['name'] }}</p>
                     </div>
 
-                    <div class="relative space-y-4">
-                        <div class="flex flex-wrap items-start justify-between gap-6">
+                    <div class="relative space-y-5">
+                        <div class="flex flex-wrap items-start justify-between gap-6 border-b border-gray-200 pb-4">
                             <div class="flex items-start gap-3">
                                 @if ($logoUrl)
-                                    <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="h-10 w-10 rounded-lg object-cover" />
+                                    <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="h-11 w-11 rounded-xl object-cover" />
                                 @endif
                                 <div class="space-y-1">
-                                    <p class="text-sm font-semibold uppercase tracking-[0.2em] text-gray-900">{{ $store['name'] }}</p>
+                                    <p class="text-sm font-semibold uppercase tracking-[0.22em] text-gray-900">{{ $store['name'] }}</p>
                                     @if ($store['hours'])
                                         <p class="text-xs uppercase text-gray-500">{{ $store['hours'] }}</p>
                                     @endif
@@ -115,19 +115,20 @@
                                 </div>
                             </div>
                             <div class="text-right">
-                                <p class="text-lg font-semibold uppercase tracking-[0.35em] text-gray-900">Tanda Terima Servis</p>
+                                <p class="text-lg font-semibold uppercase tracking-[0.3em] text-gray-900">Tanda Terima Servis</p>
                                 <p class="text-xs text-gray-500">Dokumen resmi penerimaan barang servis</p>
+                                <p class="mt-2 text-xs font-semibold text-gray-700">No. svc/{{ $service->created_at->format('Y') }}/{{ $service->id }}</p>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 gap-4 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-xs text-gray-700 md:grid-cols-3">
-                            <div class="space-y-1">
-                                <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">No. Servis</p>
-                                <p class="font-semibold text-gray-900">svc/{{ $service->created_at->format('Y') }}/{{ $service->id }}</p>
-                            </div>
+                        <div class="grid grid-cols-1 gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-xs text-gray-700 md:grid-cols-3">
                             <div class="space-y-1">
                                 <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">Tanggal Terima</p>
-                                <p>{{ $service->created_at->format('d M Y') }}</p>
+                                <p class="font-semibold text-gray-900">{{ $service->created_at->format('d M Y') }}</p>
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">Jam</p>
+                                <p>{{ $service->created_at->format('H:i') }}</p>
                             </div>
                             <div class="space-y-1">
                                 <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">Admin</p>
@@ -176,7 +177,7 @@
                             Data Barang Servis
                         </div>
 
-                        <div class="grid grid-cols-1 gap-4 md:grid-cols-[1.4fr_0.6fr] text-xs">
+                        <div class="grid grid-cols-1 gap-4 text-xs md:grid-cols-[1.4fr_0.6fr]">
                             <div class="space-y-2">
                                 <div class="flex">
                                     <span class="receipt-label">Nama Barang</span>
@@ -211,20 +212,20 @@
                             </div>
                         </div>
 
-                        <div class="border-b border-gray-300"></div>
+                        <div class="border-b border-gray-200"></div>
 
-                        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                            <div class="space-y-3 text-center text-xs text-gray-600">
-                                <img src="{{ $progressQrUrl }}" alt="QR progres service" class="mx-auto h-28 w-28 rounded bg-white p-1" />
-                                <p class="font-semibold uppercase tracking-[0.2em] text-gray-800">Scan Untuk Update Status &amp; Pengambilan Barang Servis</p>
+                        <div class="grid grid-cols-1 gap-5 rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-xs text-gray-600 md:grid-cols-2">
+                            <div class="space-y-3 text-center">
+                                <img src="{{ $progressQrUrl }}" alt="QR progres service" class="mx-auto h-24 w-24 rounded-lg bg-white p-2 shadow-sm" />
+                                <p class="font-semibold uppercase tracking-[0.2em] text-gray-800">Scan Update Status &amp; Pengambilan</p>
                             </div>
-                            <div class="space-y-3 text-center text-xs text-gray-600">
-                                <img src="{{ $trackingQrUrl ?? $progressQrUrl }}" alt="QR tracking service" class="mx-auto h-28 w-28 rounded bg-white p-1" />
-                                <p class="font-semibold uppercase tracking-[0.2em] text-gray-800">Scan Untuk Cek Status (Tracking) Servis</p>
+                            <div class="space-y-3 text-center">
+                                <img src="{{ $trackingQrUrl ?? $progressQrUrl }}" alt="QR tracking service" class="mx-auto h-24 w-24 rounded-lg bg-white p-2 shadow-sm" />
+                                <p class="font-semibold uppercase tracking-[0.2em] text-gray-800">Scan Cek Status (Tracking)</p>
                             </div>
                         </div>
 
-                        <div class="border-b border-gray-300"></div>
+                        <div class="border-b border-gray-200"></div>
 
                         <div class="grid grid-cols-1 gap-4 text-[11px] text-gray-600 md:grid-cols-[1.4fr_0.6fr]">
                             <div class="space-y-1">
