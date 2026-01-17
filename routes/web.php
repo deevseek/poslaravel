@@ -167,6 +167,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('pos/cart/{product}', 'removeFromCart')->name('pos.cart.remove')->middleware(['feature:pos', 'can:pos.create']);
         Route::post('pos/checkout', 'checkout')->name('pos.checkout')->middleware(['feature:pos', 'can:pos.create']);
         Route::get('pos/transactions/{transaction}/receipt', 'receipt')->name('pos.receipt')->middleware(['feature:pos', 'can:pos.print']);
+        Route::get('pos/transactions/{transaction}/receiver-print', 'printReceiver')->name('pos.receiver.print')->middleware(['feature:pos', 'can:pos.print']);
     });
 
     Route::middleware(['central.domain', 'feature:tenants', 'can:tenant.manage'])->group(function () {
