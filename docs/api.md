@@ -449,12 +449,32 @@ Authorization: Bearer <token>
 Content-Type: application/json
 ```
 
+### Ringkasan Endpoint
+
+| Method | Endpoint | Deskripsi |
+| --- | --- | --- |
+| GET | `/api/v1/categories` | Ambil daftar kategori (pagination + search). |
+| GET | `/api/v1/categories/{id}` | Ambil detail kategori. |
+| POST | `/api/v1/categories` | Buat kategori baru. |
+| PATCH | `/api/v1/categories/{id}` | Perbarui kategori (partial update). |
+| DELETE | `/api/v1/categories/{id}` | Hapus kategori. |
+
 ### Data Fields
 
 | Field | Type | Notes |
 | --- | --- | --- |
 | name | string | **required** saat create, unik, nama kategori |
 | description | string | optional, deskripsi kategori |
+
+### Validasi
+
+**Create**
+- `name`: required, string, max 255 karakter
+- `description`: nullable, string
+
+**Update**
+- `name`: optional, string, max 255 karakter
+- `description`: optional, nullable, string
 
 ### Category Index (List)
 
@@ -543,6 +563,18 @@ GET /api/v1/categories?per_page=20&search=aksesoris
 }
 ```
 
+**Response gagal (422)**
+```json
+{
+  "message": "The name field is required.",
+  "errors": {
+    "name": [
+      "The name field is required."
+    ]
+  }
+}
+```
+
 ### Update Category
 
 `PATCH /api/v1/categories/{id}`
@@ -567,6 +599,13 @@ GET /api/v1/categories?per_page=20&search=aksesoris
 }
 ```
 
+**Response gagal (404)**
+```json
+{
+  "message": "No query results for model [App\\\\Models\\\\Category] {id}"
+}
+```
+
 ### Delete Category
 
 `DELETE /api/v1/categories/{id}`
@@ -575,6 +614,13 @@ GET /api/v1/categories?per_page=20&search=aksesoris
 ```json
 {
   "message": "Deleted."
+}
+```
+
+**Response gagal (404)**
+```json
+{
+  "message": "No query results for model [App\\\\Models\\\\Category] {id}"
 }
 ```
 
