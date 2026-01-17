@@ -4,6 +4,8 @@
 .receipt-layout {
     margin: 0 auto;
     background: white;
+    color: #111827;
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
 
 .receipt-standard,
@@ -27,6 +29,11 @@
 
 /* ================== PRINT ================== */
 @media print {
+    @page {
+        size: auto;
+        margin: 6mm;
+    }
+
     body {
         background: white !important;
     }
@@ -75,6 +82,58 @@
 .thermal .center {
     text-align: center;
 }
+
+.receipt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.receipt-store {
+    line-height: 1.5;
+}
+
+.receipt-meta {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.receipt-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.receipt-table th {
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    padding: 8px 6px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.receipt-table td {
+    padding: 8px 6px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: top;
+}
+
+.receipt-total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.receipt-note {
+    font-size: 11px;
+    color: #6b7280;
+    text-align: center;
+    margin-top: 14px;
+}
 </style>
 
 @php
@@ -93,6 +152,7 @@ $logo = $store['logo']
 
         <button data-format="standard" data-print class="bg-blue-600 text-white px-4 py-2 rounded">Cetak</button>
         <button data-format="thermal80" data-print class="bg-green-600 text-white px-4 py-2 rounded">Cetak Thermal</button>
+        <button data-format="thermal58" data-print class="bg-emerald-600 text-white px-4 py-2 rounded">Cetak Thermal 58mm</button>
 
         <a href="{{ route('pos.receiver.print', $transaction) }}"
            class="bg-indigo-50 border px-4 py-2 rounded text-indigo-700">
@@ -104,29 +164,29 @@ $logo = $store['logo']
 
         <!-- ================= PRINTER BIASA ================= -->
         <div class="receipt-standard">
-            <div class="flex justify-between items-start">
-                <div>
-                    <strong>{{ $store['name'] }}</strong><br>
-                    {{ $store['address'] }}<br>
-                    Telp: {{ $store['phone'] }}
+            <div class="receipt-header">
+                <div class="receipt-store">
+                    <div class="text-lg font-semibold">{{ $store['name'] }}</div>
+                    <div>{{ $store['address'] }}</div>
+                    <div>Telp: {{ $store['phone'] }}</div>
                 </div>
                 @if($logo)
-                    <img src="{{ $logo }}" style="height:70px">
+                    <img src="{{ $logo }}" alt="Logo {{ $store['name'] }}" style="height:70px">
                 @endif
             </div>
 
-            <hr>
+            <div class="receipt-meta mt-3">
+                <div><strong>Invoice:</strong> {{ $transaction->invoice_number }}</div>
+                <div><strong>Tanggal:</strong> {{ $transaction->created_at->format('d/m/Y H:i') }}</div>
+            </div>
 
-            <p><strong>Invoice:</strong> {{ $transaction->invoice_number }}</p>
-            <p><strong>Tanggal:</strong> {{ $transaction->created_at->format('d/m/Y H:i') }}</p>
-
-            <table width="100%" border="1" cellspacing="0" cellpadding="6">
+            <table class="receipt-table mt-4">
                 <thead>
                     <tr>
                         <th>Produk</th>
-                        <th>Qty</th>
-                        <th>Harga</th>
-                        <th>Total</th>
+                        <th class="text-center">Qty</th>
+                        <th class="text-right">Harga</th>
+                        <th class="text-right">Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -141,7 +201,12 @@ $logo = $store['logo']
                 </tbody>
             </table>
 
-            <p align="right"><strong>Total: Rp {{ number_format($transaction->total) }}</strong></p>
+            <div class="receipt-total">
+                <span>Total</span>
+                <span>Rp {{ number_format($transaction->total) }}</span>
+            </div>
+
+            <div class="receipt-note">Terima kasih telah berbelanja.</div>
         </div>
 
         <!-- ================= THERMAL 80MM ================= -->
@@ -151,57 +216,91 @@ $logo = $store['logo']
                     <img src="{{ $logo }}" style="max-width:60mm"><br>
                 @endif
                 <strong>{{ $store['name'] }}</strong><br>
+                {{ $store['address'] }}<br>
                 {{ $store['phone'] }}
             </div>
 
             <hr>
 
-            Invoice: {{ $transaction->invoice_number }}<br>
-            {{ $transaction->created_at->format('d/m/Y H:i') }}
+            <div>Invoice: {{ $transaction->invoice_number }}</div>
+            <div>{{ $transaction->created_at->format('d/m/Y H:i') }}</div>
 
             <hr>
 
             @foreach($transaction->items as $item)
-                {{ $item->product?->name }}<br>
-                {{ $item->quantity }} x {{ number_format($item->price) }}
-                <div style="text-align:right">{{ number_format($item->total) }}</div>
+                <div><strong>{{ $item->product?->name }}</strong></div>
+                <div class="flex justify-between">
+                    <span>{{ $item->quantity }} x {{ number_format($item->price) }}</span>
+                    <span>{{ number_format($item->total) }}</span>
+                </div>
             @endforeach
 
             <hr>
-            TOTAL: {{ number_format($transaction->total) }}
+            <div class="flex justify-between">
+                <strong>TOTAL</strong>
+                <strong>{{ number_format($transaction->total) }}</strong>
+            </div>
+            <div class="center text-xs mt-2">Terima kasih.</div>
         </div>
 
         <!-- ================= THERMAL 58MM ================= -->
         <div class="receipt-thermal-58 thermal">
             <div class="center">
                 <strong>{{ $store['name'] }}</strong><br>
+                {{ $store['address'] }}<br>
                 {{ $store['phone'] }}
             </div>
 
             <hr>
 
-            {{ $transaction->invoice_number }}<br>
+            <div>Invoice: {{ $transaction->invoice_number }}</div>
+            <div>{{ $transaction->created_at->format('d/m/Y H:i') }}</div>
 
             @foreach($transaction->items as $item)
-                {{ Str::limit($item->product?->name,20) }}<br>
-                {{ $item->quantity }} x {{ number_format($item->price) }}
-                <div style="text-align:right">{{ number_format($item->total) }}</div>
+                <div><strong>{{ Str::limit($item->product?->name, 22) }}</strong></div>
+                <div class="flex justify-between">
+                    <span>{{ $item->quantity }} x {{ number_format($item->price) }}</span>
+                    <span>{{ number_format($item->total) }}</span>
+                </div>
             @endforeach
 
             <hr>
-            TOTAL<br>
-            {{ number_format($transaction->total) }}
+            <div class="flex justify-between">
+                <strong>TOTAL</strong>
+                <strong>{{ number_format($transaction->total) }}</strong>
+            </div>
+            <div class="center text-xs mt-2">Terima kasih.</div>
         </div>
 
     </div>
 </div>
 
+<style id="print-page-style"></style>
 <script>
-document.querySelectorAll('[data-format]').forEach(btn=>{
-    btn.onclick=()=>{
-        document.querySelector('[data-layout]').dataset.format=btn.dataset.format;
-        if(btn.dataset.print) window.print();
-    }
+const layout = document.querySelector('[data-layout]');
+const pageStyle = document.getElementById('print-page-style');
+const pageSizes = {
+    standard: { size: 'A4', margin: '10mm' },
+    thermal80: { size: '80mm auto', margin: '4mm' },
+    thermal58: { size: '58mm auto', margin: '4mm' },
+};
+
+const applyPageStyle = (format) => {
+    const config = pageSizes[format] ?? pageSizes.standard;
+    pageStyle.textContent = `@media print { @page { size: ${config.size}; margin: ${config.margin}; } }`;
+};
+
+document.querySelectorAll('[data-format]').forEach(btn => {
+    btn.onclick = () => {
+        const format = btn.dataset.format;
+        layout.dataset.format = format;
+        applyPageStyle(format);
+        if (btn.dataset.print) {
+            window.print();
+        }
+    };
 });
+
+applyPageStyle(layout.dataset.format);
 </script>
 </x-app-layout>
