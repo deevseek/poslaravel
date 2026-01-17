@@ -34,7 +34,7 @@
 /* ================== PRINT ================== */
 @media print {
     @page {
-        size: auto;
+        size: 210mm 145mm;
         margin: 6mm;
     }
 
@@ -54,8 +54,8 @@
 
     /* PRINTER BIASA */
     .receipt-layout[data-format="standard"] {
-        width: 100%;
-        max-width: 210mm;
+        width: 210mm;
+        min-height: 145mm;
         font-size: 12px;
     }
 
@@ -315,7 +315,7 @@ $logo = $store['logo']
 const layout = document.querySelector('[data-layout]');
 const pageStyle = document.getElementById('print-page-style');
 const pageSizes = {
-    standard: { size: 'A4', margin: '10mm' },
+    standard: { size: '210mm 145mm', margin: '6mm' },
     thermal80: { size: '72mm 297mm', margin: '4mm' },
     thermal58: { size: '48mm 297mm', margin: '4mm' },
 };

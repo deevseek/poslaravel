@@ -1,11 +1,33 @@
 <x-app-layout :title="'Invoice Service svc/' . $service->created_at->format('Y') . '/' . $service->id">
-    <div class="mx-auto max-w-4xl space-y-6">
+    <style>
+        @media print {
+            @page {
+                size: 210mm 145mm;
+                margin: 8mm;
+            }
+
+            body {
+                background: #fff !important;
+            }
+
+            .invoice-page {
+                width: 210mm;
+                min-height: 145mm;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+
+    <div class="invoice-page mx-auto max-w-4xl space-y-6">
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-2xl font-semibold text-gray-900">Invoice Service</h1>
                 <p class="text-gray-600">{{ $storeName }} • Invoice {{ $transaction->invoice_number }}</p>
             </div>
-            <button onclick="window.print()" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">Cetak</button>
+            <button onclick="window.print()" class="no-print rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">Cetak</button>
         </div>
 
         <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm space-y-4">
