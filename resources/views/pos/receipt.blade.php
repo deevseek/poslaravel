@@ -87,6 +87,12 @@
     text-align: center;
 }
 
+.thermal-logo {
+    display: block;
+    margin: 0 auto 4px;
+    max-width: 60mm;
+}
+
 .receipt-header {
     display: flex;
     justify-content: space-between;
@@ -235,7 +241,7 @@ $logo = $store['logo']
         <div class="receipt-thermal-80 thermal">
             <div class="center">
                 @if($logo)
-                    <img src="{{ $logo }}" style="max-width:60mm"><br>
+                    <img src="{{ $logo }}" alt="Logo {{ $store['name'] }}" class="thermal-logo">
                 @endif
                 <strong>{{ $store['name'] }}</strong><br>
                 {{ $store['address'] }}<br>
