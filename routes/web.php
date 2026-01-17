@@ -53,6 +53,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('customers/import', [CustomerController::class, 'importCsv'])
         ->middleware(['feature:customers', 'can:customer.manage'])
         ->name('customers.import');
+    Route::get('customers/{customer}/print', [CustomerController::class, 'print'])
+        ->middleware(['feature:customers', 'can:customer.manage'])
+        ->name('customers.print');
     Route::resource('customers', CustomerController::class)
         ->middleware(['feature:customers', 'can:customer.manage']);
     Route::resource('suppliers', SupplierController::class)
