@@ -37,10 +37,11 @@
             font-size: 12px;
             line-height: 1.5;
             margin: 0 auto;
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 35%);
         }
 
         .receipt-label {
-            width: 120px;
+            width: 130px;
         }
 
         .receipt-dotline {
@@ -50,6 +51,37 @@
 
         .receipt-watermark {
             opacity: 0.08;
+        }
+
+        .receipt-chip {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .receipt-card {
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            padding: 16px;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+        }
+
+        .receipt-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.28em;
+            color: #64748b;
+        }
+
+        .receipt-highlight {
+            background: #eff6ff;
+            border-radius: 14px;
+            border: 1px solid #bfdbfe;
         }
     </style>
 
@@ -91,118 +123,118 @@
                         <p class="receipt-watermark text-5xl font-semibold uppercase tracking-[0.35em] text-gray-400">{{ $store['name'] }}</p>
                     </div>
 
-                    <div class="relative space-y-5">
-                        <div class="flex flex-wrap items-start justify-between gap-6 border-b border-gray-200 pb-4">
-                            <div class="flex items-start gap-3">
-                                @if ($logoUrl)
-                                    <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="h-11 w-11 rounded-xl object-cover" />
-                                @endif
-                                <div class="space-y-1">
-                                    <p class="text-sm font-semibold uppercase tracking-[0.22em] text-gray-900">{{ $store['name'] }}</p>
-                                    @if ($store['hours'])
-                                        <p class="text-xs uppercase text-gray-500">{{ $store['hours'] }}</p>
-                                    @endif
-                                    @if ($store['address'])
-                                        <p class="text-xs leading-snug text-gray-600">{{ $store['address'] }}</p>
-                                    @endif
-                                    <div class="text-xs text-gray-600">
-                                        @if ($store['phone'])
-                                            <span>Telp. <x-wa-link :phone="$store['phone']" class="text-gray-600" /></span>
-                                            <span class="mx-1">|</span>
-                                            <span>WA <x-wa-link :phone="$store['phone']" class="text-gray-600" /></span>
+                    <div class="relative space-y-6">
+                        <div class="receipt-card space-y-4">
+                            <div class="flex flex-wrap items-start justify-between gap-6">
+                                <div class="flex items-start gap-4">
+                                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
+                                        @if ($logoUrl)
+                                            <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="h-12 w-12 rounded-2xl object-cover" />
+                                        @else
+                                            <span class="text-xl font-semibold">S</span>
                                         @endif
                                     </div>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-lg font-semibold uppercase tracking-[0.3em] text-gray-900">Tanda Terima Servis</p>
-                                <p class="text-xs text-gray-500">Dokumen resmi penerimaan barang servis</p>
-                                <p class="mt-2 text-xs font-semibold text-gray-700">No. svc/{{ $service->created_at->format('Y') }}/{{ $service->id }}</p>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-xs text-gray-700 md:grid-cols-3">
-                            <div class="space-y-1">
-                                <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">Tanggal Terima</p>
-                                <p class="font-semibold text-gray-900">{{ $service->created_at->format('d M Y') }}</p>
-                            </div>
-                            <div class="space-y-1">
-                                <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">Jam</p>
-                                <p>{{ $service->created_at->format('H:i') }}</p>
-                            </div>
-                            <div class="space-y-1">
-                                <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">Admin</p>
-                                <p>{{ optional(auth()->user())->name ?? 'Admin' }}</p>
-                            </div>
-                        </div>
-
-                        <div class="border-y border-gray-300 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-gray-600">
-                            Informasi Pelanggan
-                        </div>
-
-                        <div class="grid grid-cols-1 gap-4 text-xs md:grid-cols-[1.2fr_0.8fr]">
-                            <div class="space-y-2">
-                                <div class="flex">
-                                    <span class="receipt-label">Nama Pelanggan</span>
-                                    <span class="font-semibold text-gray-900 capitalize">{{ $service->customer->name }}</span>
-                                </div>
-                                @if ($service->customer->phone)
-                                    <div class="flex">
-                                        <span class="receipt-label">Telepon/WA</span>
-                                        <span><x-wa-link :phone="$service->customer->phone" class="text-gray-700" /></span>
+                                    <div class="space-y-1">
+                                        <p class="text-sm font-semibold uppercase tracking-[0.22em] text-gray-900">{{ $store['name'] }}</p>
+                                        @if ($store['hours'])
+                                            <p class="text-xs uppercase text-gray-500">{{ $store['hours'] }}</p>
+                                        @endif
+                                        @if ($store['address'])
+                                            <p class="text-xs leading-snug text-gray-600">{{ $store['address'] }}</p>
+                                        @endif
+                                        <div class="text-xs text-gray-600">
+                                            @if ($store['phone'])
+                                                <span>Telp. <x-wa-link :phone="$store['phone']" class="text-gray-600" /></span>
+                                                <span class="mx-1">|</span>
+                                                <span>WA <x-wa-link :phone="$store['phone']" class="text-gray-600" /></span>
+                                            @endif
+                                        </div>
                                     </div>
-                                @endif
-                                <div class="flex">
-                                    <span class="receipt-label">Status Servis</span>
-                                    <span class="capitalize">{{ $service->status }}</span>
+                                </div>
+                                <div class="space-y-2 text-right">
+                                    <div class="receipt-chip inline-flex bg-blue-600 text-white">Tanda Terima Servis</div>
+                                    <p class="text-xs text-gray-500">Dokumen resmi penerimaan barang servis</p>
+                                    <p class="text-xs font-semibold text-gray-700">No. svc/{{ $service->created_at->format('Y') }}/{{ $service->id }}</p>
                                 </div>
                             </div>
-                            <div class="space-y-2">
-                                <div class="flex">
-                                    <span class="receipt-label">Estimasi Biaya</span>
-                                    <span class="font-semibold text-gray-900">Rp {{ number_format($service->service_fee, 0, ',', '.') }}</span>
+
+                            <div class="grid grid-cols-1 gap-3 rounded-xl border border-blue-100 bg-blue-50/70 px-4 py-3 text-xs text-gray-700 md:grid-cols-3">
+                                <div class="space-y-1">
+                                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-blue-500">Tanggal Terima</p>
+                                    <p class="font-semibold text-gray-900">{{ $service->created_at->format('d M Y') }}</p>
                                 </div>
-                                <div class="flex">
-                                    <span class="receipt-label">DP/Uang Muka</span>
-                                    <span>Rp {{ number_format($service->deposit ?? 0, 0, ',', '.') }}</span>
+                                <div class="space-y-1">
+                                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-blue-500">Jam</p>
+                                    <p>{{ $service->created_at->format('H:i') }}</p>
                                 </div>
-                                <div class="flex">
-                                    <span class="receipt-label">Garansi</span>
-                                    <span>{{ $service->warranty_days }} hari</span>
+                                <div class="space-y-1">
+                                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-blue-500">Admin</p>
+                                    <p>{{ optional(auth()->user())->name ?? 'Admin' }}</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="border-y border-gray-300 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-gray-600">
-                            Data Barang Servis
-                        </div>
-
-                        <div class="grid grid-cols-1 gap-4 text-xs md:grid-cols-[1.4fr_0.6fr]">
-                            <div class="space-y-2">
-                                <div class="flex">
-                                    <span class="receipt-label">Nama Barang</span>
-                                    <span class="font-semibold text-gray-900">{{ $service->device }}</span>
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div class="receipt-card space-y-4">
+                                <p class="receipt-section-title">Informasi Pelanggan</p>
+                                <div class="space-y-2 text-xs">
+                                    <div class="flex">
+                                        <span class="receipt-label text-gray-500">Nama Pelanggan</span>
+                                        <span class="font-semibold text-gray-900 capitalize">{{ $service->customer->name }}</span>
+                                    </div>
+                                    @if ($service->customer->phone)
+                                        <div class="flex">
+                                            <span class="receipt-label text-gray-500">Telepon/WA</span>
+                                            <span><x-wa-link :phone="$service->customer->phone" class="text-gray-700" /></span>
+                                        </div>
+                                    @endif
+                                    <div class="flex">
+                                        <span class="receipt-label text-gray-500">Status Servis</span>
+                                        <span class="capitalize">{{ $service->status }}</span>
+                                    </div>
                                 </div>
-                                <div class="flex">
-                                    <span class="receipt-label">Model/Seri</span>
-                                    <span>{{ $service->model ?? '-' }}</span>
-                                </div>
-                                <div class="flex">
-                                    <span class="receipt-label">Nomor Serial</span>
-                                    <span>{{ $service->serial_number ?? '-' }}</span>
-                                </div>
-                                <div class="flex">
-                                    <span class="receipt-label">Kelengkapan</span>
-                                    <span>{{ $service->accessories ?? '-' }}</span>
-                                </div>
-                                <div class="flex">
-                                    <span class="receipt-label">Kerusakan</span>
-                                    <span>{{ $service->complaint }}</span>
+                                <div class="receipt-highlight px-4 py-3 text-xs">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-gray-600">Estimasi Biaya</span>
+                                        <span class="font-semibold text-gray-900">Rp {{ number_format($service->service_fee, 0, ',', '.') }}</span>
+                                    </div>
+                                    <div class="mt-2 flex items-center justify-between">
+                                        <span class="text-gray-600">DP/Uang Muka</span>
+                                        <span>Rp {{ number_format($service->deposit ?? 0, 0, ',', '.') }}</span>
+                                    </div>
+                                    <div class="mt-2 flex items-center justify-between">
+                                        <span class="text-gray-600">Garansi</span>
+                                        <span>{{ $service->warranty_days }} hari</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="space-y-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="receipt-label">Keterangan Lain-Lain</span>
+
+                            <div class="receipt-card space-y-4">
+                                <p class="receipt-section-title">Data Barang Servis</p>
+                                <div class="space-y-2 text-xs">
+                                    <div class="flex">
+                                        <span class="receipt-label text-gray-500">Nama Barang</span>
+                                        <span class="font-semibold text-gray-900">{{ $service->device }}</span>
+                                    </div>
+                                    <div class="flex">
+                                        <span class="receipt-label text-gray-500">Model/Seri</span>
+                                        <span>{{ $service->model ?? '-' }}</span>
+                                    </div>
+                                    <div class="flex">
+                                        <span class="receipt-label text-gray-500">Nomor Serial</span>
+                                        <span>{{ $service->serial_number ?? '-' }}</span>
+                                    </div>
+                                    <div class="flex">
+                                        <span class="receipt-label text-gray-500">Kelengkapan</span>
+                                        <span>{{ $service->accessories ?? '-' }}</span>
+                                    </div>
+                                    <div class="flex">
+                                        <span class="receipt-label text-gray-500">Kerusakan</span>
+                                        <span>{{ $service->complaint }}</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3 text-xs">
+                                    <span class="receipt-label text-gray-500">Keterangan Lain-Lain</span>
                                     <div class="flex-1 space-y-2">
                                         <div class="receipt-dotline"></div>
                                         <div class="receipt-dotline"></div>
@@ -212,23 +244,19 @@
                             </div>
                         </div>
 
-                        <div class="border-b border-gray-200"></div>
-
-                        <div class="grid grid-cols-1 gap-5 rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-xs text-gray-600 md:grid-cols-2">
+                        <div class="receipt-card grid grid-cols-1 gap-5 text-xs text-gray-600 md:grid-cols-2">
                             <div class="space-y-3 text-center">
-                                <img src="{{ $progressQrUrl }}" alt="QR progres service" class="mx-auto h-24 w-24 rounded-lg bg-white p-2 shadow-sm" />
+                                <img src="{{ $progressQrUrl }}" alt="QR progres service" class="mx-auto h-24 w-24 rounded-2xl bg-white p-2 shadow-sm" />
                                 <p class="font-semibold uppercase tracking-[0.2em] text-gray-800">Scan Update Status &amp; Pengambilan</p>
                             </div>
                             <div class="space-y-3 text-center">
-                                <img src="{{ $trackingQrUrl ?? $progressQrUrl }}" alt="QR tracking service" class="mx-auto h-24 w-24 rounded-lg bg-white p-2 shadow-sm" />
+                                <img src="{{ $trackingQrUrl ?? $progressQrUrl }}" alt="QR tracking service" class="mx-auto h-24 w-24 rounded-2xl bg-white p-2 shadow-sm" />
                                 <p class="font-semibold uppercase tracking-[0.2em] text-gray-800">Scan Cek Status (Tracking)</p>
                             </div>
                         </div>
 
-                        <div class="border-b border-gray-200"></div>
-
                         <div class="grid grid-cols-1 gap-4 text-[11px] text-gray-600 md:grid-cols-[1.4fr_0.6fr]">
-                            <div class="space-y-1">
+                            <div class="receipt-card space-y-2">
                                 <p>*Tanda Terima Servis ini silahkan dibawa saat pengambilan barang servis.</p>
                                 <p>*Download Aplikasi scanner Android untuk tracking di https://dataservisonline.com/scanner.apk</p>
                                 <p class="pt-2 font-semibold uppercase">Syarat &amp; Ketentuan:</p>
@@ -237,14 +265,14 @@
                                     <li>Garansi tidak berlaku jika nota servis hilang.</li>
                                 </ol>
                             </div>
-                            <div class="space-y-6 text-right text-[11px]">
+                            <div class="receipt-card space-y-6 text-right text-[11px]">
                                 <div>
                                     <p>Penerima</p>
-                                    <div class="mt-6 border-b border-gray-400"></div>
+                                    <div class="mt-6 border-b border-gray-300"></div>
                                 </div>
                                 <div>
                                     <p>Pemilik</p>
-                                    <div class="mt-6 border-b border-gray-400"></div>
+                                    <div class="mt-6 border-b border-gray-300"></div>
                                 </div>
                             </div>
                         </div>
@@ -257,7 +285,7 @@
                     @if ($logoUrl)
                         <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="mx-auto h-8 w-8 rounded object-cover" />
                     @endif
-                    <p class="text-sm font-semibold uppercase">{{ $store['name'] }}</p>
+                    <p class="text-sm font-semibold uppercase tracking-[0.25em]">{{ $store['name'] }}</p>
                     <p>No. Service: svc/{{ $service->created_at->format('Y') }}/{{ $service->id }}</p>
                     @if ($store['address'])
                         <p>{{ $store['address'] }}</p>
