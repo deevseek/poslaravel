@@ -24,12 +24,22 @@
             }
 
             .receipt-layout[data-format="standard"] {
-                width: 148mm;
+                width: 135mm;
             }
 
             .receipt-sheet {
-                min-height: 210mm;
-                padding: 12mm 12mm;
+                min-height: auto;
+                padding: 10mm 10mm;
+            }
+
+            .receipt-logo {
+                height: 36px;
+                width: 36px;
+            }
+
+            .receipt-logo img {
+                height: 36px;
+                width: 36px;
             }
         }
 
@@ -42,6 +52,16 @@
 
         .receipt-label {
             width: 130px;
+        }
+
+        .receipt-logo {
+            height: 44px;
+            width: 44px;
+        }
+
+        .receipt-logo img {
+            height: 44px;
+            width: 44px;
         }
 
         .receipt-dotline {
@@ -127,9 +147,9 @@
                         <div class="receipt-card space-y-4">
                             <div class="flex flex-wrap items-start justify-between gap-6">
                                 <div class="flex items-start gap-4">
-                                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
+                                    <div class="receipt-logo flex items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
                                         @if ($logoUrl)
-                                            <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="h-12 w-12 rounded-2xl object-cover" />
+                                            <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="rounded-2xl object-cover" />
                                         @else
                                             <span class="text-xl font-semibold">S</span>
                                         @endif
