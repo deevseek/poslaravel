@@ -8,9 +8,11 @@ Dokumentasi ini ditujukan untuk konsumsi aplikasi Android/Flutter.
 https://<domain>/api/v1
 ```
 
-## Health Check
+## API Index / Health Check
 
-`GET /`
+Gunakan endpoint index untuk memastikan API v1 dapat dijangkau.
+
+`GET /` (full path: `/api/v1`)
 
 **Response**
 ```json
@@ -277,7 +279,7 @@ DELETE /customers/{id}
 
 ## Customers
 
-Modul customer menggunakan resource `/customers` di API v1.
+Modul customer menggunakan resource `/customers` **di bawah prefix `/api/v1`**. Jika memanggil `/customers` tanpa prefix `/api/v1`, server akan mengembalikan `404 Not Found`.
 
 **Base URL**
 ```
@@ -299,9 +301,11 @@ Content-Type: application/json
 | phone | string | optional |
 | address | string | optional |
 
-### List Customers
+### Customer Index (List)
 
-`GET /customers`
+Endpoint index untuk modul customer.
+
+`GET /api/v1/customers`
 
 **Query Parameters**
 - `per_page` (opsional, default 15)
@@ -309,7 +313,7 @@ Content-Type: application/json
 
 **Contoh**
 ```
-GET /customers?per_page=20&search=andi
+GET /api/v1/customers?per_page=20&search=andi
 ```
 
 **Response sukses (200)**
@@ -346,7 +350,7 @@ GET /customers?per_page=20&search=andi
 
 ### Detail Customer
 
-`GET /customers/{id}`
+`GET /api/v1/customers/{id}`
 
 **Response sukses (200)**
 ```json
@@ -365,7 +369,7 @@ GET /customers?per_page=20&search=andi
 
 ### Create Customer
 
-`POST /customers`
+`POST /api/v1/customers`
 
 **Request Body**
 ```json
@@ -394,7 +398,7 @@ GET /customers?per_page=20&search=andi
 
 ### Update Customer
 
-`PATCH /customers/{id}`
+`PATCH /api/v1/customers/{id}`
 
 **Request Body**
 ```json
@@ -421,7 +425,7 @@ GET /customers?per_page=20&search=andi
 
 ### Delete Customer
 
-`DELETE /customers/{id}`
+`DELETE /api/v1/customers/{id}`
 
 **Response sukses (200)**
 ```json
