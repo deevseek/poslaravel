@@ -262,6 +262,7 @@ class PosController extends Controller
         return view('pos.receipt', [
             'transaction' => $transaction,
             'store' => $store,
+            'receiver' => auth()->user(),
         ]);
     }
 

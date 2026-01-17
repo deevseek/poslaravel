@@ -83,6 +83,9 @@
                     <p class="text-gray-700">{{ $transaction->invoice_number }}</p>
                     <p class="text-gray-600">{{ $transaction->created_at->format('d M Y H:i') }}</p>
                     <p class="text-gray-600 uppercase">{{ str_replace('-', ' ', $transaction->payment_method) }}</p>
+                    @if ($receiver)
+                        <p class="text-gray-600">Penerima: {{ $receiver->name }}</p>
+                    @endif
                 </div>
             </div>
 
@@ -175,6 +178,12 @@
                         <span>Bayar</span>
                         <span class="uppercase">{{ str_replace('-', ' ', $transaction->payment_method) }}</span>
                     </div>
+                    @if ($receiver)
+                        <div class="flex items-center justify-between">
+                            <span>Penerima</span>
+                            <span>{{ $receiver->name }}</span>
+                        </div>
+                    @endif
                     @if ($transaction->customer)
                         <div class="flex items-center justify-between">
                             <span>Customer</span>
