@@ -70,6 +70,17 @@
   font-size: 10px;
 }
 
+/* THERMAL LAYOUT VISIBILITY */
+.receipt-thermal {
+  display: none;
+}
+.print-area[data-format^="thermal"] .receipt-standard {
+  display: none;
+}
+.print-area[data-format^="thermal"] .receipt-thermal {
+  display: block;
+}
+
 /* =================================================
    TYPOGRAPHY & LINES
 ================================================== */
@@ -107,6 +118,63 @@
 
 .small {
   font-size: 10px;
+}
+
+/* =================================================
+   THERMAL TYPOGRAPHY
+================================================== */
+.thermal-title {
+  text-align: center;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+.thermal-meta {
+  text-align: center;
+  font-size: 9px;
+}
+.thermal-block {
+  margin-top: 6px;
+}
+.thermal-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+}
+.thermal-label {
+  width: 92px;
+  flex-shrink: 0;
+}
+.thermal-value {
+  text-align: right;
+  flex: 1;
+  word-break: break-word;
+}
+.thermal-dotted {
+  border-bottom: 1px dotted #000;
+  margin: 6px 0;
+}
+.thermal-qr {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+.thermal-qr img {
+  width: 52px;
+  height: 52px;
+}
+.thermal-note {
+  font-size: 9px;
+  line-height: 1.3;
+}
+.thermal-sign {
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.thermal-sign .sign-line {
+  margin-top: 16px;
 }
 
 /* =================================================
@@ -188,6 +256,7 @@
 
   <div class="receipt">
 
+    <div class="receipt-standard">
     <div class="row">
       <div>
         @if($logoUrl)
@@ -264,6 +333,104 @@
       <div class="col">
         Pemilik
         <div class="sign-line"></div>
+      </div>
+    </div>
+    </div>
+
+    <div class="receipt-thermal">
+      <div class="thermal-title">{{ strtoupper($store['name']) }}</div>
+      <div class="thermal-meta">
+        {{ $store['address'] }}<br>
+        Telp: {{ $store['phone'] }}
+      </div>
+
+      <div class="thermal-dotted"></div>
+
+      <div class="thermal-block">
+        <div class="thermal-title">TANDA TERIMA SERVIS</div>
+        <div class="thermal-meta">No. svc/{{ $service->created_at->format('Y') }}/{{ $service->id }}</div>
+      </div>
+
+      <div class="thermal-dotted"></div>
+
+      <div class="thermal-block">
+        <div class="thermal-row">
+          <span class="thermal-label">Tanggal</span>
+          <span class="thermal-value">{{ $service->created_at->format('d M Y') }}</span>
+        </div>
+        <div class="thermal-row">
+          <span class="thermal-label">Nama</span>
+          <span class="thermal-value">{{ $service->customer->name }}</span>
+        </div>
+        <div class="thermal-row">
+          <span class="thermal-label">Telepon</span>
+          <span class="thermal-value">{{ $service->customer->phone }}</span>
+        </div>
+      </div>
+
+      <div class="thermal-dotted"></div>
+
+      <div class="thermal-block">
+        <div class="thermal-row">
+          <span class="thermal-label">Barang</span>
+          <span class="thermal-value">{{ $service->device }}</span>
+        </div>
+        <div class="thermal-row">
+          <span class="thermal-label">Model/Seri</span>
+          <span class="thermal-value">{{ $service->model ?? '-' }}</span>
+        </div>
+        <div class="thermal-row">
+          <span class="thermal-label">No. Serial</span>
+          <span class="thermal-value">{{ $service->serial_number ?? '-' }}</span>
+        </div>
+        <div class="thermal-row">
+          <span class="thermal-label">Kelengkapan</span>
+          <span class="thermal-value">{{ $service->accessories ?? '-' }}</span>
+        </div>
+        <div class="thermal-row">
+          <span class="thermal-label">Keluhan</span>
+          <span class="thermal-value">{{ $service->complaint }}</span>
+        </div>
+        <div class="thermal-row">
+          <span class="thermal-label">DP</span>
+          <span class="thermal-value">Rp {{ number_format($service->deposit ?? 0,0,',','.') }}</span>
+        </div>
+      </div>
+
+      <div class="thermal-dotted"></div>
+
+      <div class="thermal-block">
+        <div class="thermal-qr">
+          <div class="text-center">
+            <img src="{{ $progressQrUrl }}" alt="QR Update">
+            <div class="thermal-note">Update</div>
+          </div>
+          <div class="text-center">
+            <img src="{{ $trackingQrUrl ?? $progressQrUrl }}" alt="QR Tracking">
+            <div class="thermal-note">Tracking</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="thermal-dotted"></div>
+
+      <div class="thermal-note">
+        * Nota ini dibawa saat pengambilan barang.<br>
+        * Dicetak: {{ now()->format('d/m/Y H:i') }}<br><br>
+        <strong>Syarat & Ketentuan:</strong><br>
+        1. Barang &gt; 3 bulan tidak diambil bukan tanggung jawab kami.<br>
+        2. Garansi tidak berlaku jika nota hilang.
+      </div>
+
+      <div class="thermal-sign">
+        <div class="col text-center">
+          Penerima
+          <div class="sign-line"></div>
+        </div>
+        <div class="col text-center">
+          Pemilik
+          <div class="sign-line"></div>
+        </div>
       </div>
     </div>
 
