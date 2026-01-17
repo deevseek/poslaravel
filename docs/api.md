@@ -434,6 +434,150 @@ GET /api/v1/customers?per_page=20&search=andi
 }
 ```
 
+## Categories
+
+Modul kategori menggunakan resource `/categories` **di bawah prefix `/api/v1`**. Jika memanggil `/categories` tanpa prefix `/api/v1`, server akan mengembalikan `404 Not Found`.
+
+**Base URL**
+```
+/api/v1/categories
+```
+
+**Headers**
+```
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+### Data Fields
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| name | string | **required** saat create, unik, nama kategori |
+| description | string | optional, deskripsi kategori |
+
+### Category Index (List)
+
+Endpoint index untuk modul kategori.
+
+`GET /api/v1/categories`
+
+**Query Parameters**
+- `per_page` (opsional, default 15)
+- `search` (opsional, mencari di `name`)
+
+**Contoh**
+```
+GET /api/v1/categories?per_page=20&search=aksesoris
+```
+
+**Response sukses (200)**
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Aksesoris",
+      "description": "Aksesoris tambahan",
+      "created_at": "2026-03-10T09:00:00Z",
+      "updated_at": "2026-03-10T09:00:00Z"
+    }
+  ],
+  "links": {
+    "first": "http://localhost/api/v1/categories?page=1",
+    "last": "http://localhost/api/v1/categories?page=1",
+    "prev": null,
+    "next": null
+  },
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "path": "http://localhost/api/v1/categories",
+    "per_page": 20,
+    "to": 1,
+    "total": 1
+  }
+}
+```
+
+### Detail Category
+
+`GET /api/v1/categories/{id}`
+
+**Response sukses (200)**
+```json
+{
+  "data": {
+    "id": 1,
+    "name": "Aksesoris",
+    "description": "Aksesoris tambahan",
+    "created_at": "2026-03-10T09:00:00Z",
+    "updated_at": "2026-03-10T09:00:00Z"
+  }
+}
+```
+
+### Create Category
+
+`POST /api/v1/categories`
+
+**Request Body**
+```json
+{
+  "name": "Aksesoris",
+  "description": "Aksesoris tambahan"
+}
+```
+
+**Response sukses (201)**
+```json
+{
+  "data": {
+    "id": 1,
+    "name": "Aksesoris",
+    "description": "Aksesoris tambahan",
+    "created_at": "2026-03-10T09:00:00Z",
+    "updated_at": "2026-03-10T09:00:00Z"
+  }
+}
+```
+
+### Update Category
+
+`PATCH /api/v1/categories/{id}`
+
+**Request Body**
+```json
+{
+  "description": "Update deskripsi kategori"
+}
+```
+
+**Response sukses (200)**
+```json
+{
+  "data": {
+    "id": 1,
+    "name": "Aksesoris",
+    "description": "Update deskripsi kategori",
+    "created_at": "2026-03-10T09:00:00Z",
+    "updated_at": "2026-03-10T09:10:00Z"
+  }
+}
+```
+
+### Delete Category
+
+`DELETE /api/v1/categories/{id}`
+
+**Response sukses (200)**
+```json
+{
+  "message": "Deleted."
+}
+```
+
 ## Error
 
 - `401 Unauthorized` jika token tidak valid.
