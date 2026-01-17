@@ -1,288 +1,207 @@
 <x-app-layout title="Struk Pembayaran">
-    <style>
-        .receipt-layout[data-format="standard"] .receipt-thermal {
-            display: none;
-        }
+<style>
+/* ================== GLOBAL ================== */
+.receipt-layout {
+    margin: 0 auto;
+    background: white;
+}
 
-        .receipt-layout[data-format="thermal"] .receipt-standard {
-            display: none;
-        }
+.receipt-standard,
+.receipt-thermal-80,
+.receipt-thermal-58 {
+    display: none;
+}
 
-        @media print {
-            .receipt-actions {
-                display: none !important;
-            }
+/* ================== MODE SWITCH ================== */
+.receipt-layout[data-format="standard"] .receipt-standard {
+    display: block;
+}
 
-            .receipt-layout {
-                box-shadow: none !important;
-                border: none !important;
-                padding: 0 !important;
-            }
+.receipt-layout[data-format="thermal80"] .receipt-thermal-80 {
+    display: block;
+}
 
-            .receipt-layout[data-format="thermal"] {
-                width: 80mm;
-            }
-        }
-    </style>
+.receipt-layout[data-format="thermal58"] .receipt-thermal-58 {
+    display: block;
+}
 
-    <div class="mx-auto max-w-3xl space-y-6">
-        <div class="flex flex-wrap items-center justify-between gap-4">
-            <div>
-                <h1 class="text-2xl font-semibold text-gray-900">Struk Pembayaran</h1>
-                <p class="text-gray-600">Invoice {{ $transaction->invoice_number }}</p>
-            </div>
-            <div class="receipt-actions flex flex-wrap items-center gap-2">
-                <button type="button" data-receipt-format="standard"
-                    class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50">
-                    Preview Printer Biasa
-                </button>
-                <button type="button" data-receipt-format="thermal"
-                    class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50">
-                    Preview Thermal 80mm
-                </button>
-                <button type="button" data-receipt-format="standard" data-receipt-print="true"
-                    class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">
-                    Cetak Printer Biasa
-                </button>
-                <button type="button" data-receipt-format="thermal" data-receipt-print="true"
-                    class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-700">
-                    Cetak Thermal 80mm
-                </button>
-                @if ($transaction->customer)
-                    <a href="{{ route('pos.receiver.print', $transaction) }}"
-                        class="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-100">
-                        Cetak Penerima
-                    </a>
-                @endif
-            </div>
-        </div>
+/* ================== PRINT ================== */
+@media print {
+    body {
+        background: white !important;
+    }
 
-        @php
-            $logoUrl = $store['logo']
-                ? (\Illuminate\Support\Str::startsWith($store['logo'], ['http://', 'https://']) ? $store['logo'] : asset($store['logo']))
-                : null;
-        @endphp
-        <div class="receipt-layout rounded-lg border border-gray-200 bg-white p-6 shadow-sm" data-receipt-layout data-format="standard">
-            <div class="receipt-standard space-y-6">
-                <div class="flex flex-wrap items-start justify-between gap-4 border-b border-gray-100 pb-4 text-sm text-gray-700">
-                    <div class="flex items-start gap-3">
-                        @if ($logoUrl)
-                            <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="h-8 w-8 rounded object-contain" />
-                        @endif
-                        <div class="space-y-1">
-                            <p class="text-base font-semibold text-gray-900">{{ $store['name'] }}</p>
-                            @if ($store['address'])
-                                <p class="text-gray-600 leading-snug">{{ $store['address'] }}</p>
-                            @endif
-                            <div class="flex flex-col text-gray-600">
-                                @if ($store['phone'])
-                                    <span>Telp: <x-wa-link :phone="$store['phone']" class="text-gray-600" /></span>
-                                @endif
-                                @if ($store['hours'])
-                                    <span>Jam Operasional: {{ $store['hours'] }}</span>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                    <div class="space-y-1 text-right">
-                        <p class="text-sm font-semibold text-gray-900">Invoice</p>
-                        <p class="text-gray-700">{{ $transaction->invoice_number }}</p>
-                        <p class="text-gray-600">{{ $transaction->created_at->format('d M Y H:i') }}</p>
-                        <p class="text-gray-600 uppercase">{{ str_replace('-', ' ', $transaction->payment_method) }}</p>
-                        @if ($receiver)
-                            <p class="text-gray-600">Penerima: {{ $receiver->name }}</p>
-                        @endif
-                    </div>
-                </div>
+    .receipt-actions {
+        display: none !important;
+    }
 
-                @if ($transaction->customer)
-                    <div class="border-b border-gray-100 py-4 text-sm text-gray-700">
-                        <p class="font-semibold text-gray-900">Customer</p>
-                        <p>{{ $transaction->customer->name }}</p>
-                    </div>
-                @endif
+    .receipt-layout {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+    }
 
-                <div class="py-4">
-                    <table class="min-w-full table-fixed text-sm text-gray-700">
-                    <thead>
-                        <tr class="border-b border-gray-200">
-                            <th class="w-1/2 py-2 text-left font-semibold">Produk</th>
-                            <th class="w-1/6 py-2 text-center font-semibold">Qty</th>
-                            <th class="w-1/6 py-2 text-right font-semibold">Harga</th>
-                            <th class="w-1/6 py-2 text-right font-semibold">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        @foreach ($transaction->items as $item)
-                            <tr>
-                                <td class="py-2 pr-3 leading-snug text-gray-800">
-                                    {{ $item->product?->name ?? 'Produk' }}
-                                </td>
-                                <td class="py-2 text-center tabular-nums">{{ $item->quantity }}</td>
-                                <td class="py-2 text-right tabular-nums">Rp {{ number_format($item->price, 0, ',', '.') }}</td>
-                                <td class="py-2 text-right font-semibold tabular-nums">Rp {{ number_format($item->total, 0, ',', '.') }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                </div>
+    /* PRINTER BIASA */
+    .receipt-layout[data-format="standard"] {
+        width: 100%;
+        max-width: 210mm;
+        font-size: 12px;
+    }
 
-                <div class="space-y-2 border-t border-gray-200 pt-4 text-sm text-gray-700">
-                    <div class="grid grid-cols-[1fr_auto] items-center gap-3">
-                        <span>Subtotal</span>
-                        <span class="text-right tabular-nums">Rp {{ number_format($transaction->subtotal, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="grid grid-cols-[1fr_auto] items-center gap-3">
-                        <span>Diskon</span>
-                        <span class="text-right tabular-nums">Rp {{ number_format($transaction->discount, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="grid grid-cols-[1fr_auto] items-center gap-3 text-base font-semibold text-gray-900">
-                        <span>Total</span>
-                        <span class="text-right tabular-nums">Rp {{ number_format($transaction->total, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="grid grid-cols-[1fr_auto] items-center gap-3">
-                        <span>Jumlah Bayar</span>
-                        <span class="text-right tabular-nums">Rp {{ number_format($transaction->paid_amount, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="grid grid-cols-[1fr_auto] items-center gap-3">
-                        <span>Kembalian</span>
-                        <span class="text-right tabular-nums">Rp {{ number_format($transaction->change_amount, 0, ',', '.') }}</span>
-                    </div>
-                </div>
+    /* THERMAL 80MM */
+    .receipt-layout[data-format="thermal80"] {
+        width: 80mm;
+        font-size: 11px;
+    }
 
-                <div class="mt-6 rounded-lg bg-gray-50 p-4 text-sm text-gray-700">
-                    <p class="font-semibold text-gray-900">Terima kasih telah berbelanja!</p>
-                    <p class="text-gray-600">
-                        Simpan struk ini sebagai bukti pembayaran. Jika ada pertanyaan, hubungi kami di
-                        <x-wa-link :phone="$store['phone'] ?? null" class="text-gray-600 underline" fallback="kontak toko" />.
-                    </p>
-                </div>
-            </div>
+    /* THERMAL 58MM */
+    .receipt-layout[data-format="thermal58"] {
+        width: 58mm;
+        font-size: 10px;
+    }
+}
 
-            <div class="receipt-thermal text-[11px] font-mono text-gray-900">
-                <div class="space-y-1 text-center">
-                    @if ($logoUrl)
-                        <img src="{{ $logoUrl }}" alt="{{ $store['name'] }}" class="mx-auto h-6 w-6 rounded object-contain" />
-                    @endif
-                    <p class="text-sm font-semibold uppercase">{{ $store['name'] }}</p>
-                    @if ($store['address'])
-                        <p>{{ $store['address'] }}</p>
-                    @endif
-                    @if ($store['phone'])
-                        <p>Telp: <x-wa-link :phone="$store['phone']" class="text-gray-700" /></p>
-                    @endif
-                </div>
+/* ================== THERMAL ================== */
+.thermal {
+    font-family: monospace;
+    line-height: 1.4;
+}
 
-                <div class="my-3 border-t border-dashed border-gray-400"></div>
+.thermal hr {
+    border-top: 1px dashed #000;
+    margin: 6px 0;
+}
 
-                <div class="space-y-1">
-                    <div class="flex items-center justify-between">
-                        <span>Invoice</span>
-                        <span>{{ $transaction->invoice_number }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span>Tanggal</span>
-                        <span>{{ $transaction->created_at->format('d M Y H:i') }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span>Bayar</span>
-                        <span class="uppercase">{{ str_replace('-', ' ', $transaction->payment_method) }}</span>
-                    </div>
-                    @if ($receiver)
-                        <div class="flex items-center justify-between">
-                            <span>Penerima</span>
-                            <span>{{ $receiver->name }}</span>
-                        </div>
-                    @endif
-                    @if ($transaction->customer)
-                        <div class="flex items-center justify-between">
-                            <span>Customer</span>
-                            <span>{{ $transaction->customer->name }}</span>
-                        </div>
-                    @endif
-                </div>
+.thermal .center {
+    text-align: center;
+}
+</style>
 
-                <div class="my-3 border-t border-dashed border-gray-400"></div>
+@php
+$logo = $store['logo']
+    ? (Str::startsWith($store['logo'], ['http','https']) ? $store['logo'] : asset($store['logo']))
+    : null;
+@endphp
 
-                <div class="space-y-2">
-                    @foreach ($transaction->items as $item)
-                        <div>
-                            <div class="flex items-center justify-between">
-                                <span class="max-w-[60%] truncate">{{ $item->product?->name ?? 'Produk' }}</span>
-                                <span>Rp {{ number_format($item->total, 0, ',', '.') }}</span>
-                            </div>
-                            <div class="flex items-center justify-between text-gray-600">
-                                <span>{{ $item->quantity }} x Rp {{ number_format($item->price, 0, ',', '.') }}</span>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+<div class="max-w-5xl mx-auto space-y-4">
 
-                <div class="my-3 border-t border-dashed border-gray-400"></div>
+    <!-- ACTIONS -->
+    <div class="receipt-actions flex flex-wrap gap-2">
+        <button data-format="standard" class="btn">Preview Printer Biasa</button>
+        <button data-format="thermal80" class="btn">Preview Thermal 80mm</button>
+        <button data-format="thermal58" class="btn">Preview Thermal 58mm</button>
 
-                <div class="space-y-1">
-                    <div class="flex items-center justify-between">
-                        <span>Subtotal</span>
-                        <span>Rp {{ number_format($transaction->subtotal, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span>Diskon</span>
-                        <span>Rp {{ number_format($transaction->discount, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="flex items-center justify-between font-semibold">
-                        <span>Total</span>
-                        <span>Rp {{ number_format($transaction->total, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span>Bayar</span>
-                        <span>Rp {{ number_format($transaction->paid_amount, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span>Kembali</span>
-                        <span>Rp {{ number_format($transaction->change_amount, 0, ',', '.') }}</span>
-                    </div>
-                </div>
+        <button data-format="standard" data-print class="bg-blue-600 text-white px-4 py-2 rounded">Cetak</button>
+        <button data-format="thermal80" data-print class="bg-green-600 text-white px-4 py-2 rounded">Cetak Thermal</button>
 
-                <div class="my-3 border-t border-dashed border-gray-400"></div>
-
-                <div class="space-y-1 text-center text-gray-700">
-                    <p>Terima kasih telah berbelanja!</p>
-                    <p>Simpan struk ini sebagai bukti pembayaran.</p>
-                </div>
-            </div>
-        </div>
+        <a href="{{ route('pos.receiver.print', $transaction) }}"
+           class="bg-indigo-50 border px-4 py-2 rounded text-indigo-700">
+            Cetak Penerima
+        </a>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const layout = document.querySelector('[data-receipt-layout]');
-            const buttons = document.querySelectorAll('[data-receipt-format]');
-            const previewButtons = document.querySelectorAll('[data-receipt-format]:not([data-receipt-print])');
+    <div class="receipt-layout border p-6" data-layout data-format="standard">
 
-            const setFormat = (format) => {
-                layout.dataset.format = format;
-                previewButtons.forEach((button) => {
-                    const isActive = button.dataset.receiptFormat === format;
-                    button.classList.toggle('bg-blue-600', isActive);
-                    button.classList.toggle('text-white', isActive);
-                    button.classList.toggle('border-blue-600', isActive);
-                    button.classList.toggle('bg-white', !isActive);
-                    button.classList.toggle('text-gray-700', !isActive);
-                });
-            };
+        <!-- ================= PRINTER BIASA ================= -->
+        <div class="receipt-standard">
+            <div class="flex justify-between items-start">
+                <div>
+                    <strong>{{ $store['name'] }}</strong><br>
+                    {{ $store['address'] }}<br>
+                    Telp: {{ $store['phone'] }}
+                </div>
+                @if($logo)
+                    <img src="{{ $logo }}" style="height:70px">
+                @endif
+            </div>
 
-            buttons.forEach((button) => {
-                button.addEventListener('click', () => {
-                    const format = button.dataset.receiptFormat;
-                    setFormat(format);
+            <hr>
 
-                    if (button.dataset.receiptPrint) {
-                        window.print();
-                    }
-                });
-            });
+            <p><strong>Invoice:</strong> {{ $transaction->invoice_number }}</p>
+            <p><strong>Tanggal:</strong> {{ $transaction->created_at->format('d/m/Y H:i') }}</p>
 
-            setFormat(layout.dataset.format || 'standard');
-        });
-    </script>
+            <table width="100%" border="1" cellspacing="0" cellpadding="6">
+                <thead>
+                    <tr>
+                        <th>Produk</th>
+                        <th>Qty</th>
+                        <th>Harga</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach($transaction->items as $item)
+                    <tr>
+                        <td>{{ $item->product?->name }}</td>
+                        <td align="center">{{ $item->quantity }}</td>
+                        <td align="right">{{ number_format($item->price) }}</td>
+                        <td align="right">{{ number_format($item->total) }}</td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+
+            <p align="right"><strong>Total: Rp {{ number_format($transaction->total) }}</strong></p>
+        </div>
+
+        <!-- ================= THERMAL 80MM ================= -->
+        <div class="receipt-thermal-80 thermal">
+            <div class="center">
+                @if($logo)
+                    <img src="{{ $logo }}" style="max-width:60mm"><br>
+                @endif
+                <strong>{{ $store['name'] }}</strong><br>
+                {{ $store['phone'] }}
+            </div>
+
+            <hr>
+
+            Invoice: {{ $transaction->invoice_number }}<br>
+            {{ $transaction->created_at->format('d/m/Y H:i') }}
+
+            <hr>
+
+            @foreach($transaction->items as $item)
+                {{ $item->product?->name }}<br>
+                {{ $item->quantity }} x {{ number_format($item->price) }}
+                <div style="text-align:right">{{ number_format($item->total) }}</div>
+            @endforeach
+
+            <hr>
+            TOTAL: {{ number_format($transaction->total) }}
+        </div>
+
+        <!-- ================= THERMAL 58MM ================= -->
+        <div class="receipt-thermal-58 thermal">
+            <div class="center">
+                <strong>{{ $store['name'] }}</strong><br>
+                {{ $store['phone'] }}
+            </div>
+
+            <hr>
+
+            {{ $transaction->invoice_number }}<br>
+
+            @foreach($transaction->items as $item)
+                {{ Str::limit($item->product?->name,20) }}<br>
+                {{ $item->quantity }} x {{ number_format($item->price) }}
+                <div style="text-align:right">{{ number_format($item->total) }}</div>
+            @endforeach
+
+            <hr>
+            TOTAL<br>
+            {{ number_format($transaction->total) }}
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('[data-format]').forEach(btn=>{
+    btn.onclick=()=>{
+        document.querySelector('[data-layout]').dataset.format=btn.dataset.format;
+        if(btn.dataset.print) window.print();
+    }
+});
+</script>
 </x-app-layout>
