@@ -48,6 +48,12 @@
                     class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-700">
                     Cetak Thermal 80mm
                 </button>
+                @if ($transaction->customer)
+                    <a href="{{ route('pos.receiver.print', $transaction) }}"
+                        class="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-100">
+                        Cetak Penerima
+                    </a>
+                @endif
             </div>
         </div>
 

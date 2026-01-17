@@ -251,18 +251,26 @@ class PosController extends Controller
     {
         $transaction->load(['items.product', 'customer']);
 
-        $store = [
-            'name' => Setting::getValue(Setting::STORE_NAME, config('app.name')),
-            'address' => Setting::getValue(Setting::STORE_ADDRESS),
-            'phone' => Setting::getValue(Setting::STORE_PHONE),
-            'hours' => Setting::getValue(Setting::STORE_HOURS),
-            'logo' => Setting::getValue(Setting::STORE_LOGO_PATH),
-        ];
+        $store = $this->storeProfile();
 
         return view('pos.receipt', [
             'transaction' => $transaction,
             'store' => $store,
             'receiver' => auth()->user(),
+        ]);
+    }
+
+    public function printReceiver(Transaction $transaction)
+    {
+        $transaction->load('customer');
+
+        if (! $transaction->customer) {
+            abort(404);
+        }
+
+        return view('pos.receiver-print', [
+            'transaction' => $transaction,
+            'store' => $this->storeProfile(),
         ]);
     }
 
@@ -325,5 +333,16 @@ class PosController extends Controller
             'description' => 'Garansi produk ' . $product->name . ' (Qty: ' . $quantity . ')',
             'status' => Warranty::STATUS_ACTIVE,
         ]);
+    }
+
+    protected function storeProfile(): array
+    {
+        return [
+            'name' => Setting::getValue(Setting::STORE_NAME, config('app.name')),
+            'address' => Setting::getValue(Setting::STORE_ADDRESS),
+            'phone' => Setting::getValue(Setting::STORE_PHONE),
+            'hours' => Setting::getValue(Setting::STORE_HOURS),
+            'logo' => Setting::getValue(Setting::STORE_LOGO_PATH),
+        ];
     }
 }
