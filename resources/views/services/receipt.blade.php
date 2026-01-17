@@ -134,6 +134,7 @@
   font-size: 64px;
   font-weight: bold;
   color: rgba(0,0,0,0.15);
+  z-index: 1;
   pointer-events: none;
 }
 
@@ -203,9 +204,8 @@
 
 <div class="print-area" data-format="a5">
 
-  <div class="watermark">{{ strtoupper($store['name']) }}</div>
-
   <div class="receipt">
+    <div class="watermark">{{ strtoupper($store['name']) }}</div>
 
     {{-- ================= STANDARD ================= --}}
     <div class="receipt-standard">
