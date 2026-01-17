@@ -4,7 +4,10 @@
             <h1 class="text-2xl font-semibold text-gray-900">Detail Customer</h1>
             <p class="text-gray-600">Informasi lengkap customer.</p>
         </div>
-        <a href="{{ route('customers.edit', $customer) }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">Edit</a>
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{{ route('customers.print', $customer) }}" class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50">Cetak Alamat</a>
+            <a href="{{ route('customers.edit', $customer) }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">Edit</a>
+        </div>
     </div>
 
     <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm space-y-4">

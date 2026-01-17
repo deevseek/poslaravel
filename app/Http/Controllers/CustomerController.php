@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -40,6 +41,17 @@ class CustomerController extends Controller
     public function show(Customer $customer): View
     {
         return view('customers.show', compact('customer'));
+    }
+
+    public function print(Customer $customer): View
+    {
+        $store = [
+            'name' => Setting::getValue(Setting::STORE_NAME, config('app.name')),
+            'address' => Setting::getValue(Setting::STORE_ADDRESS),
+            'phone' => Setting::getValue(Setting::STORE_PHONE),
+        ];
+
+        return view('customers.print', compact('customer', 'store'));
     }
 
     public function edit(Customer $customer): View
