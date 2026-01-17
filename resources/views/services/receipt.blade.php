@@ -187,11 +187,23 @@
   transform: translateX(-50%) rotate(-25deg);
   font-size: 64px;
   font-weight: bold;
-  color: #000;
-  opacity: 0.07;
-  z-index: 0;
+  color: rgba(0, 0, 0, 0.12);
+  opacity: 1;
+  z-index: 1;
   white-space: nowrap;
   pointer-events: none;
+}
+
+.receipt-standard,
+.receipt-thermal {
+  position: relative;
+  z-index: 2;
+}
+
+@media print {
+  .watermark {
+    color: rgba(0, 0, 0, 0.18);
+  }
 }
 
 /* =================================================
