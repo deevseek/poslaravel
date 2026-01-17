@@ -61,13 +61,15 @@
 
     /* THERMAL 80MM */
     .receipt-layout[data-format="thermal80"] {
-        width: 80mm;
+        width: 72mm;
+        height: 297mm;
         font-size: 11px;
     }
 
     /* THERMAL 58MM */
     .receipt-layout[data-format="thermal58"] {
-        width: 58mm;
+        width: 48mm;
+        height: 297mm;
         font-size: 10px;
     }
 }
@@ -314,8 +316,8 @@ const layout = document.querySelector('[data-layout]');
 const pageStyle = document.getElementById('print-page-style');
 const pageSizes = {
     standard: { size: 'A4', margin: '10mm' },
-    thermal80: { size: '80mm auto', margin: '4mm' },
-    thermal58: { size: '58mm auto', margin: '4mm' },
+    thermal80: { size: '72mm 297mm', margin: '4mm' },
+    thermal58: { size: '48mm 297mm', margin: '4mm' },
 };
 
 const applyPageStyle = (format) => {

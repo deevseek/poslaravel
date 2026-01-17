@@ -44,10 +44,12 @@
 
   /* THERMAL */
   .print-area[data-format="thermal-80"] {
-    width: 80mm;
+    width: 72mm;
+    height: 297mm;
   }
   .print-area[data-format="thermal-58"] {
-    width: 58mm;
+    width: 48mm;
+    height: 297mm;
   }
 }
 
