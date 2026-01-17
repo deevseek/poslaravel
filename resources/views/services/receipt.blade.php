@@ -23,7 +23,7 @@
 ================================================== */
 @media print {
   @page {
-    size: Letter;
+    size: 210mm 145mm;
     margin: 0;
   }
 }
@@ -34,7 +34,7 @@
 @media print {
   .print-area[data-format="a5"] {
     width: 210mm;
-    height: 148mm;
+    height: 145mm;
   }
   .print-area[data-format="letter-half"] {
     width: 8.5in;
@@ -257,7 +257,7 @@
 
 {{-- ACTION --}}
 <div class="no-print mb-3 flex flex-wrap gap-2">
-  <button onclick="setFormat('a5')" class="border px-3 py-1">A5</button>
+  <button onclick="setFormat('a5')" class="border px-3 py-1">21 x 14,5 cm</button>
   <button onclick="setFormat('letter-half')" class="border px-3 py-1">Letter ½</button>
   <button onclick="setFormat('thermal-80')" class="border px-3 py-1">Thermal 80mm</button>
   <button onclick="setFormat('thermal-58')" class="border px-3 py-1">Thermal 58mm</button>
