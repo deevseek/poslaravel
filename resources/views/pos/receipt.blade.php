@@ -93,6 +93,11 @@
     max-width: 60mm;
 }
 
+.receipt-layout[data-format="thermal80"] .thermal-logo {
+    max-width: 40mm;
+    max-height: 18mm;
+}
+
 .receipt-header {
     display: flex;
     justify-content: space-between;
