@@ -1,13 +1,16 @@
 <x-app-layout title="Struk Pembayaran">
+
 <style>
-/* ================== GLOBAL ================== */
+/* =====================================================
+   GLOBAL
+===================================================== */
 .receipt-layout {
     margin: 0 auto;
-    background: white;
+    background: #fff;
     color: #111827;
-    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
     position: relative;
-    overflow: hidden;
+    box-sizing: border-box;
 }
 
 .receipt-standard,
@@ -18,65 +21,122 @@
     z-index: 1;
 }
 
-/* ================== MODE SWITCH ================== */
+/* =====================================================
+   MODE SWITCH
+===================================================== */
 .receipt-layout[data-format="standard"] .receipt-standard {
     display: block;
 }
-
 .receipt-layout[data-format="thermal80"] .receipt-thermal-80 {
     display: block;
 }
-
 .receipt-layout[data-format="thermal58"] .receipt-thermal-58 {
     display: block;
 }
 
-/* ================== PRINT ================== */
+/* =====================================================
+   PRINT (FINAL & AMAN)
+===================================================== */
 @media print {
     @page {
-        size: 210mm 145mm;
-        margin: 10mm 30mm;
+        size: A4;
+        margin: 10mm; /* KIRI-KANAN SAMA */
     }
 
     body {
-        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
     }
 
     .receipt-actions {
         display: none !important;
     }
 
-    .receipt-layout {
-        box-shadow: none !important;
-        border: none !important;
-        padding: 0 !important;
-    }
-
     /* PRINTER BIASA */
     .receipt-layout[data-format="standard"] {
-        width: 210mm;
-        min-height: 145mm;
-        font-size: 12px;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
     }
 
-    /* THERMAL 80MM */
+    /* THERMAL */
     .receipt-layout[data-format="thermal80"] {
         width: 72mm;
-        height: 297mm;
-        font-size: 11px;
+        margin: 0;
     }
 
-    /* THERMAL 58MM */
     .receipt-layout[data-format="thermal58"] {
         width: 48mm;
-        height: 297mm;
-        font-size: 10px;
+        margin: 0;
     }
 }
 
-/* ================== THERMAL ================== */
+/* =====================================================
+   WATERMARK
+===================================================== */
+.receipt-watermark {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 64px;
+    font-weight: 700;
+    color: #000;
+    opacity: 0.06;
+    transform: rotate(-20deg);
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 0;
+}
+
+/* =====================================================
+   STANDARD RECEIPT
+===================================================== */
+.receipt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.receipt-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.receipt-table th,
+.receipt-table td {
+    padding: 6px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.receipt-total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 2px solid #000;
+}
+
+.receipt-note {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* =====================================================
+   THERMAL
+===================================================== */
 .thermal {
     font-family: monospace;
+    font-size: 11px;
     line-height: 1.4;
 }
 
@@ -92,81 +152,7 @@
 .thermal-logo {
     display: block;
     margin: 0 auto 4px;
-    max-width: 60mm;
-}
-
-.receipt-layout[data-format="thermal80"] .thermal-logo {
     max-width: 40mm;
-    max-height: 18mm;
-}
-
-.receipt-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 16px;
-}
-
-.receipt-store {
-    line-height: 1.5;
-}
-
-.receipt-meta {
-    font-size: 12px;
-    color: #6b7280;
-}
-
-.receipt-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-}
-
-.receipt-table th {
-    text-align: left;
-    font-weight: 600;
-    color: #374151;
-    padding: 8px 6px;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.receipt-table td {
-    padding: 8px 6px;
-    border-bottom: 1px solid #f3f4f6;
-    vertical-align: top;
-}
-
-.receipt-total {
-    display: flex;
-    justify-content: space-between;
-    font-weight: 700;
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid #e5e7eb;
-}
-
-.receipt-note {
-    font-size: 11px;
-    color: #6b7280;
-    text-align: center;
-    margin-top: 14px;
-}
-
-.receipt-watermark {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 64px;
-    font-weight: 700;
-    color: #000;
-    opacity: 0.06;
-    transform: rotate(-20deg);
-    z-index: 0;
-    pointer-events: none;
-    text-align: center;
-    white-space: nowrap;
 }
 </style>
 
@@ -180,37 +166,31 @@ $logo = $store['logo']
 
     <!-- ACTIONS -->
     <div class="receipt-actions flex flex-wrap gap-2">
-        <button data-format="standard" class="btn">Preview Printer Biasa</button>
-        <button data-format="thermal80" class="btn">Preview Thermal 80mm</button>
-        <button data-format="thermal58" class="btn">Preview Thermal 58mm</button>
+        <button data-format="standard" class="border px-3 py-2">Preview Printer</button>
+        <button data-format="thermal80" class="border px-3 py-2">Preview Thermal 80mm</button>
+        <button data-format="thermal58" class="border px-3 py-2">Preview Thermal 58mm</button>
 
-        <button data-format="standard" data-print="true" class="bg-blue-600 text-white px-4 py-2 rounded">Cetak</button>
-        <button data-format="thermal80" data-print="true" class="bg-green-600 text-white px-4 py-2 rounded">Cetak Thermal</button>
-        <button data-format="thermal58" data-print="true" class="bg-emerald-600 text-white px-4 py-2 rounded">Cetak Thermal 58mm</button>
-
-        <a href="{{ route('pos.receiver.print', $transaction) }}"
-           class="bg-indigo-50 border px-4 py-2 rounded text-indigo-700">
-            Cetak Penerima
-        </a>
+        <button data-format="standard" data-print class="bg-blue-600 text-white px-4 py-2 rounded">Cetak</button>
+        <button data-format="thermal80" data-print class="bg-green-600 text-white px-4 py-2 rounded">Cetak Thermal</button>
     </div>
 
     <div class="receipt-layout border p-6" data-layout data-format="standard">
         <div class="receipt-watermark">{{ strtoupper($store['name']) }}</div>
 
-        <!-- ================= PRINTER BIASA ================= -->
+        <!-- ================= STANDARD ================= -->
         <div class="receipt-standard">
             <div class="receipt-header">
-                <div class="receipt-store">
-                    <div class="text-lg font-semibold">{{ $store['name'] }}</div>
-                    <div>{{ $store['address'] }}</div>
-                    <div>Telp: {{ $store['phone'] }}</div>
+                <div>
+                    <strong>{{ $store['name'] }}</strong><br>
+                    {{ $store['address'] }}<br>
+                    Telp: {{ $store['phone'] }}
                 </div>
                 @if($logo)
-                    <img src="{{ $logo }}" alt="Logo {{ $store['name'] }}" style="height:70px">
+                    <img src="{{ $logo }}" style="height:70px">
                 @endif
             </div>
 
-            <div class="receipt-meta mt-3">
+            <div class="mt-3">
                 <div><strong>Invoice:</strong> {{ $transaction->invoice_number }}</div>
                 <div><strong>Tanggal:</strong> {{ $transaction->created_at->format('d/m/Y H:i') }}</div>
             </div>
@@ -237,105 +217,80 @@ $logo = $store['logo']
             </table>
 
             <div class="receipt-total">
-                <span>Total</span>
+                <span>TOTAL</span>
                 <span>Rp {{ number_format($transaction->total) }}</span>
             </div>
 
             <div class="receipt-note">Terima kasih telah berbelanja.</div>
         </div>
 
-        <!-- ================= THERMAL 80MM ================= -->
+        <!-- ================= THERMAL 80 ================= -->
         <div class="receipt-thermal-80 thermal">
             <div class="center">
-                @if($logo)
-                    <img src="{{ $logo }}" alt="Logo {{ $store['name'] }}" class="thermal-logo">
-                @endif
+                @if($logo)<img src="{{ $logo }}" class="thermal-logo">@endif
                 <strong>{{ $store['name'] }}</strong><br>
-                {{ $store['address'] }}<br>
                 {{ $store['phone'] }}
             </div>
 
             <hr>
 
-            <div>Invoice: {{ $transaction->invoice_number }}</div>
-            <div>{{ $transaction->created_at->format('d/m/Y H:i') }}</div>
+            Invoice: {{ $transaction->invoice_number }}<br>
+            {{ $transaction->created_at->format('d/m/Y H:i') }}
 
             <hr>
 
             @foreach($transaction->items as $item)
                 <div><strong>{{ $item->product?->name }}</strong></div>
-                <div class="flex justify-between">
+                <div style="display:flex;justify-content:space-between">
                     <span>{{ $item->quantity }} x {{ number_format($item->price) }}</span>
                     <span>{{ number_format($item->total) }}</span>
                 </div>
             @endforeach
 
             <hr>
-            <div class="flex justify-between">
-                <strong>TOTAL</strong>
-                <strong>{{ number_format($transaction->total) }}</strong>
+
+            <div style="display:flex;justify-content:space-between;font-weight:bold">
+                <span>TOTAL</span>
+                <span>{{ number_format($transaction->total) }}</span>
             </div>
-            <div class="center text-xs mt-2">Terima kasih.</div>
         </div>
 
-        <!-- ================= THERMAL 58MM ================= -->
+        <!-- ================= THERMAL 58 ================= -->
         <div class="receipt-thermal-58 thermal">
             <div class="center">
                 <strong>{{ $store['name'] }}</strong><br>
-                {{ $store['address'] }}<br>
                 {{ $store['phone'] }}
             </div>
 
             <hr>
 
-            <div>Invoice: {{ $transaction->invoice_number }}</div>
-            <div>{{ $transaction->created_at->format('d/m/Y H:i') }}</div>
-
             @foreach($transaction->items as $item)
                 <div><strong>{{ Str::limit($item->product?->name, 22) }}</strong></div>
-                <div class="flex justify-between">
+                <div style="display:flex;justify-content:space-between">
                     <span>{{ $item->quantity }} x {{ number_format($item->price) }}</span>
                     <span>{{ number_format($item->total) }}</span>
                 </div>
             @endforeach
 
             <hr>
-            <div class="flex justify-between">
-                <strong>TOTAL</strong>
-                <strong>{{ number_format($transaction->total) }}</strong>
+
+            <div style="display:flex;justify-content:space-between;font-weight:bold">
+                <span>TOTAL</span>
+                <span>{{ number_format($transaction->total) }}</span>
             </div>
-            <div class="center text-xs mt-2">Terima kasih.</div>
         </div>
 
     </div>
 </div>
 
-<style id="print-page-style"></style>
 <script>
 const layout = document.querySelector('[data-layout]');
-const pageStyle = document.getElementById('print-page-style');
-const pageSizes = {
-    standard: { size: '210mm 145mm', margin: '10mm 30mm' },
-    thermal80: { size: '72mm 297mm', margin: '4mm' },
-    thermal58: { size: '48mm 297mm', margin: '4mm' },
-};
-
-const applyPageStyle = (format) => {
-    const config = pageSizes[format] ?? pageSizes.standard;
-    pageStyle.textContent = `@media print { @page { size: ${config.size}; margin: ${config.margin}; } }`;
-};
-
-document.querySelectorAll('.receipt-actions [data-format]').forEach(btn => {
+document.querySelectorAll('[data-format]').forEach(btn => {
     btn.onclick = () => {
-        const format = btn.dataset.format;
-        layout.dataset.format = format;
-        applyPageStyle(format);
-        if (btn.hasAttribute('data-print')) {
-            window.print();
-        }
+        layout.dataset.format = btn.dataset.format;
+        if (btn.hasAttribute('data-print')) window.print();
     };
 });
-
-applyPageStyle(layout.dataset.format);
 </script>
+
 </x-app-layout>
