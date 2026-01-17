@@ -35,7 +35,7 @@
 @media print {
     @page {
         size: 210mm 145mm;
-        margin: 6mm;
+        margin: 10mm 30mm;
     }
 
     body {
@@ -315,7 +315,7 @@ $logo = $store['logo']
 const layout = document.querySelector('[data-layout]');
 const pageStyle = document.getElementById('print-page-style');
 const pageSizes = {
-    standard: { size: '210mm 145mm', margin: '6mm' },
+    standard: { size: '210mm 145mm', margin: '10mm 30mm' },
     thermal80: { size: '72mm 297mm', margin: '4mm' },
     thermal58: { size: '48mm 297mm', margin: '4mm' },
 };
