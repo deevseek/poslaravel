@@ -6,12 +6,16 @@
     background: white;
     color: #111827;
     font-family: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    position: relative;
+    overflow: hidden;
 }
 
 .receipt-standard,
 .receipt-thermal-80,
 .receipt-thermal-58 {
     display: none;
+    position: relative;
+    z-index: 1;
 }
 
 /* ================== MODE SWITCH ================== */
@@ -134,6 +138,23 @@
     text-align: center;
     margin-top: 14px;
 }
+
+.receipt-watermark {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 64px;
+    font-weight: 700;
+    color: #000;
+    opacity: 0.06;
+    transform: rotate(-20deg);
+    z-index: 0;
+    pointer-events: none;
+    text-align: center;
+    white-space: nowrap;
+}
 </style>
 
 @php
@@ -161,6 +182,7 @@ $logo = $store['logo']
     </div>
 
     <div class="receipt-layout border p-6" data-layout data-format="standard">
+        <div class="receipt-watermark">{{ strtoupper($store['name']) }}</div>
 
         <!-- ================= PRINTER BIASA ================= -->
         <div class="receipt-standard">
