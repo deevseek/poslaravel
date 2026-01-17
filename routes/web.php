@@ -50,6 +50,9 @@ Route::middleware(['auth'])->group(function () {
         ->middleware(['feature:settings', 'can:settings.update'])
         ->name('settings.update');
 
+    Route::post('customers/import', [CustomerController::class, 'importCsv'])
+        ->middleware(['feature:customers', 'can:customer.manage'])
+        ->name('customers.import');
     Route::resource('customers', CustomerController::class)
         ->middleware(['feature:customers', 'can:customer.manage']);
     Route::resource('suppliers', SupplierController::class)
