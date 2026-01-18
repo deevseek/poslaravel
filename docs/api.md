@@ -218,6 +218,226 @@ Authorization: Bearer <token>
 Content-Type: application/json
 ```
 
+## Products
+
+Modul ini digunakan untuk mengelola data produk.
+
+### Data Object
+
+Representasi produk pada response.
+
+```json
+{
+  "id": 12,
+  "category_id": 3,
+  "name": "Keyboard Mechanical",
+  "sku": "KBD-2503-0001",
+  "cost_price": "350000.00",
+  "avg_cost": "345000.00",
+  "price": "525000.00",
+  "pricing_mode": "percentage",
+  "margin_percentage": "50.00",
+  "stock": 25,
+  "warranty_days": 180,
+  "description": "Switch blue",
+  "created_at": "2025-03-10T08:00:00.000000Z",
+  "updated_at": "2025-03-10T08:00:00.000000Z",
+  "category": {
+    "id": 3,
+    "name": "Aksesoris"
+  }
+}
+```
+
+### List Products
+
+`GET /products`
+
+**Query Parameters (Opsional)**
+- `search` (string): pencarian berdasarkan `name` atau `sku`.
+- `category_id` (integer): filter kategori.
+- `per_page` (integer, default 15): jumlah data per halaman.
+
+**Response**
+```json
+{
+  "data": [
+    {
+      "id": 12,
+      "category_id": 3,
+      "name": "Keyboard Mechanical",
+      "sku": "KBD-2503-0001",
+      "cost_price": "350000.00",
+      "avg_cost": "345000.00",
+      "price": "525000.00",
+      "pricing_mode": "percentage",
+      "margin_percentage": "50.00",
+      "stock": 25,
+      "warranty_days": 180,
+      "description": "Switch blue",
+      "created_at": "2025-03-10T08:00:00.000000Z",
+      "updated_at": "2025-03-10T08:00:00.000000Z",
+      "category": {
+        "id": 3,
+        "name": "Aksesoris"
+      }
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "last_page": 4,
+    "per_page": 15,
+    "total": 56,
+    "from": 1,
+    "to": 15
+  },
+  "links": {
+    "first": "https://<domain>/api/v1/products?page=1",
+    "last": "https://<domain>/api/v1/products?page=4",
+    "prev": null,
+    "next": "https://<domain>/api/v1/products?page=2"
+  }
+}
+```
+
+### Detail Product
+
+`GET /products/{id}`
+
+**Response**
+```json
+{
+  "data": {
+    "id": 12,
+    "category_id": 3,
+    "name": "Keyboard Mechanical",
+    "sku": "KBD-2503-0001",
+    "cost_price": "350000.00",
+    "avg_cost": "345000.00",
+    "price": "525000.00",
+    "pricing_mode": "percentage",
+    "margin_percentage": "50.00",
+    "stock": 25,
+    "warranty_days": 180,
+    "description": "Switch blue",
+    "created_at": "2025-03-10T08:00:00.000000Z",
+    "updated_at": "2025-03-10T08:00:00.000000Z",
+    "category": {
+      "id": 3,
+      "name": "Aksesoris"
+    }
+  }
+}
+```
+
+### Create Product
+
+`POST /products`
+
+**Request Body**
+```json
+{
+  "category_id": 3,
+  "name": "Keyboard Mechanical",
+  "sku": "KBD-2503-0001",
+  "cost_price": 350000,
+  "price": 525000,
+  "pricing_mode": "manual",
+  "margin_percentage": null,
+  "stock": 25,
+  "warranty_days": 180,
+  "description": "Switch blue"
+}
+```
+
+**Validasi & Aturan**
+- `category_id` wajib dan harus ada di tabel categories.
+- `name` wajib, maksimal 255 karakter.
+- `sku` opsional, unik. Jika tidak diisi, sistem akan membuatkan otomatis berdasarkan kategori.
+- `pricing_mode` wajib: `manual` atau `percentage`.
+- Jika `pricing_mode` = `manual`, maka `price` wajib.
+- Jika `pricing_mode` = `percentage`, maka `cost_price` dan `margin_percentage` wajib, `cost_price` > 0, dan `price` akan dihitung otomatis.
+- `stock` wajib dan minimum 0.
+
+**Response (201)**
+```json
+{
+  "data": {
+    "id": 12,
+    "category_id": 3,
+    "name": "Keyboard Mechanical",
+    "sku": "KBD-2503-0001",
+    "cost_price": "350000.00",
+    "avg_cost": "0.00",
+    "price": "525000.00",
+    "pricing_mode": "manual",
+    "margin_percentage": null,
+    "stock": 25,
+    "warranty_days": 180,
+    "description": "Switch blue",
+    "created_at": "2025-03-10T08:00:00.000000Z",
+    "updated_at": "2025-03-10T08:00:00.000000Z"
+  }
+}
+```
+
+### Update Product
+
+`PUT /products/{id}` atau `PATCH /products/{id}`
+
+**Request Body (Contoh)**
+```json
+{
+  "pricing_mode": "percentage",
+  "cost_price": 400000,
+  "margin_percentage": 30,
+  "stock": 30
+}
+```
+
+**Validasi & Aturan**
+- Semua field bersifat opsional, namun akan divalidasi jika dikirim.
+- Jika `pricing_mode` berubah menjadi `manual`, `margin_percentage` akan diset `null`.
+- Jika `pricing_mode` = `percentage` dan `margin_percentage` tersedia, `price` dihitung ulang otomatis dari `cost_price` dan `margin_percentage`.
+- `sku` harus unik terhadap produk lain.
+
+**Response**
+```json
+{
+  "data": {
+    "id": 12,
+    "category_id": 3,
+    "name": "Keyboard Mechanical",
+    "sku": "KBD-2503-0001",
+    "cost_price": "400000.00",
+    "avg_cost": "345000.00",
+    "price": "520000.00",
+    "pricing_mode": "percentage",
+    "margin_percentage": "30.00",
+    "stock": 30,
+    "warranty_days": 180,
+    "description": "Switch blue",
+    "created_at": "2025-03-10T08:00:00.000000Z",
+    "updated_at": "2025-03-10T09:00:00.000000Z",
+    "category": {
+      "id": 3,
+      "name": "Aksesoris"
+    }
+  }
+}
+```
+
+### Delete Product
+
+`DELETE /products/{id}`
+
+**Response**
+```json
+{
+  "message": "Deleted."
+}
+```
+
 Untuk upload file (absensi wajah), gunakan `multipart/form-data`.
 
 ## Format Response
