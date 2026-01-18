@@ -218,6 +218,359 @@ Authorization: Bearer <token>
 Content-Type: application/json
 ```
 
+## Modul Pembelanjaan (Purchases)
+
+Modul pembelanjaan terdiri dari 2 resource utama:
+
+- **Purchases** (`/purchases`): pencatatan transaksi pembelian dari supplier.
+- **Purchase Items** (`/purchase-items`): detail item pembelian per produk.
+
+### Catatan Umum
+
+- Semua endpoint berada di bawah base path `/api/v1`.
+- Semua request membutuhkan header `Authorization: Bearer <token>`.
+- `payment_status` hanya menerima nilai `paid` atau `debt`.
+- Endpoint `POST /purchases` akan:
+  - Menghasilkan `invoice_number` otomatis.
+  - Menghitung `total_amount` dari jumlah `items`.
+  - Membuat `purchase_items`.
+  - Memperbarui stok produk, `avg_cost`, `cost_price`, dan harga jual (jika mode persentase).
+  - Mencatat pergerakan stok (`stock_movements`) dengan `source=purchase`.
+- Endpoint `purchase-items` bersifat CRUD generik (tanpa logika stok/total). Gunakan `POST /purchases` untuk pencatatan pembelian lengkap.
+
+### Purchases - List
+
+`GET /purchases`
+
+**Query Parameter (Opsional)**
+- `search` (string): mencari berdasarkan `invoice_number`, `notes`, atau `supplier.name`.
+- `per_page` (integer, default 15): jumlah data per halaman.
+
+**Response**
+```json
+{
+  "data": [
+    {
+      "id": 12,
+      "supplier_id": 3,
+      "invoice_number": "PB-20260310-0001",
+      "purchase_date": "2026-03-10",
+      "payment_status": "paid",
+      "total_amount": "1250000.00",
+      "notes": "Pembelian stok awal",
+      "supplier": {
+        "id": 3,
+        "name": "PT Sumber Jaya"
+      },
+      "items": [
+        {
+          "id": 90,
+          "purchase_id": 12,
+          "product_id": 5,
+          "quantity": 10,
+          "price": "125000.00",
+          "subtotal": "1250000.00",
+          "product": {
+            "id": 5,
+            "name": "Printer Ink",
+            "sku": "PRN-INK-01"
+          }
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "last_page": 2,
+    "per_page": 15,
+    "total": 20,
+    "from": 1,
+    "to": 15
+  },
+  "links": {
+    "first": "https://<domain>/api/v1/purchases?page=1",
+    "last": "https://<domain>/api/v1/purchases?page=2",
+    "prev": null,
+    "next": "https://<domain>/api/v1/purchases?page=2"
+  }
+}
+```
+
+### Purchases - Detail
+
+`GET /purchases/{id}`
+
+**Response**
+```json
+{
+  "data": {
+    "id": 12,
+    "supplier_id": 3,
+    "invoice_number": "PB-20260310-0001",
+    "purchase_date": "2026-03-10",
+    "payment_status": "paid",
+    "total_amount": "1250000.00",
+    "notes": "Pembelian stok awal",
+    "supplier": {
+      "id": 3,
+      "name": "PT Sumber Jaya"
+    },
+    "items": [
+      {
+        "id": 90,
+        "purchase_id": 12,
+        "product_id": 5,
+        "quantity": 10,
+        "price": "125000.00",
+        "subtotal": "1250000.00",
+        "product": {
+          "id": 5,
+          "name": "Printer Ink",
+          "sku": "PRN-INK-01"
+        }
+      }
+    ]
+  }
+}
+```
+
+### Purchases - Create
+
+`POST /purchases`
+
+**Request**
+```json
+{
+  "supplier_id": 3,
+  "purchase_date": "2026-03-10",
+  "payment_status": "paid",
+  "notes": "Pembelian stok awal",
+  "items": [
+    {
+      "product_id": 5,
+      "quantity": 10,
+      "price": 125000
+    }
+  ]
+}
+```
+
+**Response (201)**
+```json
+{
+  "data": {
+    "id": 12,
+    "supplier_id": 3,
+    "invoice_number": "PB-20260310-0001",
+    "purchase_date": "2026-03-10",
+    "payment_status": "paid",
+    "total_amount": "1250000.00",
+    "notes": "Pembelian stok awal",
+    "supplier": {
+      "id": 3,
+      "name": "PT Sumber Jaya"
+    },
+    "items": [
+      {
+        "id": 90,
+        "purchase_id": 12,
+        "product_id": 5,
+        "quantity": 10,
+        "price": "125000.00",
+        "subtotal": "1250000.00",
+        "product": {
+          "id": 5,
+          "name": "Printer Ink",
+          "sku": "PRN-INK-01"
+        }
+      }
+    ]
+  }
+}
+```
+
+### Purchases - Update
+
+`PATCH /purchases/{id}`
+
+**Request**
+```json
+{
+  "payment_status": "debt",
+  "notes": "Pembayaran tempo 14 hari"
+}
+```
+
+**Response**
+```json
+{
+  "data": {
+    "id": 12,
+    "supplier_id": 3,
+    "invoice_number": "PB-20260310-0001",
+    "purchase_date": "2026-03-10",
+    "payment_status": "debt",
+    "total_amount": "1250000.00",
+    "notes": "Pembayaran tempo 14 hari",
+    "supplier": {
+      "id": 3,
+      "name": "PT Sumber Jaya"
+    },
+    "items": [
+      {
+        "id": 90,
+        "purchase_id": 12,
+        "product_id": 5,
+        "quantity": 10,
+        "price": "125000.00",
+        "subtotal": "1250000.00",
+        "product": {
+          "id": 5,
+          "name": "Printer Ink",
+          "sku": "PRN-INK-01"
+        }
+      }
+    ]
+  }
+}
+```
+
+### Purchase Items - List
+
+`GET /purchase-items`
+
+**Query Parameter (Opsional)**
+- `search` (string): mencari berdasarkan `purchase_id` atau `product_id`.
+- `per_page` (integer, default 15): jumlah data per halaman.
+
+**Response**
+```json
+{
+  "current_page": 1,
+  "data": [
+    {
+      "id": 90,
+      "purchase_id": 12,
+      "product_id": 5,
+      "quantity": 10,
+      "price": "125000.00",
+      "subtotal": "1250000.00"
+    }
+  ],
+  "first_page_url": "https://<domain>/api/v1/purchase-items?page=1",
+  "from": 1,
+  "last_page": 1,
+  "last_page_url": "https://<domain>/api/v1/purchase-items?page=1",
+  "links": [
+    {
+      "url": null,
+      "label": "&laquo; Previous",
+      "active": false
+    },
+    {
+      "url": "https://<domain>/api/v1/purchase-items?page=1",
+      "label": "1",
+      "active": true
+    },
+    {
+      "url": null,
+      "label": "Next &raquo;",
+      "active": false
+    }
+  ],
+  "next_page_url": null,
+  "path": "https://<domain>/api/v1/purchase-items",
+  "per_page": 15,
+  "prev_page_url": null,
+  "to": 1,
+  "total": 1
+}
+```
+
+### Purchase Items - Detail
+
+`GET /purchase-items/{id}`
+
+**Response**
+```json
+{
+  "data": {
+    "id": 90,
+    "purchase_id": 12,
+    "product_id": 5,
+    "quantity": 10,
+    "price": "125000.00",
+    "subtotal": "1250000.00"
+  }
+}
+```
+
+### Purchase Items - Create
+
+`POST /purchase-items`
+
+**Request**
+```json
+{
+  "purchase_id": 12,
+  "product_id": 5,
+  "quantity": 10,
+  "price": 125000,
+  "subtotal": 1250000
+}
+```
+
+**Response (201)**
+```json
+{
+  "data": {
+    "id": 91,
+    "purchase_id": 12,
+    "product_id": 5,
+    "quantity": 10,
+    "price": "125000.00",
+    "subtotal": "1250000.00"
+  }
+}
+```
+
+### Purchase Items - Update
+
+`PATCH /purchase-items/{id}`
+
+**Request**
+```json
+{
+  "quantity": 12,
+  "subtotal": 1500000
+}
+```
+
+**Response**
+```json
+{
+  "data": {
+    "id": 91,
+    "purchase_id": 12,
+    "product_id": 5,
+    "quantity": 12,
+    "price": "125000.00",
+    "subtotal": "1500000.00"
+  }
+}
+```
+
+### Purchase Items - Delete
+
+`DELETE /purchase-items/{id}`
+
+**Response**
+```json
+{
+  "message": "Deleted."
+}
+```
+
 ## Products
 
 Modul ini digunakan untuk mengelola data produk.
