@@ -435,18 +435,51 @@ Modul pembelanjaan terdiri dari 2 resource utama:
 }
 ```
 
+### Purchase Items (Purchasing Item)
+
+Modul ini mencatat detail item pembelian per produk. Endpoint ini bersifat CRUD generik, tanpa pembaruan stok otomatis. Untuk pencatatan pembelian lengkap dan pembaruan stok, gunakan `POST /purchases`.
+
+### Data Object
+
+Representasi purchase item pada response.
+
+```json
+{
+  "id": 90,
+  "purchase_id": 12,
+  "product_id": 5,
+  "quantity": 10,
+  "price": "125000.00",
+  "subtotal": "1250000.00",
+  "purchase": {
+    "id": 12,
+    "invoice_number": "INV-2503-0001",
+    "supplier_id": 3,
+    "purchase_date": "2026-03-10",
+    "payment_status": "paid",
+    "total_amount": "1250000.00"
+  },
+  "product": {
+    "id": 5,
+    "name": "Printer Ink",
+    "sku": "PRN-INK-01"
+  }
+}
+```
+
 ### Purchase Items - List
 
 `GET /purchase-items`
 
 **Query Parameter (Opsional)**
 - `search` (string): mencari berdasarkan `purchase_id` atau `product_id`.
+- `purchase_id` (integer): filter berdasarkan `purchase_id`.
+- `product_id` (integer): filter berdasarkan `product_id`.
 - `per_page` (integer, default 15): jumlah data per halaman.
 
 **Response**
 ```json
 {
-  "current_page": 1,
   "data": [
     {
       "id": 90,
@@ -454,36 +487,36 @@ Modul pembelanjaan terdiri dari 2 resource utama:
       "product_id": 5,
       "quantity": 10,
       "price": "125000.00",
-      "subtotal": "1250000.00"
+      "subtotal": "1250000.00",
+      "purchase": {
+        "id": 12,
+        "invoice_number": "INV-2503-0001",
+        "supplier_id": 3,
+        "purchase_date": "2026-03-10",
+        "payment_status": "paid",
+        "total_amount": "1250000.00"
+      },
+      "product": {
+        "id": 5,
+        "name": "Printer Ink",
+        "sku": "PRN-INK-01"
+      }
     }
   ],
-  "first_page_url": "https://<domain>/api/v1/purchase-items?page=1",
-  "from": 1,
-  "last_page": 1,
-  "last_page_url": "https://<domain>/api/v1/purchase-items?page=1",
-  "links": [
-    {
-      "url": null,
-      "label": "&laquo; Previous",
-      "active": false
-    },
-    {
-      "url": "https://<domain>/api/v1/purchase-items?page=1",
-      "label": "1",
-      "active": true
-    },
-    {
-      "url": null,
-      "label": "Next &raquo;",
-      "active": false
-    }
-  ],
-  "next_page_url": null,
-  "path": "https://<domain>/api/v1/purchase-items",
-  "per_page": 15,
-  "prev_page_url": null,
-  "to": 1,
-  "total": 1
+  "meta": {
+    "current_page": 1,
+    "last_page": 1,
+    "per_page": 15,
+    "total": 1,
+    "from": 1,
+    "to": 1
+  },
+  "links": {
+    "first": "https://<domain>/api/v1/purchase-items?page=1",
+    "last": "https://<domain>/api/v1/purchase-items?page=1",
+    "prev": null,
+    "next": null
+  }
 }
 ```
 
@@ -500,7 +533,20 @@ Modul pembelanjaan terdiri dari 2 resource utama:
     "product_id": 5,
     "quantity": 10,
     "price": "125000.00",
-    "subtotal": "1250000.00"
+    "subtotal": "1250000.00",
+    "purchase": {
+      "id": 12,
+      "invoice_number": "INV-2503-0001",
+      "supplier_id": 3,
+      "purchase_date": "2026-03-10",
+      "payment_status": "paid",
+      "total_amount": "1250000.00"
+    },
+    "product": {
+      "id": 5,
+      "name": "Printer Ink",
+      "sku": "PRN-INK-01"
+    }
   }
 }
 ```
@@ -509,16 +555,24 @@ Modul pembelanjaan terdiri dari 2 resource utama:
 
 `POST /purchase-items`
 
+**Request Body**
+- `purchase_id` (integer, required): harus terdaftar di tabel `purchases`.
+- `product_id` (integer, required): harus terdaftar di tabel `products`.
+- `quantity` (integer, required, min 1): jumlah item.
+- `price` (number, required, min 0): harga satuan.
+
 **Request**
 ```json
 {
   "purchase_id": 12,
   "product_id": 5,
   "quantity": 10,
-  "price": 125000,
-  "subtotal": 1250000
+  "price": 125000
 }
 ```
+
+**Catatan**
+- `subtotal` dihitung otomatis dari `quantity * price` oleh sistem.
 
 **Response (201)**
 ```json
@@ -529,7 +583,20 @@ Modul pembelanjaan terdiri dari 2 resource utama:
     "product_id": 5,
     "quantity": 10,
     "price": "125000.00",
-    "subtotal": "1250000.00"
+    "subtotal": "1250000.00",
+    "purchase": {
+      "id": 12,
+      "invoice_number": "INV-2503-0001",
+      "supplier_id": 3,
+      "purchase_date": "2026-03-10",
+      "payment_status": "paid",
+      "total_amount": "1250000.00"
+    },
+    "product": {
+      "id": 5,
+      "name": "Printer Ink",
+      "sku": "PRN-INK-01"
+    }
   }
 }
 ```
@@ -538,13 +605,22 @@ Modul pembelanjaan terdiri dari 2 resource utama:
 
 `PATCH /purchase-items/{id}`
 
+**Request Body**
+- `purchase_id` (integer, opsional): harus terdaftar di tabel `purchases`.
+- `product_id` (integer, opsional): harus terdaftar di tabel `products`.
+- `quantity` (integer, opsional, min 1): jumlah item.
+- `price` (number, opsional, min 0): harga satuan.
+
 **Request**
 ```json
 {
   "quantity": 12,
-  "subtotal": 1500000
+  "price": 125000
 }
 ```
+
+**Catatan**
+- Jika hanya mengubah `quantity` atau `price`, sistem akan menghitung ulang `subtotal`.
 
 **Response**
 ```json
@@ -555,7 +631,20 @@ Modul pembelanjaan terdiri dari 2 resource utama:
     "product_id": 5,
     "quantity": 12,
     "price": "125000.00",
-    "subtotal": "1500000.00"
+    "subtotal": "1500000.00",
+    "purchase": {
+      "id": 12,
+      "invoice_number": "INV-2503-0001",
+      "supplier_id": 3,
+      "purchase_date": "2026-03-10",
+      "payment_status": "paid",
+      "total_amount": "1250000.00"
+    },
+    "product": {
+      "id": 5,
+      "name": "Printer Ink",
+      "sku": "PRN-INK-01"
+    }
   }
 }
 ```
